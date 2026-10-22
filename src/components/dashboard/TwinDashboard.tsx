@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { LazyTwin } from "@/components/twin/LazyTwin";
 import { useTwinStore } from "@/store/useTwinStore";
 import { Charts } from "./Charts";
 import { Compare } from "./Compare";
@@ -39,9 +40,7 @@ export function TwinDashboard() {
             className={styles.sitePanel}
           >
             <div className={styles.twinSlot}>
-              <p className={styles.twinPlaceholder}>
-                The 3D forest renders here.
-              </p>
+              <LazyTwin />
             </div>
           </Panel>
           <div className={styles.sideColumn}>
