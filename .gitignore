@@ -45,5 +45,6 @@ next-env.d.ts
 __pycache__/
 .pytest_cache/
 
-# agent worktrees
+# agent worktrees and scratch files
 /.claude/worktrees/
+/.superpowers/
