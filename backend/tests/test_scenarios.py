@@ -3,7 +3,8 @@
 from dataclasses import replace
 
 from config import SITE
-from tests.helpers import run_steps, set_all_moisture
+from scenarios.presets import SCENARIOS, build_scenario
+from tests.helpers import assert_close, run_steps, set_all_moisture
 from twin.engine import step
 from twin.state import new_run_state
 
@@ -156,3 +157,117 @@ def test_starting_a_zone_needs_ten_minutes_of_water_but_keeping_it_open_needs_on
         assert decision.accepted is expected_accepted
         if not expected_accepted:
             assert decision.reason_code == "RESERVOIR_LOW"
+
+
+# Filtration, water quality and the scenario presets.
+
+
+def test_p2_clogged_filter_denies_zone_b_on_head_while_zone_a_runs():
+    state = build_scenario(SITE, "clogged_filter", seed=7)
+
+    result = step(state, SITE)
+
+    zone_b = decision_for(result, "B")
+    assert zone_b.reason_code == "INSUFFICIENT_HEAD"
+    assert result.state.zones[1].head_available_m < result.state.zones[1].head_required_m
+    assert decision_for(result, "A").accepted
+    assert result.state.zones[0].delivered_flow_m3_s > 0
+
+
+def test_p3_flush_is_exclusive_for_five_steps_and_booked_once():
+    state = build_scenario(SITE, "clogged_filter", seed=7)
+    filtration = SITE.filtration
+
+    state, results = run_steps(state, 40)
+
+    flushing_steps = [result for result in results if result.state.power.flush_power_w > 0]
+    assert len(flushing_steps) == filtration.flush_steps
+    for result in flushing_steps:
+        assert all(zone.delivered_flow_m3_s == 0 for zone in result.state.zones)
+        assert {decision.reason_code for decision in result.decisions if decision.requested_action in ("START", "KEEP_OPEN")} <= {
+            "FLUSH_IN_PROGRESS",
+            "FILTER_FLUSH_REQUIRED",
+        }
+    assert state.metrics.flush_count == 1
+    assert_close(state.metrics.flush_water_m3, filtration.flush_water_m3, "flush water")
+    assert_close(state.metrics.flush_energy_j, filtration.flush_power_w * filtration.flush_steps * 60, "flush energy")
+    assert_close(state.metrics.flush_energy_j / 3.6e6, 0.10, "flush kWh")
+    codes = [event.reason_code for result in results for event in result.events]
+    assert codes.count("FILTER_FLUSH_STARTED") == 1
+    assert codes.count("FILTER_FLUSH_COMPLETE") == 1
+
+
+def test_flush_recovers_head_so_zone_b_irrigates():
+    state = build_scenario(SITE, "clogged_filter", seed=7)
+
+    state, results = run_steps(state, 40)
+
+    flush_end = max(index for index, result in enumerate(results) if result.state.power.flush_power_w > 0)
+    after_flush = results[flush_end + 1]
+    assert after_flush.state.filter.clog_index < 0.1
+    assert decision_for(after_flush, "B").accepted
+    assert after_flush.state.zones[1].delivered_flow_m3_s > 0
+
+
+def test_filter_only_loads_with_filtered_water():
+    state = new_run_state(SITE, seed=7)
+    set_all_moisture(state, 0.21)
+    initial_clog = state.filter.clog_index
+
+    state, _ = run_steps(state, 60)
+
+    assert state.metrics.irrigation_delivered_m3 == 0
+    assert state.filter.clog_index == initial_clog
+
+
+def test_water_quality_hold_fails_closed():
+    for status in ("HOLD", "UNKNOWN"):
+        state = new_run_state(SITE, seed=7)
+        state.environment.water_quality = status
+
+        result = step(state, SITE)
+
+        assert {decision.reason_code for decision in result.decisions} == {"WATER_QUALITY_HOLD"}
+        assert result.state.metrics.irrigation_delivered_m3 == 0
+
+
+def test_low_solar_runs_the_pump_briefly_then_denies_it_at_the_reserve():
+    state = build_scenario(SITE, "low_solar", seed=7)
+
+    state, results = run_steps(state, 30)
+
+    zone_c = [decision_for(result, "C") for result in results]
+    assert zone_c[0].accepted
+    assert any(decision.reason_code == "BATTERY_BELOW_RESERVE" for decision in zone_c)
+    first_denial = next(index for index, decision in enumerate(zone_c) if not decision.accepted)
+    assert all(not decision.accepted for decision in zone_c[first_denial:])
+
+
+def test_starting_the_pump_needs_ten_minutes_of_battery_above_the_reserve():
+    state = pump_only_state()
+    state.environment.cloud_factor = 0.0
+    reserve_j = SITE.energy.pump_reserve_soc * SITE.energy.battery_capacity_j
+    state.battery_energy_j = reserve_j + 5 * 60 * 2600 / SITE.energy.battery_discharge_efficiency
+
+    result = step(state, SITE)
+
+    assert decision_for(result, "C").reason_code == "BATTERY_BELOW_RESERVE"
+
+
+def test_tse_interrupt_stops_inflow_and_hydro_in_its_window():
+    state = build_scenario(SITE, "tse_interrupt", seed=7)
+    outage_start, outage_end = state.environment.inflow_outage_steps
+
+    state, results = run_steps(state, outage_start + 10)
+
+    assert results[outage_start - 1].state.power.hydro_power_w > 0
+    assert results[outage_start + 5].state.inflow_m3_s == 0
+    assert results[outage_start + 5].state.power.hydro_power_w == 0
+
+
+def test_every_scenario_is_listed_and_buildable():
+    assert {scenario.id for scenario in SCENARIOS} == {"baseline", "clogged_filter", "low_solar", "tse_interrupt"}
+    for scenario in SCENARIOS:
+        state = build_scenario(SITE, scenario.id, seed=3)
+        state, _ = run_steps(state, 5)
+        assert state.scenario_id == scenario.id

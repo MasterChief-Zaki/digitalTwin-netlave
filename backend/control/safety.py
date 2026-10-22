@@ -176,15 +176,19 @@ def _reserve_gate(
     deficit_w = context.committed_load_w + pump.power_w - context.generation_w
     if deficit_w <= 0:
         return None
+    # Keeping the pump on needs this minute's energy; starting it needs a margin, so it doesn't chatter.
+    minutes = energy.pump_start_reserve_minutes if request.action == "START" else 1
+    needed_j = deficit_w * context.dt_s * minutes / energy.battery_discharge_efficiency
     reserve_j = energy.pump_reserve_soc * energy.battery_capacity_j
-    above_reserve_w = max(0.0, context.battery_energy_j - reserve_j) * energy.battery_discharge_efficiency / context.dt_s
-    if deficit_w > above_reserve_w:
+    above_reserve_j = max(0.0, context.battery_energy_j - reserve_j)
+    if needed_j > above_reserve_j:
         soc = context.battery_energy_j / energy.battery_capacity_j
+        window = f"{minutes} minutes" if minutes > 1 else "this minute"
         return (
             "BATTERY_BELOW_RESERVE",
-            f"The pump needs {deficit_w:,.0f} W from the battery beyond generation ({context.generation_w:,.0f} W), "
-            f"but the battery at {soc:.0%} has only {above_reserve_w:,.0f} W for this minute above its "
-            f"{energy.pump_reserve_soc:.0%} pump reserve.",
+            f"The pump needs {deficit_w:,.0f} W from the battery beyond generation ({context.generation_w:,.0f} W) "
+            f"for {window}, {needed_j / 3.6e6:.2f} kWh, but the battery at {soc:.0%} holds only "
+            f"{above_reserve_j / 3.6e6:.2f} kWh above its {energy.pump_reserve_soc:.0%} pump reserve.",
         )
     return None
 
