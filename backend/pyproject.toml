@@ -1,0 +1,24 @@
+[project]
+name = "netlave-digital-twin-backend"
+version = "0.1.0"
+description = "Deterministic simulation and FastAPI service for the netLave digital twin"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.161.1",
+    "pydantic>=2.14.1",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.16.0",
+    "pytest>=9.1.1",
+]
+
+[tool.uv]
+# An application, not a library: uv manages the environment but does not build or install it.
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
