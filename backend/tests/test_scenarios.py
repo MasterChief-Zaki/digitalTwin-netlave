@@ -271,3 +271,18 @@ def test_every_scenario_is_listed_and_buildable():
         state = build_scenario(SITE, scenario.id, seed=3)
         state, _ = run_steps(state, 5)
         assert state.scenario_id == scenario.id
+
+
+def test_a_running_zone_is_not_preempted_by_a_drier_one():
+    state = new_run_state(SITE, seed=7)
+    zone_a, zone_b, zone_c = state.zones
+    zone_c.theta_m3_m3 = 0.21
+    zone_a.theta_m3_m3 = 0.1655
+    zone_a.irrigation_latched = True
+    zone_a.valve_open = True
+    zone_b.theta_m3_m3 = 0.1600
+
+    state, results = run_steps(state, 30)
+
+    assert all(decision_for(result, "A").accepted for result in results)
+    assert all(decision_for(result, "B").reason_code == "CONCURRENT_FLOW_LIMIT" for result in results)
