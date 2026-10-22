@@ -128,7 +128,6 @@ class FiltrationConfig:
 class ClimateConfig:
     et0_nominal_mm_day: float = 4.9
     et0_daily_variation: float = 0.10
-    cloud_daily_min: float = 0.85
 
 
 @dataclass(frozen=True)
