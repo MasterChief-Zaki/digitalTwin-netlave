@@ -1,11 +1,20 @@
-"""Physics tests: conservation, bounds and determinism (C1, C2, S1, D1, P4)."""
+"""Physics tests: conservation, bounds, determinism and the section 5 sanity checks (C1-C3, S1, D1, P4)."""
 
 import json
 import math
+from dataclasses import replace as replace_config
 from pathlib import Path
 
+import pytest
+
 from config import SITE
+from models.energy import solar_power_w
+from models.filtration import filter_head_loss_m
+from models.hydraulics import hydro_power_w, pump_requirement
+from models.water_soil import surface_elevation_m, update_soil
 from tests.helpers import assert_close, run_steps, set_all_moisture
+from twin.engine import step
+from twin.inputs import daylight_weight
 from twin.state import new_run_state, physical_digest, to_snapshot
 
 FIXTURE_PATH = Path(__file__).resolve().parents[2] / "src" / "fixtures" / "initial-snapshot.json"
@@ -145,3 +154,125 @@ def all_finite(value) -> bool:
     if isinstance(value, float):
         return math.isfinite(value)
     return True
+
+
+# Section 5 sanity checks and C3 electrical conservation.
+
+
+def test_sanity_hydro_at_three_metres_is_about_294_watts():
+    assert hydro_power_w(60 / 3600, 3.0, 0.60) == pytest.approx(294.3, abs=0.5)
+    assert hydro_power_w(60 / 3600, 18.0, 0.60) == pytest.approx(1766, abs=2)
+
+
+def test_sanity_zone_c_pump_needs_about_2_8_kilowatts():
+    zone_c = SITE.zones[2]
+    clean_filter_head_m = filter_head_loss_m(0.0, SITE.filtration)
+    surface_m = surface_elevation_m(SITE.reservoir.initial_volume_m3, SITE.reservoir)
+
+    requirement = pump_requirement(zone_c, surface_m, clean_filter_head_m, zone_c.max_flow_m3_s, SITE.hydraulics)
+
+    assert requirement.total_dynamic_head_m == pytest.approx(23.4, abs=0.1)
+    assert requirement.power_w == pytest.approx(2780, abs=15)
+    assert requirement.within_envelope
+
+
+def test_sanity_24_m3_h_at_28_metres_exceeds_the_3_kw_pump():
+    flow_m3_s = 24 / 3600
+    power_w = 1000 * 9.81 * flow_m3_s * 28 / 0.55
+
+    assert power_w == pytest.approx(3330, abs=5)
+    assert power_w > SITE.hydraulics.pump_power_limit_w
+
+
+def test_sanity_site_net_et_is_about_625_m3_per_day():
+    daily_et_m3 = 0.0
+    for minute in range(24 * 60):
+        et0_step_mm = SITE.climate.et0_nominal_mm_day * daylight_weight(minute, SITE)
+        for zone in SITE.zones:
+            daily_et_m3 += update_soil(0.2, 0.0, et0_step_mm, zone, SITE.soil).potential_et_m3
+
+    assert daily_et_m3 == pytest.approx(624.75, rel=1e-9)
+
+
+def test_solar_profile_is_zero_at_night_and_peaks_at_noon():
+    assert solar_power_w(3.0, 1.0, SITE.energy) == 0
+    assert solar_power_w(12.0, 1.0, SITE.energy) == pytest.approx(6000)
+    assert solar_power_w(12.0, 0.25, SITE.energy) == pytest.approx(1500)
+
+
+@pytest.mark.parametrize(
+    "case",
+    ["charging", "pump_on_battery", "full_battery", "shortage"],
+)
+def test_c3_bus_and_cell_balances_close(case: str):
+    state = new_run_state(SITE, seed=7)
+    set_all_moisture(state, 0.21)
+    if case == "charging":
+        state.battery_energy_j = 0.3 * SITE.energy.battery_capacity_j
+    elif case == "pump_on_battery":
+        state.zones[2].theta_m3_m3 = 0.15
+        state.environment.cloud_factor = 0.0
+    elif case == "full_battery":
+        state.battery_energy_j = SITE.energy.battery_capacity_j
+    elif case == "shortage":
+        state.battery_energy_j = SITE.energy.battery_floor_soc * SITE.energy.battery_capacity_j
+        state.environment.cloud_factor = 0.0
+        state.environment.inflow_available = False
+    initial_energy_j = state.battery_energy_j
+
+    state, _ = run_steps(state, 600)
+
+    metrics = state.metrics
+    supplied_j = metrics.hydro_energy_j + metrics.solar_energy_j + metrics.battery_discharge_energy_j + metrics.unserved_energy_j
+    consumed_j = (
+        metrics.pump_energy_j + metrics.aux_energy_j + metrics.flush_energy_j
+        + metrics.battery_charge_energy_j + metrics.curtailed_energy_j
+    )
+    assert_close(supplied_j, consumed_j, "bus energy")
+    assert_close(
+        state.battery_energy_j - initial_energy_j,
+        metrics.battery_charge_energy_j - metrics.battery_discharge_energy_j - metrics.battery_losses_j,
+        "cell energy",
+    )
+    assert_close(
+        metrics.required_electrical_energy_j,
+        metrics.pump_energy_j + metrics.aux_energy_j + metrics.flush_energy_j,
+        "required energy",
+    )
+    soc = state.battery_energy_j / SITE.energy.battery_capacity_j
+    assert SITE.energy.battery_floor_soc - 1e-9 <= soc <= 1 + 1e-9
+    expected_flag = {
+        "charging": metrics.battery_charge_energy_j > 0,
+        "pump_on_battery": metrics.battery_discharge_energy_j > 0 and metrics.pump_energy_j > 0,
+        "full_battery": metrics.curtailed_energy_j > 0,
+        "shortage": metrics.unserved_energy_j > 0,
+    }[case]
+    assert expected_flag
+
+
+def test_shortage_records_an_aux_power_outage_event():
+    state = new_run_state(SITE, seed=7)
+    set_all_moisture(state, 0.21)
+    state.battery_energy_j = SITE.energy.battery_floor_soc * SITE.energy.battery_capacity_j
+    state.environment.cloud_factor = 0.0
+    state.environment.inflow_available = False
+
+    state, results = run_steps(state, 5)
+
+    outage_events = [event for result in results for event in result.events if event.reason_code == "AUX_POWER_OUTAGE"]
+    assert len(outage_events) == 1
+    assert state.power.unserved_power_w == pytest.approx(SITE.energy.aux_power_w)
+
+
+
+def test_battery_respects_its_charge_limit():
+    cfg = replace_config(SITE, energy=replace_config(SITE.energy, battery_max_charge_w=2000.0))
+    state = new_run_state(cfg, seed=7)
+    state.battery_energy_j = 0.3 * cfg.energy.battery_capacity_j
+    set_all_moisture(state, 0.21)
+    state.step = 6 * 60  # noon: solar exceeds the charge limit
+
+    result = step(state, cfg)
+
+    assert result.state.power.charge_power_w == pytest.approx(2000.0)
+    assert result.state.power.curtail_power_w > 0
