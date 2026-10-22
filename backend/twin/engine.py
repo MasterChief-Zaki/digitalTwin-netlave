@@ -1,27 +1,31 @@
 """One 60-second step of the twin, in the causal order of the execution plan (section 6).
 
 The engine owns time, decisions and accounting. Every step asserts finite state
-and closes the reservoir and soil balances; a failure raises with the step, the
-account, both sides and the input context.
+and closes the reservoir, soil, bus and battery-cell balances; a failure raises
+with the step, the account, both sides and the input context.
 """
 
 import math
 from dataclasses import dataclass
 
 import schemas
-from config import DT_S, SiteConfig
+from config import DT_S, SiteConfig, ZoneConfig
 from control.policy import ZoneRequest, propose
-from control.safety import Grant, SafetyContext, resolve
+from control.safety import Grant, SafetyContext, ZoneHydraulics, resolve
+from models.energy import Dispatch, dispatch, solar_power_w
+from models.filtration import filter_head_loss_m
+from models.hydraulics import gravity_head, hydro_power_w, pump_requirement
 from models.water_soil import (
     SoilStepResult,
     soil_storage_m3,
+    surface_elevation_m,
     update_reservoir,
     update_soil,
     usable_volume_m3,
     water_stress,
 )
 from twin.inputs import StepInputs, clock, inputs_at
-from twin.state import DecisionRecord, SimState
+from twin.state import DecisionRecord, SimState, ZoneState
 
 
 class PhysicsInvariantError(RuntimeError):
@@ -46,13 +50,35 @@ class StepResult:
     soil: tuple[SoilStepResult, ...]
 
 
+@dataclass(frozen=True)
+class PowerBudget:
+    hydro_w: float
+    solar_w: float
+    aux_w: float
+    flush_w: float
+    pump_w: float
+
+    @property
+    def generation_w(self) -> float:
+        return self.hydro_w + self.solar_w
+
+    @property
+    def load_w(self) -> float:
+        return self.aux_w + self.flush_w + self.pump_w
+
+
 def step(previous: SimState, cfg: SiteConfig) -> StepResult:
     state = previous.clone()
+    environment = state.environment
     events: list[EventDraft] = []
 
-    # 1. Step-indexed inflow and ET.
+    # 1. Step-indexed inflow, ET and generation.
     step_inputs = inputs_at(previous.step, previous.seed, _inflow_available(previous), cfg)
     _, minute_of_day = clock(previous.step, cfg)
+    hydro_w = hydro_power_w(
+        step_inputs.tse_inflow_m3_s, cfg.supply.hydro_recoverable_head_m, cfg.supply.hydro_turbine_efficiency
+    )
+    solar_w = solar_power_w(step_inputs.hour_of_day, environment.cloud_factor, cfg.energy)
 
     # 2. Controller requests (smart hysteresis, fixed timer or manual).
     requests = [
@@ -60,7 +86,7 @@ def step(previous: SimState, cfg: SiteConfig) -> StepResult:
             zone,
             zone_config,
             water_stress(zone.theta_m3_m3, cfg.soil),
-            state.environment.control_policy,
+            environment.control_policy,
             minute_of_day,
             cfg,
         )
@@ -70,30 +96,61 @@ def step(previous: SimState, cfg: SiteConfig) -> StepResult:
     # 4. Deterministic ranking: water stress descending, then zone ID.
     ranked = sorted(requests, key=lambda request: (-request.water_stress, request.zone_id))
 
-    # 5. Safety gates.
-    context = SafetyContext(dt_s=DT_S, usable_volume_m3=usable_volume_m3(previous.reservoir_volume_m3, cfg.reservoir))
+    # 5. Quality, reservoir, head, manifold, pump and electrical gates.
+    surface_m = surface_elevation_m(previous.reservoir_volume_m3, cfg.reservoir)
+    filter_head_m = filter_head_loss_m(previous.filter.clog_index, cfg.filtration)
+    hydraulics = {
+        zone_config.zone_id: _zone_hydraulics(zone_config, surface_m, filter_head_m, cfg) for zone_config in cfg.zones
+    }
+    aux_w = cfg.energy.aux_power_w
+    context = SafetyContext(
+        dt_s=DT_S,
+        usable_volume_m3=usable_volume_m3(previous.reservoir_volume_m3, cfg.reservoir),
+        hydraulics=hydraulics,
+        generation_w=hydro_w + solar_w,
+        battery_energy_j=previous.battery_energy_j,
+        water_quality=environment.water_quality,
+        committed_load_w=aux_w,
+    )
     grants = resolve(ranked, context, cfg)
 
-    # 6-7. Deliver accepted flow, then update reservoir, soil, events and metrics.
+    # 6. Deliver accepted flow and dispatch the electrical bus.
+    budget = PowerBudget(hydro_w=hydro_w, solar_w=solar_w, aux_w=aux_w, flush_w=0.0, pump_w=context.granted_pump_w)
+    power = dispatch(budget.generation_w, budget.load_w, previous.battery_energy_j, cfg.energy, DT_S)
     delivered_m3 = sum(grant.flow_m3_s for grant in grants.values()) * DT_S
     inflow_m3 = step_inputs.tse_inflow_m3_s * DT_S
-    reservoir = update_reservoir(previous.reservoir_volume_m3, inflow_m3, delivered_m3, cfg.reservoir)
 
+    # 7. Reservoir, soil buckets, events and metrics.
+    reservoir = update_reservoir(previous.reservoir_volume_m3, inflow_m3, delivered_m3, cfg.reservoir)
     soil_results = []
     decisions = []
     for zone, zone_config, request in zip(state.zones, cfg.zones, requests, strict=True):
         grant = grants[zone.zone_id]
         soil = update_soil(zone.theta_m3_m3, grant.flow_m3_s * DT_S, step_inputs.et0_step_mm, zone_config, cfg.soil)
         soil_results.append(soil)
-        decisions.append(_apply_grant(state, zone, request, grant, soil, events))
+        decisions.append(_apply_grant(state, zone, request, grant, soil, hydraulics[zone.zone_id], events))
 
-    _book_water(state, inflow_m3, delivered_m3, reservoir.overflow_m3, soil_results, decisions)
+    _book_water(state, inflow_m3, delivered_m3, reservoir.overflow_m3, soil_results)
+    _book_energy(state, budget, power)
+    _apply_pump(state, hydraulics["C"], grants["C"])
     if reservoir.overflow_m3 > 0 and not previous.overflow_active:
         events.append(
             EventDraft("WATER", None, "OVERFLOW_OCCURRING", "Reservoir is full; arriving TSE is spilling to overflow.")
         )
+    if power.unserved_power_w > 0 and not previous.aux_outage_active:
+        events.append(
+            EventDraft(
+                "ENERGY",
+                None,
+                "AUX_POWER_OUTAGE",
+                f"Battery is at its floor and generation is {budget.generation_w:,.0f} W; "
+                f"{power.unserved_power_w:,.0f} W of auxiliary load (controller, sensors) is unserved.",
+            )
+        )
     state.overflow_active = reservoir.overflow_m3 > 0
+    state.aux_outage_active = power.unserved_power_w > 0
     state.reservoir_volume_m3 = reservoir.volume_m3
+    state.battery_energy_j = power.battery_energy_j
     state.inflow_m3_s = step_inputs.tse_inflow_m3_s
     state.overflow_flow_m3_s = reservoir.overflow_m3 / DT_S
     state.et0_mm_day = step_inputs.et0_mm_day
@@ -101,6 +158,7 @@ def step(previous: SimState, cfg: SiteConfig) -> StepResult:
 
     # 8. Accounts and bounds.
     _check_water_balances(previous, state, inflow_m3, delivered_m3, reservoir.overflow_m3, soil_results, cfg, step_inputs)
+    _check_energy_balances(previous, state, budget, power, step_inputs)
     _check_bounds(state, cfg, step_inputs)
 
     # 9. Advance the clock once.
@@ -114,12 +172,20 @@ def _inflow_available(state: SimState) -> bool:
     return state.environment.inflow_available and not in_outage
 
 
+def _zone_hydraulics(zone: ZoneConfig, surface_m: float, filter_head_m: float, cfg: SiteConfig) -> ZoneHydraulics:
+    """Head at the zone's rated flow, computed every step so the margin is visible even when idle."""
+    if zone.feed_mode == "PUMPED":
+        return ZoneHydraulics(pump=pump_requirement(zone, surface_m, filter_head_m, zone.max_flow_m3_s, cfg.hydraulics))
+    return ZoneHydraulics(gravity=gravity_head(zone, surface_m, filter_head_m, zone.max_flow_m3_s, cfg.hydraulics))
+
+
 def _apply_grant(
     state: SimState,
-    zone,
+    zone: ZoneState,
     request: ZoneRequest,
     grant: Grant,
     soil: SoilStepResult,
+    hydraulics: ZoneHydraulics,
     events: list[EventDraft],
 ) -> DecisionRecord:
     if request.wants_water and not grant.accepted:
@@ -130,6 +196,13 @@ def _apply_grant(
     else:
         zone.active_denial = None
 
+    if hydraulics.gravity is not None:
+        zone.head_available_m = hydraulics.gravity.available_m
+        zone.head_required_m = hydraulics.gravity.required_m
+    elif hydraulics.pump is not None:
+        zone.head_available_m = hydraulics.pump.head_within_limit_m
+        zone.head_required_m = hydraulics.pump.total_dynamic_head_m
+
     zone.irrigation_latched = request.irrigation_latched
     zone.valve_open = grant.flow_m3_s > 0
     zone.requested_flow_m3_s = grant.requested_flow_m3_s
@@ -138,13 +211,20 @@ def _apply_grant(
     return DecisionRecord(zone.zone_id, request.action, grant.accepted, grant.reason_code, grant.explanation)
 
 
+def _apply_pump(state: SimState, hydraulics: ZoneHydraulics, grant: Grant) -> None:
+    if hydraulics.pump is None:
+        return
+    state.pump.total_dynamic_head_m = hydraulics.pump.total_dynamic_head_m
+    state.pump.required_power_w = hydraulics.pump.power_w
+    state.pump.running = grant.flow_m3_s > 0
+
+
 def _book_water(
     state: SimState,
     inflow_m3: float,
     delivered_m3: float,
     overflow_m3: float,
     soil_results: list[SoilStepResult],
-    decisions: list[DecisionRecord],
 ) -> None:
     metrics = state.metrics
     metrics.tse_inflow_m3 += inflow_m3
@@ -156,6 +236,32 @@ def _book_water(
         metrics.potential_et_m3 += soil.potential_et_m3
         metrics.actual_et_m3 += soil.actual_et_m3
         metrics.et_deficit_m3 += soil.potential_et_m3 - soil.actual_et_m3
+
+
+def _book_energy(state: SimState, budget: PowerBudget, power: Dispatch) -> None:
+    flows = state.power
+    flows.hydro_power_w = budget.hydro_w
+    flows.solar_power_w = budget.solar_w
+    flows.pump_power_w = budget.pump_w
+    flows.aux_power_w = budget.aux_w
+    flows.flush_power_w = budget.flush_w
+    flows.charge_power_w = power.charge_power_w
+    flows.discharge_power_w = power.discharge_power_w
+    flows.curtail_power_w = power.curtail_power_w
+    flows.unserved_power_w = power.unserved_power_w
+
+    metrics = state.metrics
+    metrics.hydro_energy_j += budget.hydro_w * DT_S
+    metrics.solar_energy_j += budget.solar_w * DT_S
+    metrics.pump_energy_j += budget.pump_w * DT_S
+    metrics.aux_energy_j += budget.aux_w * DT_S
+    metrics.flush_energy_j += budget.flush_w * DT_S
+    metrics.required_electrical_energy_j += budget.load_w * DT_S
+    metrics.battery_charge_energy_j += power.charge_power_w * DT_S
+    metrics.battery_discharge_energy_j += power.discharge_power_w * DT_S
+    metrics.battery_losses_j += power.losses_j
+    metrics.curtailed_energy_j += power.curtail_power_w * DT_S
+    metrics.unserved_energy_j += power.unserved_power_w * DT_S
 
 
 def check_balance(step_index: int, account: str, lhs: float, rhs: float, context: object) -> None:
@@ -192,6 +298,29 @@ def _check_water_balances(
         )
 
 
+def _check_energy_balances(
+    previous: SimState, state: SimState, budget: PowerBudget, power: Dispatch, step_inputs: StepInputs
+) -> None:
+    check_balance(
+        previous.step,
+        "electrical bus",
+        budget.generation_w + power.discharge_power_w + power.unserved_power_w,
+        budget.load_w + power.charge_power_w + power.curtail_power_w,
+        step_inputs,
+    )
+    check_balance(
+        previous.step,
+        "battery cells",
+        state.battery_energy_j - previous.battery_energy_j,
+        (power.charge_power_w - power.discharge_power_w) * DT_S - power.losses_j,
+        step_inputs,
+    )
+    if budget.pump_w > 0 and power.unserved_power_w > 0:
+        raise PhysicsInvariantError(
+            f"step {previous.step}: pump granted {budget.pump_w} W while {power.unserved_power_w} W is unserved"
+        )
+
+
 def _check_bounds(state: SimState, cfg: SiteConfig, step_inputs: StepInputs) -> None:
     tolerance = 1e-9
     problems = []
@@ -200,5 +329,10 @@ def _check_bounds(state: SimState, cfg: SiteConfig, step_inputs: StepInputs) -> 
     for zone in state.zones:
         if not (cfg.soil.theta_wp_m3_m3 - tolerance <= zone.theta_m3_m3 <= cfg.soil.theta_sat_m3_m3 + tolerance):
             problems.append(f"zone {zone.zone_id} moisture {zone.theta_m3_m3}")
+    soc = state.battery_energy_j / cfg.energy.battery_capacity_j
+    if not -tolerance <= soc <= 1.0 + tolerance:
+        problems.append(f"battery state of charge {soc}")
+    if state.power.discharge_power_w > 0 and soc < cfg.energy.battery_floor_soc - tolerance:
+        problems.append(f"battery discharged below its floor to {soc}")
     if problems:
         raise PhysicsInvariantError(f"step {state.step}: out of bounds: {', '.join(problems)}; {step_inputs}")

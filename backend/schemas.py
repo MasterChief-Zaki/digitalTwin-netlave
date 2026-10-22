@@ -142,6 +142,8 @@ class Metrics(ContractModel):
     pump_energy_j: float
     aux_energy_j: float
     flush_energy_j: float
+    battery_charge_energy_j: float
+    battery_discharge_energy_j: float
     battery_losses_j: float
     curtailed_energy_j: float
     unserved_energy_j: float

@@ -83,6 +83,8 @@ class Metrics:
     pump_energy_j: float = 0.0
     aux_energy_j: float = 0.0
     flush_energy_j: float = 0.0
+    battery_charge_energy_j: float = 0.0
+    battery_discharge_energy_j: float = 0.0
     battery_losses_j: float = 0.0
     curtailed_energy_j: float = 0.0
     unserved_energy_j: float = 0.0
