@@ -66,6 +66,8 @@ class ReservoirConfig:
     dead_volume_m3: float = 50.0
     floor_elevation_m: float = 20.5
     depth_at_capacity_m: float = 2.5
+    # A zone only starts if this many minutes of its flow sit above the dead volume (no valve chatter).
+    start_reserve_minutes: int = 10
 
 
 @dataclass(frozen=True)
@@ -175,6 +177,7 @@ ASSUMPTIONS: tuple[Assumption, ...] = (
     Assumption("Pump electrical limit / wire-to-water efficiency", "3000 / 0.55", "W / -", "assumed", _PLAN),
     Assumption("Reservoir capacity / initial / dead", "1500 / 900 / 50", "m3", "assumed", _PLAN),
     Assumption("Reservoir floor / depth at capacity", "+20.5 / 2.5", "m", "assumed", "Chosen so the surface is +22 m at 900 m3"),
+    Assumption("Zone start margin above dead volume", "10", "minutes of zone flow", "assumed", "Prevents valve chatter near empty"),
     Assumption("TSE inflow daily mean", "60", "m3/h", "assumed", _PLAN),
     Assumption("TSE diurnal amplitude / peak hour", "25% / 14:00", "- / h", "assumed", "Synthetic treatment-plant effluent profile"),
     Assumption("Hydro recoverable inlet head / turbine efficiency", "3 / 0.60", "m / -", "assumed", _PLAN),
