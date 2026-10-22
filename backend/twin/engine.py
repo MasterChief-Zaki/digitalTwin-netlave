@@ -13,7 +13,7 @@ from config import DT_S, SiteConfig, ZoneConfig
 from control.policy import ZoneRequest, propose
 from control.safety import Grant, SafetyContext, ZoneHydraulics, resolve
 from models.energy import Dispatch, dispatch, solar_power_w
-from models.filtration import filter_head_loss_m
+from models.filtration import FlushPlan, filter_head_loss_m, load_filter, plan_flush
 from models.hydraulics import gravity_head, hydro_power_w, pump_requirement
 from models.water_soil import (
     SoilStepResult,
@@ -93,6 +93,22 @@ def step(previous: SimState, cfg: SiteConfig) -> StepResult:
         for zone, zone_config in zip(state.zones, cfg.zones, strict=True)
     ]
 
+    # 3. Is a filter flush in progress or mandatory? A flush is exclusive.
+    usable_m3 = usable_volume_m3(previous.reservoir_volume_m3, cfg.reservoir)
+    aux_w = cfg.energy.aux_power_w
+    floor_j = cfg.energy.battery_floor_soc * cfg.energy.battery_capacity_j
+    flush = plan_flush(
+        previous.filter.flushing,
+        previous.filter.clog_index,
+        usable_m3,
+        hydro_w + solar_w,
+        aux_w,
+        max(0.0, previous.battery_energy_j - floor_j),
+        cfg.filtration,
+        cfg.energy,
+        DT_S,
+    )
+
     # 4. Deterministic ranking: water stress descending, then zone ID.
     ranked = sorted(requests, key=lambda request: (-request.water_stress, request.zone_id))
 
@@ -102,26 +118,29 @@ def step(previous: SimState, cfg: SiteConfig) -> StepResult:
     hydraulics = {
         zone_config.zone_id: _zone_hydraulics(zone_config, surface_m, filter_head_m, cfg) for zone_config in cfg.zones
     }
-    aux_w = cfg.energy.aux_power_w
     context = SafetyContext(
         dt_s=DT_S,
-        usable_volume_m3=usable_volume_m3(previous.reservoir_volume_m3, cfg.reservoir),
+        usable_volume_m3=usable_m3,
         hydraulics=hydraulics,
         generation_w=hydro_w + solar_w,
         battery_energy_j=previous.battery_energy_j,
         water_quality=environment.water_quality,
-        committed_load_w=aux_w,
+        filter_blocks_irrigation=flush.blocks_irrigation,
+        committed_withdrawal_m3=flush.water_m3,
+        committed_load_w=aux_w + flush.power_w,
     )
     grants = resolve(ranked, context, cfg)
 
     # 6. Deliver accepted flow and dispatch the electrical bus.
-    budget = PowerBudget(hydro_w=hydro_w, solar_w=solar_w, aux_w=aux_w, flush_w=0.0, pump_w=context.granted_pump_w)
+    budget = PowerBudget(
+        hydro_w=hydro_w, solar_w=solar_w, aux_w=aux_w, flush_w=flush.power_w, pump_w=context.granted_pump_w
+    )
     power = dispatch(budget.generation_w, budget.load_w, previous.battery_energy_j, cfg.energy, DT_S)
     delivered_m3 = sum(grant.flow_m3_s for grant in grants.values()) * DT_S
     inflow_m3 = step_inputs.tse_inflow_m3_s * DT_S
 
     # 7. Reservoir, soil buckets, events and metrics.
-    reservoir = update_reservoir(previous.reservoir_volume_m3, inflow_m3, delivered_m3, cfg.reservoir)
+    reservoir = update_reservoir(previous.reservoir_volume_m3, inflow_m3, delivered_m3 + flush.water_m3, cfg.reservoir)
     soil_results = []
     decisions = []
     for zone, zone_config, request in zip(state.zones, cfg.zones, requests, strict=True):
@@ -130,7 +149,8 @@ def step(previous: SimState, cfg: SiteConfig) -> StepResult:
         soil_results.append(soil)
         decisions.append(_apply_grant(state, zone, request, grant, soil, hydraulics[zone.zone_id], events))
 
-    _book_water(state, inflow_m3, delivered_m3, reservoir.overflow_m3, soil_results)
+    _book_water(state, inflow_m3, delivered_m3, flush.water_m3, reservoir.overflow_m3, soil_results)
+    _update_filter(state, flush, delivered_m3, cfg, events)
     _book_energy(state, budget, power)
     _apply_pump(state, hydraulics["C"], grants["C"])
     if reservoir.overflow_m3 > 0 and not previous.overflow_active:
@@ -157,7 +177,9 @@ def step(previous: SimState, cfg: SiteConfig) -> StepResult:
     state.decisions = decisions
 
     # 8. Accounts and bounds.
-    _check_water_balances(previous, state, inflow_m3, delivered_m3, reservoir.overflow_m3, soil_results, cfg, step_inputs)
+    _check_water_balances(
+        previous, state, inflow_m3, delivered_m3 + flush.water_m3, reservoir.overflow_m3, soil_results, cfg, step_inputs
+    )
     _check_energy_balances(previous, state, budget, power, step_inputs)
     _check_bounds(state, cfg, step_inputs)
 
@@ -223,12 +245,14 @@ def _book_water(
     state: SimState,
     inflow_m3: float,
     delivered_m3: float,
+    flush_water_m3: float,
     overflow_m3: float,
     soil_results: list[SoilStepResult],
 ) -> None:
     metrics = state.metrics
     metrics.tse_inflow_m3 += inflow_m3
     metrics.irrigation_delivered_m3 += delivered_m3
+    metrics.flush_water_m3 += flush_water_m3
     metrics.overflow_m3 += overflow_m3
     for soil in soil_results:
         metrics.application_loss_m3 += soil.application_loss_m3
@@ -236,6 +260,45 @@ def _book_water(
         metrics.potential_et_m3 += soil.potential_et_m3
         metrics.actual_et_m3 += soil.actual_et_m3
         metrics.et_deficit_m3 += soil.potential_et_m3 - soil.actual_et_m3
+
+
+def _update_filter(
+    state: SimState, flush: FlushPlan, filtered_m3: float, cfg: SiteConfig, events: list[EventDraft]
+) -> None:
+    filtration = cfg.filtration
+    filter_state = state.filter
+    if flush.started:
+        events.append(
+            EventDraft(
+                "FILTER",
+                None,
+                "FILTER_FLUSH_STARTED",
+                f"Filter clog index {filter_state.clog_index:.2f} reached {filtration.flush_threshold:.2f}; "
+                f"backflushing for {filtration.flush_steps} minutes ({filtration.flush_water_m3:.1f} m3, "
+                f"{filtration.flush_power_w * filtration.flush_steps * 60 / 3.6e6:.2f} kWh). Irrigation is suspended.",
+            )
+        )
+        filter_state.flush_steps_remaining = filtration.flush_steps
+    if flush.flushing:
+        filter_state.flushing = True
+        filter_state.flush_steps_remaining -= 1
+        if filter_state.flush_steps_remaining == 0:
+            filter_state.flushing = False
+            filter_state.clog_index = filtration.clog_after_flush
+            state.metrics.flush_count += 1
+            events.append(
+                EventDraft(
+                    "FILTER",
+                    None,
+                    "FILTER_FLUSH_COMPLETE",
+                    f"Flush complete; clog index back to {filtration.clog_after_flush:.2f} and head restored.",
+                )
+            )
+    else:
+        filter_state.clog_index = load_filter(
+            filter_state.clog_index, filtered_m3, state.environment.solids_loading_multiplier, filtration
+        )
+    filter_state.flush_required = not filter_state.flushing and filter_state.clog_index >= filtration.flush_threshold
 
 
 def _book_energy(state: SimState, budget: PowerBudget, power: Dispatch) -> None:
@@ -274,7 +337,7 @@ def _check_water_balances(
     previous: SimState,
     state: SimState,
     inflow_m3: float,
-    delivered_m3: float,
+    withdrawn_m3: float,
     overflow_m3: float,
     soil_results: list[SoilStepResult],
     cfg: SiteConfig,
@@ -284,7 +347,7 @@ def _check_water_balances(
         previous.step,
         "reservoir",
         state.reservoir_volume_m3 - previous.reservoir_volume_m3,
-        inflow_m3 - delivered_m3 - overflow_m3,
+        inflow_m3 - withdrawn_m3 - overflow_m3,
         step_inputs,
     )
     for before, after, zone_config, soil in zip(previous.zones, state.zones, cfg.zones, soil_results, strict=True):
