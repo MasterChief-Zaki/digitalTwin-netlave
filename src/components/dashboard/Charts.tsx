@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import type { TooltipContentProps } from "recharts";
 import { formatNumber, formatSimulatedClock } from "@/lib/format";
+import { useEffect, useState } from "react";
 import { useTwinStore } from "@/store/useTwinStore";
 import type { ChartPoint } from "@/store/useTwinStore";
 import { Panel } from "./Panel";
@@ -39,6 +40,47 @@ interface TimeSeriesChartProps {
   startHour: number;
   yDomain?: [number, number];
   references?: ReferenceSpec[];
+}
+
+// Recharts costs tens of milliseconds per render however few points it draws,
+// so the charts redraw at most once a second instead of on every simulation tick.
+const chartRefreshIntervalMs = 1000;
+
+function useThrottledChartPoints(intervalMs: number): ChartPoint[] {
+  const [points, setPoints] = useState(
+    () => useTwinStore.getState().chartPoints,
+  );
+
+  useEffect(() => {
+    let lastRefresh = 0;
+    let pendingRefresh: ReturnType<typeof setTimeout> | undefined;
+    const refresh = () => {
+      pendingRefresh = undefined;
+      lastRefresh = performance.now();
+      setPoints(useTwinStore.getState().chartPoints);
+    };
+    const unsubscribe = useTwinStore.subscribe((state, previous) => {
+      if (
+        state.chartPoints === previous.chartPoints ||
+        pendingRefresh !== undefined
+      ) {
+        return;
+      }
+      const sinceLastRefresh = performance.now() - lastRefresh;
+      pendingRefresh = setTimeout(
+        refresh,
+        Math.max(0, intervalMs - sinceLastRefresh),
+      );
+    });
+    return () => {
+      unsubscribe();
+      if (pendingRefresh !== undefined) {
+        clearTimeout(pendingRefresh);
+      }
+    };
+  }, [intervalMs]);
+
+  return points;
 }
 
 const axisTick = {
@@ -234,9 +276,21 @@ function ChartDataTable({
 }
 
 export function Charts() {
-  const points = useTwinStore((state) => state.chartPoints);
-  const snapshot = useTwinStore((state) => state.snapshot);
-  const zoneA = snapshot.zones[0];
+  const points = useThrottledChartPoints(chartRefreshIntervalMs);
+  // Primitive selections, so a new snapshot alone doesn't redraw the charts.
+  const startHour = useTwinStore((state) => state.snapshot.start_hour);
+  const moistureTrigger = useTwinStore(
+    (state) => state.snapshot.zones[0]?.moisture_trigger_m3_m3,
+  );
+  const moistureTarget = useTwinStore(
+    (state) => state.snapshot.zones[0]?.moisture_target_m3_m3,
+  );
+  const capacityM3 = useTwinStore(
+    (state) => state.snapshot.reservoir.capacity_m3,
+  );
+  const deadVolumeM3 = useTwinStore(
+    (state) => state.snapshot.reservoir.dead_volume_m3,
+  );
 
   return (
     <Panel
@@ -251,7 +305,7 @@ export function Charts() {
           unit="m³/m³"
           fractionDigits={3}
           points={points}
-          startHour={snapshot.start_hour}
+          startHour={startHour}
           series={[
             {
               dataKey: "zoneAMoisture",
@@ -270,10 +324,10 @@ export function Charts() {
             },
           ]}
           references={
-            zoneA
+            moistureTrigger !== undefined && moistureTarget !== undefined
               ? [
-                  { value: zoneA.moisture_trigger_m3_m3, label: "start" },
-                  { value: zoneA.moisture_target_m3_m3, label: "stop" },
+                  { value: moistureTrigger, label: "start" },
+                  { value: moistureTarget, label: "stop" },
                 ]
               : []
           }
@@ -283,8 +337,8 @@ export function Charts() {
           unit="m³"
           fractionDigits={0}
           points={points}
-          startHour={snapshot.start_hour}
-          yDomain={[0, snapshot.reservoir.capacity_m3]}
+          startHour={startHour}
+          yDomain={[0, capacityM3]}
           series={[
             {
               dataKey: "reservoirVolumeM3",
@@ -293,8 +347,8 @@ export function Charts() {
             },
           ]}
           references={[
-            { value: snapshot.reservoir.capacity_m3, label: "capacity" },
-            { value: snapshot.reservoir.dead_volume_m3, label: "dead volume" },
+            { value: capacityM3, label: "capacity" },
+            { value: deadVolumeM3, label: "dead volume" },
           ]}
         />
         <TimeSeriesChart
@@ -302,7 +356,7 @@ export function Charts() {
           unit="W"
           fractionDigits={0}
           points={points}
-          startHour={snapshot.start_hour}
+          startHour={startHour}
           series={[
             {
               dataKey: "solarPowerW",
@@ -322,7 +376,7 @@ export function Charts() {
           ]}
         />
       </div>
-      <ChartDataTable points={points} startHour={snapshot.start_hour} />
+      <ChartDataTable points={points} startHour={startHour} />
     </Panel>
   );
 }
