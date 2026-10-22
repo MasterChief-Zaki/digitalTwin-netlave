@@ -1,0 +1,138 @@
+@use "../../styles/breakpoints" as *;
+
+.chartsPanel {
+  min-width: 0;
+}
+
+.chartGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-lg);
+
+  @media (width >= $desktop-min-width) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.chartHeader {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-md);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.chartTitle {
+  font-size: var(--font-size-small);
+  font-weight: 500;
+}
+
+.chartUnit {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-label);
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-md);
+}
+
+.legendItem {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-label);
+  color: var(--color-text-muted);
+}
+
+.legendKey {
+  display: inline-block;
+  width: 0.875rem;
+  height: 2px;
+  border-radius: 2px;
+}
+
+.legendValue {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
+.plot {
+  height: 13rem;
+}
+
+.tooltip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-sm) var(--space-md);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-label);
+  background: var(--color-background);
+  border: 1px solid var(--color-control-border);
+  border-radius: 0.5rem;
+}
+
+.tooltipTime {
+  color: var(--color-text-muted);
+}
+
+.tooltipRow {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.tooltipValue {
+  margin-left: auto;
+  padding-left: var(--space-md);
+  font-variant-numeric: tabular-nums;
+}
+
+.dataTable {
+  font-size: var(--font-size-small);
+
+  summary {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-label);
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  table {
+    width: 100%;
+    margin-top: var(--space-sm);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-label);
+    font-variant-numeric: tabular-nums;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    padding: var(--space-xs) var(--space-sm);
+    text-align: right;
+    white-space: nowrap;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--color-border) 50%, transparent);
+  }
+
+  th:first-child {
+    text-align: left;
+  }
+}
+
+.tableScroll {
+  overflow-x: auto;
+}
