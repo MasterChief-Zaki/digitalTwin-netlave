@@ -1,0 +1,98 @@
+@use "breakpoints" as *;
+
+// Design tokens: the single source for colors, type, spacing and layout.
+// Components use these custom properties instead of hard-coded values.
+:root {
+  // Native scrollbars and controls match the dark page
+  color-scheme: dark;
+
+  // Palette: the night palette, from darkest to lightest
+  --color-midnight: #021d28;
+  --color-deep-navy: #05263b;
+  --color-lagoon: #095b76;
+  --color-deep-teal: #266b81;
+  --color-teal: #3f858b;
+  --color-sage: #5d9e9c;
+  --color-seafoam: #9ec9bc;
+  --color-mist: #c2dfd2;
+  --color-moon: #f4fbf9;
+
+  // Dashboard-only accents for warnings and faults, outside the night palette.
+  // Rose rather than an orange so faults never read as zone B's series color.
+  --color-sand: #e3c68f; // desert sand, used for warnings
+  --color-rose: #f2849c; // used for faults and denials
+
+  // Chart series. Zones take categorical slots 1-3 in fixed order; solar and
+  // hydro take slots 4 and 7, and the pump wears zone C's color because it is
+  // zone C's load. Both sets pass the colorblind and normal-vision checks
+  // (all pairs) on the midnight and deep-navy surfaces.
+  --color-series-zone-a: #3987e5;
+  --color-series-zone-b: #d95926;
+  --color-series-zone-c: #199e70;
+  --color-series-solar: #c98500;
+  --color-series-hydro: #9085e9;
+  --color-series-pump: var(--color-series-zone-c);
+
+  // Colors: a midnight page with moon text and lagoon buttons.
+  // Lagoon and deep teal are too dark for text on midnight, so they only fill
+  // buttons and draw decorative dividers; text uses the lighter palette colors.
+  --color-background: var(--color-midnight);
+  --color-surface: var(--color-deep-navy);
+  --color-border: var(--color-lagoon);
+  --color-control-border: var(--color-teal);
+  --color-text: var(--color-moon);
+  --color-text-muted: var(--color-mist);
+  --color-primary: var(--color-lagoon);
+  --color-primary-hover: var(--color-deep-teal);
+  --color-on-primary: var(--color-moon);
+  --color-accent: var(--color-seafoam);
+
+  // Status colors the dashboard uses for equipment and event states
+  --color-status-active: var(--color-seafoam);
+  --color-status-idle: var(--color-teal);
+  --color-status-warning: var(--color-sand);
+  --color-status-fault: var(--color-rose);
+
+  // Typography: the font variables come from next/font in layout.tsx
+  --font-family-sans: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-family-mono: var(--font-ibm-plex-mono), ui-monospace, monospace;
+  --font-size-label: 0.75rem;
+  --font-size-small: 0.875rem;
+  --font-size-body: 1rem;
+  --font-size-lead: 1.1875rem;
+  --font-size-heading-3: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  --font-size-heading-2: clamp(2.25rem, 1.5rem + 3vw, 3.75rem);
+  --font-size-heading-1: clamp(3rem, 1.25rem + 7.5vw, 7.5rem);
+  --font-size-display: clamp(3rem, 1rem + 8vw, 7rem);
+  --font-size-numeral: clamp(3rem, 2rem + 3vw, 4.5rem);
+  --font-size-wordmark: clamp(4.5rem, 1rem + 15vw, 12.5rem);
+  --line-height-body: 1.65;
+  --line-height-heading: 1.02;
+  --line-height-display: 0.95;
+  --letter-spacing-heading: -0.04em;
+  --letter-spacing-display: -0.05em;
+
+  // Spacing: 4px base
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+  --space-4xl: 7.5rem;
+
+  // Layout
+  --content-max-width: 70rem;
+  --dashboard-max-width: 112rem;
+  --page-gutter: 1.25rem;
+  --header-height: 4rem;
+
+  @media (width >= $tablet-min-width) {
+    --page-gutter: 2rem;
+  }
+
+  @media (width >= $desktop-min-width) {
+    --page-gutter: 3rem;
+  }
+}

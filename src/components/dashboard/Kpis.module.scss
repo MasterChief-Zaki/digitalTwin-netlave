@@ -1,0 +1,108 @@
+@use "../../styles/breakpoints" as *;
+
+.kpis {
+  min-width: 0;
+}
+
+// Read by screen readers; the tiles carry their own visible labels.
+.heading {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm);
+
+  @media (width >= $tablet-min-width) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  @media (width >= $desktop-min-width) {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface);
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+  border-radius: 0.75rem;
+}
+
+.tileLabel {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.simulatedTag {
+  color: var(--color-accent);
+  letter-spacing: 0.1em;
+}
+
+.tileValue {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  overflow: hidden;
+  font-size: var(--font-size-heading-3);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tileValueText {
+  font-size: var(--font-size-lead);
+  line-height: 2;
+}
+
+.tileUnit {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-label);
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.tileDetail {
+  overflow: hidden;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-label);
+  color: var(--color-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toneSymbol {
+  font-size: var(--font-size-small);
+}
+
+.active {
+  color: var(--color-status-active);
+}
+
+.idle {
+  color: var(--color-status-idle);
+}
+
+.warning {
+  color: var(--color-status-warning);
+}
+
+.fault {
+  color: var(--color-status-fault);
+}

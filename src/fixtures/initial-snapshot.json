@@ -1,0 +1,158 @@
+{
+  "schema_version": "1.0",
+  "data_mode": "SIMULATED",
+  "step": 0,
+  "sim_time_s": 0,
+  "dt_s": 60,
+  "start_hour": 6,
+  "scenario_id": "baseline",
+  "seed": 7,
+  "run_generation": 0,
+  "reservoir": {
+    "volume_m3": 900.0,
+    "capacity_m3": 1500.0,
+    "dead_volume_m3": 50.0,
+    "surface_elevation_m": 22.0,
+    "inflow_m3_s": 0.0,
+    "overflow_flow_m3_s": 0.0
+  },
+  "zones": [
+    {
+      "id": "A",
+      "feed_mode": "GRAVITY",
+      "control_mode": "AUTO",
+      "area_m2": 60000.0,
+      "elevation_m": 2.0,
+      "soil_moisture_m3_m3": 0.165,
+      "moisture_trigger_m3_m3": 0.166,
+      "moisture_target_m3_m3": 0.198,
+      "irrigation_latched": false,
+      "valve_open": false,
+      "requested_flow_m3_s": 0.0,
+      "delivered_flow_m3_s": 0.0,
+      "water_stress_0_1": 0.015151515151515138,
+      "head_available_m": 0.0,
+      "head_required_m": 0.0
+    },
+    {
+      "id": "B",
+      "feed_mode": "GRAVITY",
+      "control_mode": "AUTO",
+      "area_m2": 50000.0,
+      "elevation_m": 8.0,
+      "soil_moisture_m3_m3": 0.165,
+      "moisture_trigger_m3_m3": 0.166,
+      "moisture_target_m3_m3": 0.198,
+      "irrigation_latched": false,
+      "valve_open": false,
+      "requested_flow_m3_s": 0.0,
+      "delivered_flow_m3_s": 0.0,
+      "water_stress_0_1": 0.015151515151515138,
+      "head_available_m": 0.0,
+      "head_required_m": 0.0
+    },
+    {
+      "id": "C",
+      "feed_mode": "PUMPED",
+      "control_mode": "AUTO",
+      "area_m2": 40000.0,
+      "elevation_m": 34.0,
+      "soil_moisture_m3_m3": 0.165,
+      "moisture_trigger_m3_m3": 0.166,
+      "moisture_target_m3_m3": 0.198,
+      "irrigation_latched": false,
+      "valve_open": false,
+      "requested_flow_m3_s": 0.0,
+      "delivered_flow_m3_s": 0.0,
+      "water_stress_0_1": 0.015151515151515138,
+      "head_available_m": 0.0,
+      "head_required_m": 0.0
+    }
+  ],
+  "pump": {
+    "zone_id": "C",
+    "total_dynamic_head_m": 0.0,
+    "required_power_w": 0.0,
+    "power_limit_w": 3000.0,
+    "running": false
+  },
+  "energy": {
+    "hydro_power_w": 0.0,
+    "solar_power_w": 0.0,
+    "pump_power_w": 0.0,
+    "aux_power_w": 0.0,
+    "flush_power_w": 0.0,
+    "battery_energy_j": 43200000.0,
+    "battery_capacity_j": 54000000.0,
+    "battery_soc_0_1": 0.8,
+    "charge_power_w": 0.0,
+    "discharge_power_w": 0.0,
+    "curtail_power_w": 0.0,
+    "unserved_power_w": 0.0
+  },
+  "filtration": {
+    "clog_index_0_1": 0.1,
+    "pressure_drop_pa": 16000.0,
+    "head_loss_m": 1.6309887869520896,
+    "flushing": false,
+    "flush_steps_remaining": 0,
+    "flush_required": false
+  },
+  "environment": {
+    "control_policy": "SMART_HYSTERESIS",
+    "water_quality": "OK",
+    "cloud_factor": 1.0,
+    "solids_loading_multiplier": 1.0,
+    "inflow_available": true,
+    "et0_mm_day": 4.787863728473571
+  },
+  "decisions": [
+    {
+      "zone_id": "A",
+      "requested_action": "KEEP_CLOSED",
+      "accepted": true,
+      "reason_code": "KEEP_CLOSED",
+      "explanation": "No step has been simulated yet."
+    },
+    {
+      "zone_id": "B",
+      "requested_action": "KEEP_CLOSED",
+      "accepted": true,
+      "reason_code": "KEEP_CLOSED",
+      "explanation": "No step has been simulated yet."
+    },
+    {
+      "zone_id": "C",
+      "requested_action": "KEEP_CLOSED",
+      "accepted": true,
+      "reason_code": "KEEP_CLOSED",
+      "explanation": "No step has been simulated yet."
+    }
+  ],
+  "metrics": {
+    "tse_inflow_m3": 0.0,
+    "irrigation_delivered_m3": 0.0,
+    "requested_undelivered_m3": 0.0,
+    "overflow_m3": 0.0,
+    "other_diversion_m3": 0.0,
+    "flush_water_m3": 0.0,
+    "application_loss_m3": 0.0,
+    "deep_percolation_m3": 0.0,
+    "potential_et_m3": 0.0,
+    "actual_et_m3": 0.0,
+    "et_deficit_m3": 0.0,
+    "hydro_energy_j": 0.0,
+    "solar_energy_j": 0.0,
+    "pump_energy_j": 0.0,
+    "aux_energy_j": 0.0,
+    "flush_energy_j": 0.0,
+    "battery_charge_energy_j": 0.0,
+    "battery_discharge_energy_j": 0.0,
+    "battery_losses_j": 0.0,
+    "curtailed_energy_j": 0.0,
+    "unserved_energy_j": 0.0,
+    "required_electrical_energy_j": 0.0,
+    "flush_count": 0
+  },
+  "latest_event_id": 0
+}
