@@ -1,0 +1,63 @@
+.faults {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm);
+}
+
+.fault,
+.qualityField {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-sm) var(--space-md);
+  text-align: left;
+  background: color-mix(in srgb, var(--color-background) 55%, transparent);
+  border: 1px solid var(--color-control-border);
+  border-radius: 0.75rem;
+}
+
+.fault {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-accent);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+}
+
+.faultOn {
+  background: color-mix(in srgb, var(--color-status-warning) 14%, transparent);
+  border-color: var(--color-status-warning);
+}
+
+.faultName {
+  font-size: var(--font-size-small);
+  font-weight: 500;
+}
+
+.faultState {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-label);
+  color: var(--color-text-muted);
+}
+
+.qualitySelect {
+  min-height: 2rem;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-small);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-control-border);
+  border-radius: 0.5rem;
+}
+
+.disclaimer {
+  font-size: var(--font-size-label);
+  color: var(--color-text-muted);
+}
