@@ -25,7 +25,7 @@ export function TwinCanvas() {
   return (
     <Canvas
       dpr={[1, 1.5]}
-      camera={{ position: [22, 17, 24], fov: 38 }}
+      camera={{ position: [27, 21, 30], fov: 38 }}
       fallback={<p>WebGL is not available, so the 3D site view cannot load.</p>}
     >
       <color attach="background" args={[palette.background]} />
@@ -37,8 +37,8 @@ export function TwinCanvas() {
         target={[0, reservoirTopY, 0]}
         minPolarAngle={0.35}
         maxPolarAngle={Math.PI / 2.15}
-        minDistance={16}
-        maxDistance={55}
+        minDistance={22}
+        maxDistance={85}
       />
       <Forest palette={palette} />
       <Infrastructure palette={palette} />
