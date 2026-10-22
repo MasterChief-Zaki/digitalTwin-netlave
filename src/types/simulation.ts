@@ -128,6 +128,8 @@ export interface Metrics {
   pump_energy_j: number;
   aux_energy_j: number;
   flush_energy_j: number;
+  battery_charge_energy_j: number;
+  battery_discharge_energy_j: number;
   battery_losses_j: number;
   curtailed_energy_j: number;
   unserved_energy_j: number;
