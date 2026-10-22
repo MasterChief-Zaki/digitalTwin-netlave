@@ -2,6 +2,8 @@ import type {
   AdvanceRequest,
   AdvanceResponse,
   CommandRequest,
+  CompareRequest,
+  CompareResponse,
   ConflictDetail,
   EventsPage,
   ResetRequest,
@@ -73,4 +75,6 @@ export const simulationApi = {
   getEvents: (sinceId: number) =>
     requestJson<EventsPage>(`/events?since_id=${String(sinceId)}`),
   getScenarios: () => requestJson<ScenariosResponse>("/scenarios"),
+  compare: (request: CompareRequest) =>
+    postJson<CompareResponse>("/compare", request),
 };

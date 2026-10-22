@@ -29,13 +29,12 @@ def clock(step: int, cfg: SiteConfig) -> tuple[int, int]:
 
 def daylight_weight(minute_of_day: int, cfg: SiteConfig) -> float:
     """Normalised share of the daily sine shape that falls in this minute (sums to 1 over a day)."""
-    return _raw_daylight_weight(minute_of_day, cfg) / _daylight_weight_total(cfg)
+    return _daylight_weights(cfg.energy.sunrise_hour, cfg.energy.day_length_h)[minute_of_day]
 
 
 def daily_et0_mm(seed: int, day_index: int, cfg: SiteConfig) -> float:
     """Nominal ET0 with a seeded, deterministic day-to-day variation."""
-    variation = random.Random(f"et0:{seed}:{day_index}").uniform(-1.0, 1.0)
-    return cfg.climate.et0_nominal_mm_day * (1.0 + cfg.climate.et0_daily_variation * variation)
+    return cfg.climate.et0_nominal_mm_day * (1.0 + cfg.climate.et0_daily_variation * _daily_variation(seed, day_index))
 
 
 def tse_inflow_m3_s(hour_of_day: float, cfg: SiteConfig) -> float:
@@ -58,11 +57,17 @@ def inputs_at(step: int, seed: int, inflow_available: bool, cfg: SiteConfig) -> 
     )
 
 
-def _raw_daylight_weight(minute_of_day: int, cfg: SiteConfig) -> float:
-    hour = (minute_of_day + 0.5) / 60.0
-    return max(0.0, math.sin(math.pi * (hour - cfg.energy.sunrise_hour) / cfg.energy.day_length_h))
+@cache
+def _daily_variation(seed: int, day_index: int) -> float:
+    """Uniform in [-1, 1], seeded per day; cached because seeding a Random is costly per step."""
+    return random.Random(f"et0:{seed}:{day_index}").uniform(-1.0, 1.0)
 
 
 @cache
-def _daylight_weight_total(cfg: SiteConfig) -> float:
-    return sum(_raw_daylight_weight(minute, cfg) for minute in range(STEPS_PER_DAY))
+def _daylight_weights(sunrise_hour: float, day_length_h: float) -> tuple[float, ...]:
+    raw = [
+        max(0.0, math.sin(math.pi * ((minute + 0.5) / 60.0 - sunrise_hour) / day_length_h))
+        for minute in range(STEPS_PER_DAY)
+    ]
+    total = sum(raw)
+    return tuple(weight / total for weight in raw)

@@ -48,6 +48,7 @@ class StepResult:
     decisions: tuple[DecisionRecord, ...]
     events: tuple[EventDraft, ...]
     soil: tuple[SoilStepResult, ...]
+    inputs: StepInputs
 
 
 @dataclass(frozen=True)
@@ -189,7 +190,7 @@ def step(previous: SimState, cfg: SiteConfig) -> StepResult:
 
     # 9. Advance the clock once.
     state.step = previous.step + 1
-    return StepResult(state, tuple(decisions), tuple(events), tuple(soil_results))
+    return StepResult(state, tuple(decisions), tuple(events), tuple(soil_results), step_inputs)
 
 
 def _inflow_available(state: SimState) -> bool:

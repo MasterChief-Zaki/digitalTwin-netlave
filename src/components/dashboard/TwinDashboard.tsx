@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useTwinStore } from "@/store/useTwinStore";
 import { Charts } from "./Charts";
+import { Compare } from "./Compare";
 import { Events } from "./Events";
 import { FaultControls } from "./FaultControls";
 import { Kpis } from "./Kpis";
@@ -53,6 +54,7 @@ export function TwinDashboard() {
           <Metrics />
           <Events />
         </div>
+        <Compare />
         <p className={styles.disclaimer}>
           Simulation-driven digital twin prototype with synthetic site
           assumptions. It is not calibrated against field measurements, and its
