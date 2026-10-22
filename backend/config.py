@@ -107,6 +107,8 @@ class EnergyConfig:
     battery_charge_efficiency: float = 0.95
     battery_discharge_efficiency: float = 0.95
     aux_power_w: float = 50.0
+    # The pump only starts with this many minutes of its battery draw above the reserve.
+    pump_start_reserve_minutes: int = 10
 
     @property
     def battery_capacity_j(self) -> float:
@@ -185,6 +187,7 @@ ASSUMPTIONS: tuple[Assumption, ...] = (
     Assumption("Solar profile", "sin(pi(h-6)/12)^1.2, 06:00-18:00", "-", "assumed", "Synthetic, not an irradiance forecast"),
     Assumption("Battery capacity / initial SoC", "15 / 0.80", "kWh / -", "assumed", _PLAN),
     Assumption("Battery cell floor / pump reserve", "0.10 / 0.20", "SoC", "assumed", "Plan ruling 2"),
+    Assumption("Pump start margin above the reserve", "10", "minutes of battery draw", "assumed", "Prevents pump chatter"),
     Assumption("Battery charge and discharge limit / efficiency", "3000 / 0.95", "W / -", "assumed", _PLAN),
     Assumption("Auxiliary load / flush load", "50 / 1200", "W", "assumed", _PLAN),
     Assumption("Soil wilting point / field capacity / saturation", "0.10 / 0.22 / 0.38", "m3/m3", "assumed", "Sandy-loam assumption"),
