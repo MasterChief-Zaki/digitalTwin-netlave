@@ -30,7 +30,7 @@
       "valve_open": false,
       "requested_flow_m3_s": 0.0,
       "delivered_flow_m3_s": 0.0,
-      "water_stress_0_1": 0.0151515,
+      "water_stress_0_1": 0.015151515151515138,
       "head_available_m": 0.0,
       "head_required_m": 0.0
     },
@@ -47,7 +47,7 @@
       "valve_open": false,
       "requested_flow_m3_s": 0.0,
       "delivered_flow_m3_s": 0.0,
-      "water_stress_0_1": 0.0151515,
+      "water_stress_0_1": 0.015151515151515138,
       "head_available_m": 0.0,
       "head_required_m": 0.0
     },
@@ -64,7 +64,7 @@
       "valve_open": false,
       "requested_flow_m3_s": 0.0,
       "delivered_flow_m3_s": 0.0,
-      "water_stress_0_1": 0.0151515,
+      "water_stress_0_1": 0.015151515151515138,
       "head_available_m": 0.0,
       "head_required_m": 0.0
     }
@@ -93,7 +93,7 @@
   "filtration": {
     "clog_index_0_1": 0.1,
     "pressure_drop_pa": 16000.0,
-    "head_loss_m": 1.630989,
+    "head_loss_m": 1.6309887869520896,
     "flushing": false,
     "flush_steps_remaining": 0,
     "flush_required": false
@@ -104,7 +104,7 @@
     "cloud_factor": 1.0,
     "solids_loading_multiplier": 1.0,
     "inflow_available": true,
-    "et0_mm_day": 4.9
+    "et0_mm_day": 4.787863728473571
   },
   "decisions": [
     {
