@@ -33,7 +33,8 @@ export type ReasonCode =
   | "SCENARIO_LOADED"
   | "MOISTURE_TARGET_REACHED"
   | "SCHEDULE_WINDOW_OPEN"
-  | "SCHEDULE_WINDOW_CLOSED";
+  | "SCHEDULE_WINDOW_CLOSED"
+  | "OPERATOR_COMMAND";
 
 export interface Reservoir {
   volume_m3: number;
