@@ -227,3 +227,26 @@ def test_scenarios_lists_presets_and_assumptions(client: TestClient):
     }
     assert all(row["status"] in ("assumed", "derived", "measured") for row in body["assumptions"])
     assert len(body["assumptions"]) >= 25
+
+
+def test_compare_reports_both_policies_without_touching_the_live_run(client: TestClient):
+    advance(client, expected_step=0, steps=3, request_id="before-compare")
+
+    response = client.post("/compare", json={"scenario_id": "baseline", "seed": 7, "horizon_days": 2})
+
+    assert response.status_code == 200
+    report = response.json()
+    assert report["data_mode"] == "SIMULATED"
+    assert report["steps"] == 2 * 1440
+    assert report["fixed_timer"]["policy"] == "FIXED_TIMER"
+    assert report["smart_hysteresis"]["policy"] == "SMART_HYSTERESIS"
+    assert report["fixed_timer"]["input_digest"] == report["smart_hysteresis"]["input_digest"]
+    state = client.get("/state").json()
+    assert state["step"] == 3
+    assert state["environment"]["control_policy"] == "SMART_HYSTERESIS"
+
+
+def test_compare_limits_the_horizon(client: TestClient):
+    for horizon_days in (0, 31):
+        response = client.post("/compare", json={"scenario_id": "baseline", "seed": 7, "horizon_days": horizon_days})
+        assert response.status_code == 422

@@ -24,7 +24,14 @@ const eslintConfig = defineConfig([
   },
   // Turns off ESLint rules that conflict with Prettier; keep after other rule sets.
   prettierCompatibility,
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  globalIgnores([
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+    // Agent worktrees are full checkouts of other branches.
+    ".claude/**",
+  ]),
 ]);
 
 export default eslintConfig;

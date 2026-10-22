@@ -1,0 +1,46 @@
+@use "../../styles/breakpoints" as *;
+
+.ledgers {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-lg);
+
+  @media (width >= $tablet-min-width) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.ledger {
+  width: 100%;
+  font-size: var(--font-size-small);
+  border-collapse: collapse;
+
+  caption {
+    padding-bottom: var(--space-xs);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-label);
+    letter-spacing: 0.06em;
+    text-align: left;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  th,
+  td {
+    padding: var(--space-xs) 0;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--color-border) 50%, transparent);
+  }
+
+  th {
+    font-weight: 400;
+    text-align: left;
+    color: var(--color-text-muted);
+  }
+
+  td {
+    font-family: var(--font-family-mono);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+}

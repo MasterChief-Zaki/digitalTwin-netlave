@@ -2,7 +2,7 @@
 
 import hashlib
 import json
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, field
 
 import schemas
 from config import STEPS_PER_DAY, SiteConfig, ZoneId
@@ -122,17 +122,23 @@ class SimState:
     aux_outage_active: bool = False
 
     def clone(self) -> "SimState":
-        """An owned copy for the next step; cheaper than deepcopy in the comparison loop."""
-        return replace(
-            self,
-            zones=[replace(zone) for zone in self.zones],
-            filter=replace(self.filter),
-            environment=replace(self.environment),
-            power=replace(self.power),
-            pump=replace(self.pump),
-            metrics=replace(self.metrics),
-            decisions=list(self.decisions),
-        )
+        """An owned copy for the next step; field copies are far cheaper than deepcopy or replace()."""
+        copied = _shallow_copy(self)
+        copied.zones = [_shallow_copy(zone) for zone in self.zones]
+        copied.filter = _shallow_copy(self.filter)
+        copied.environment = _shallow_copy(self.environment)
+        copied.power = _shallow_copy(self.power)
+        copied.pump = _shallow_copy(self.pump)
+        copied.metrics = _shallow_copy(self.metrics)
+        copied.decisions = list(self.decisions)
+        return copied
+
+
+def _shallow_copy[T](instance: T) -> T:
+    """Copy a plain (non-frozen, non-slotted) dataclass by its field dictionary, skipping __init__."""
+    copied = object.__new__(type(instance))
+    copied.__dict__.update(instance.__dict__)
+    return copied
 
 
 def new_run_state(

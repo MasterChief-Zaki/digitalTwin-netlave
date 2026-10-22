@@ -48,6 +48,7 @@ class StepResult:
     decisions: tuple[DecisionRecord, ...]
     events: tuple[EventDraft, ...]
     soil: tuple[SoilStepResult, ...]
+    inputs: StepInputs
 
 
 @dataclass(frozen=True)
@@ -109,8 +110,12 @@ def step(previous: SimState, cfg: SiteConfig) -> StepResult:
         DT_S,
     )
 
-    # 4. Deterministic ranking: water stress descending, then zone ID.
-    ranked = sorted(requests, key=lambda request: (-request.water_stress, request.zone_id))
+    # 4. Deterministic ranking: open valves keep their supply (no preemption), then water
+    #    stress descending, then zone ID.
+    ranked = sorted(
+        requests,
+        key=lambda request: (request.action != "KEEP_OPEN", -request.water_stress, request.zone_id),
+    )
 
     # 5. Quality, reservoir, head, manifold, pump and electrical gates.
     surface_m = surface_elevation_m(previous.reservoir_volume_m3, cfg.reservoir)
@@ -185,7 +190,7 @@ def step(previous: SimState, cfg: SiteConfig) -> StepResult:
 
     # 9. Advance the clock once.
     state.step = previous.step + 1
-    return StepResult(state, tuple(decisions), tuple(events), tuple(soil_results))
+    return StepResult(state, tuple(decisions), tuple(events), tuple(soil_results), step_inputs)
 
 
 def _inflow_available(state: SimState) -> bool:

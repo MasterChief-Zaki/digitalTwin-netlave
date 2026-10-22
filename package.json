@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "demo": "node scripts/demo.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
@@ -12,14 +13,16 @@
     "lint:styles": "stylelint \"**/*.{css,scss}\"",
     "typecheck": "next typegen && tsc --noEmit",
     "prepare": "husky",
-    "backend:setup": "node scripts/backend.mjs setup",
-    "backend:dev": "node scripts/backend.mjs dev",
-    "test:backend": "node scripts/backend.mjs test"
+    "backend:setup": "uv --directory backend sync",
+    "backend:dev": "uv --directory backend run uvicorn main:app --host 127.0.0.1 --port 8000 --workers 1",
+    "test:backend": "uv --directory backend run pytest"
   },
   "dependencies": {
     "next": "16.4.2",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "recharts": "^3.10.1",
+    "zustand": "^5.0.16"
   },
   "devDependencies": {
     "@types/node": "^20",
