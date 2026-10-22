@@ -48,3 +48,6 @@ __pycache__/
 # agent worktrees and scratch files
 /.claude/worktrees/
 /.superpowers/
+
+# browser automation output
+/.playwright-mcp/

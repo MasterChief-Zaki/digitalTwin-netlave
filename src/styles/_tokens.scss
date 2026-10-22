@@ -17,9 +17,21 @@
   --color-mist: #c2dfd2;
   --color-moon: #f4fbf9;
 
-  // Dashboard-only accents for warnings and faults, outside the night palette
+  // Dashboard-only accents for warnings and faults, outside the night palette.
+  // Rose rather than an orange so faults never read as zone B's series color.
   --color-sand: #e3c68f; // desert sand, used for warnings
-  --color-ember: #e8846b; // used for faults and denials
+  --color-rose: #f2849c; // used for faults and denials
+
+  // Chart series. Zones take categorical slots 1-3 in fixed order; solar and
+  // hydro take slots 4 and 7, and the pump wears zone C's color because it is
+  // zone C's load. Both sets pass the colorblind and normal-vision checks
+  // (all pairs) on the midnight and deep-navy surfaces.
+  --color-series-zone-a: #3987e5;
+  --color-series-zone-b: #d95926;
+  --color-series-zone-c: #199e70;
+  --color-series-solar: #c98500;
+  --color-series-hydro: #9085e9;
+  --color-series-pump: var(--color-series-zone-c);
 
   // Colors: a midnight page with moon text and lagoon buttons.
   // Lagoon and deep teal are too dark for text on midnight, so they only fill
@@ -39,7 +51,7 @@
   --color-status-active: var(--color-seafoam);
   --color-status-idle: var(--color-teal);
   --color-status-warning: var(--color-sand);
-  --color-status-fault: var(--color-ember);
+  --color-status-fault: var(--color-rose);
 
   // Typography: the font variables come from next/font in layout.tsx
   --font-family-sans: var(--font-space-grotesk), system-ui, sans-serif;
@@ -72,6 +84,7 @@
 
   // Layout
   --content-max-width: 70rem;
+  --dashboard-max-width: 112rem;
   --page-gutter: 1.25rem;
   --header-height: 4rem;
 
