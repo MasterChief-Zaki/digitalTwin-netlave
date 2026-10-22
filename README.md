@@ -13,14 +13,14 @@ Prerequisites: Node.js 24 with pnpm 10, and [uv](https://docs.astral.sh/uv/) (it
 ```bash
 pnpm install          # JavaScript dependencies and the git hooks
 pnpm backend:setup    # Python environment from backend/uv.lock (optional: uv run does it on first start)
-pnpm demo             # simulation API on :8000 and dashboard on http://localhost:3000
+pnpm demo             # builds the dashboard, then serves it on http://localhost:3000 with the API on :8000
 ```
 
 Or use two terminals: `pnpm backend:dev` (FastAPI, one worker, port 8000), then `pnpm dev` (Next.js). The dashboard reaches the API through the Next.js rewrite `/api/*` → `http://127.0.0.1:8000/*`. Before the backend answers, it renders the step-0 fixture.
 
 | Command                                                                | Purpose                                                      |
 | ---------------------------------------------------------------------- | ------------------------------------------------------------ |
-| `pnpm demo`                                                            | Start both servers; Ctrl+C stops both                        |
+| `pnpm demo`                                                            | Production build, then both servers; Ctrl+C stops both       |
 | `pnpm backend:dev`                                                     | FastAPI simulation on 127.0.0.1:8000                         |
 | `pnpm dev`                                                             | Next.js dashboard on localhost:3000                          |
 | `pnpm test:backend`                                                    | Backend test suite (conservation, API, scenarios, A/B, soak) |
