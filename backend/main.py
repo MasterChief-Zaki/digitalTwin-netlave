@@ -9,12 +9,14 @@ import hashlib
 import json
 import threading
 from collections import OrderedDict, deque
+from dataclasses import asdict
 
 from fastapi import FastAPI, Query, Request
 from fastapi.responses import JSONResponse
 
 import schemas
 from config import ASSUMPTIONS, SITE, SiteConfig
+from scenarios.comparison import run_comparison
 from scenarios.presets import SCENARIOS, build_scenario
 from twin.engine import EventDraft, step
 from twin.state import SimState, to_snapshot
@@ -217,6 +219,22 @@ def create_app(cfg: SiteConfig = SITE) -> FastAPI:
                 )
                 for row in ASSUMPTIONS
             ],
+        )
+
+    @app.post("/compare")
+    def post_compare(request: schemas.CompareRequest) -> schemas.CompareResponse:
+        """A headless A/B run on private states; it never takes the live run's lock or touches it."""
+        report = run_comparison(cfg, request.scenario_id, request.seed, request.horizon_days)
+        return schemas.CompareResponse(
+            data_mode="SIMULATED",
+            scenario_id=report.scenario_id,
+            seed=report.seed,
+            horizon_days=report.horizon_days,
+            steps=report.steps,
+            fixed_timer=schemas.PolicyReport(**asdict(report.fixed_timer)),
+            smart_hysteresis=schemas.PolicyReport(**asdict(report.smart_hysteresis)),
+            water_savings_fraction=report.water_savings_fraction,
+            elapsed_s=report.elapsed_s,
         )
 
     return app

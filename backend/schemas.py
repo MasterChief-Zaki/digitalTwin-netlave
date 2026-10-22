@@ -277,3 +277,46 @@ class ScenarioInfo(ContractModel):
 class ScenariosResponse(ContractModel):
     scenarios: list[ScenarioInfo]
     assumptions: list[AssumptionRow]
+
+
+class CompareRequest(ContractModel):
+    scenario_id: ScenarioId = "baseline"
+    seed: int = Field(default=7, ge=0)
+    horizon_days: int = Field(default=14, ge=1, le=30)
+
+
+class PolicyReport(ContractModel):
+    policy: ControlPolicy
+    input_digest: str
+    initial_state_digest: str
+    tse_inflow_m3: float
+    irrigation_delivered_m3: float
+    requested_undelivered_m3: float
+    potential_et_m3: float
+    actual_et_m3: float
+    et_deficit_m3: float
+    et_deficit_mm: float
+    deep_percolation_m3: float
+    overflow_m3: float
+    flush_water_m3: float
+    flush_count: int
+    pump_energy_kwh: float
+    pump_kwh_per_delivered_m3: float
+    required_electrical_kwh: float
+    unserved_kwh: float
+    electrical_autonomy_0_1: float
+    final_battery_soc_0_1: float
+    final_mean_moisture_m3_m3: float
+    denied_request_steps: int
+
+
+class CompareResponse(ContractModel):
+    data_mode: Literal["SIMULATED"]
+    scenario_id: ScenarioId
+    seed: int
+    horizon_days: int
+    steps: int
+    fixed_timer: PolicyReport
+    smart_hysteresis: PolicyReport
+    water_savings_fraction: float
+    elapsed_s: float
