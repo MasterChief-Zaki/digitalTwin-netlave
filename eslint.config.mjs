@@ -1,6 +1,7 @@
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTypescript from "eslint-config-next/typescript";
+import prettierCompatibility from "eslint-config-prettier/flat";
 import typescriptEslint from "typescript-eslint";
 
 const eslintConfig = defineConfig([
@@ -21,6 +22,8 @@ const eslintConfig = defineConfig([
     files: ["**/*.{js,mjs,cjs}"],
     extends: [typescriptEslint.configs.disableTypeChecked],
   },
+  // Turns off ESLint rules that conflict with Prettier; keep after other rule sets.
+  prettierCompatibility,
   globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
 ]);
 
