@@ -12,9 +12,9 @@
     "lint:styles": "stylelint \"**/*.{css,scss}\"",
     "typecheck": "next typegen && tsc --noEmit",
     "prepare": "husky",
-    "backend:setup": "node scripts/backend.mjs setup",
-    "backend:dev": "node scripts/backend.mjs dev",
-    "test:backend": "node scripts/backend.mjs test"
+    "backend:setup": "uv --directory backend sync",
+    "backend:dev": "uv --directory backend run uvicorn main:app --host 127.0.0.1 --port 8000 --workers 1",
+    "test:backend": "uv --directory backend run pytest"
   },
   "dependencies": {
     "next": "16.4.2",
