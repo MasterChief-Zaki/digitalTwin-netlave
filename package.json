@@ -11,7 +11,10 @@
     "format:check": "prettier --check .",
     "lint:styles": "stylelint \"**/*.{css,scss}\"",
     "typecheck": "next typegen && tsc --noEmit",
-    "prepare": "husky"
+    "prepare": "husky",
+    "backend:setup": "node scripts/backend.mjs setup",
+    "backend:dev": "node scripts/backend.mjs dev",
+    "test:backend": "node scripts/backend.mjs test"
   },
   "dependencies": {
     "next": "16.4.2",
