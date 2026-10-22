@@ -1,3 +1,5 @@
+import { TwinDashboard } from "@/components/dashboard/TwinDashboard";
+
 export default function Home() {
-  return <main id="main" />;
+  return <TwinDashboard />;
 }
