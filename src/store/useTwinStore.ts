@@ -77,6 +77,17 @@ interface TwinState {
   ) => Promise<void>;
 }
 
+// Every request that depends on the current step (advance, command, reset)
+// runs one at a time, in click order, and reads the step when it starts. So a
+// fast-forward, a Play press, an operator command and a reset never race, and
+// a late reply can never overwrite a newer run.
+let exclusiveQueue: Promise<unknown> = Promise.resolve();
+function runExclusive<Result>(task: () => Promise<Result>): Promise<Result> {
+  const run = exclusiveQueue.then(task, task);
+  exclusiveQueue = run.catch(() => undefined);
+  return run;
+}
+
 function toChartPoint(snapshot: SimulationSnapshot): ChartPoint {
   const [zoneA, zoneB, zoneC] = snapshot.zones;
   return {
@@ -142,6 +153,92 @@ export const useTwinStore = create<TwinState>()((set, get) => {
     });
   }
 
+  async function advanceNow(steps: number): Promise<boolean> {
+    const { snapshot } = get();
+    set({ requestInFlight: true });
+    try {
+      const reply = await simulationApi.advance({
+        run_generation: snapshot.run_generation,
+        expected_step: snapshot.step,
+        steps,
+        request_id: `${getTabId()}-${String(snapshot.run_generation)}-${String(snapshot.step)}`,
+      });
+      set((current) => ({
+        snapshot: reply.snapshot,
+        connection: "live",
+        events: appendBounded(current.events, reply.events, eventFeedLimit),
+        chartPoints: appendBounded(
+          current.chartPoints,
+          [toChartPoint(reply.snapshot)],
+          chartWindowPoints,
+        ),
+        notice: reply.events_truncated
+          ? "Long fast-forward: only the latest events are shown in the feed."
+          : current.notice,
+      }));
+      return true;
+    } catch (error) {
+      await handleFailure(error);
+      return false;
+    } finally {
+      set({ requestInFlight: false });
+    }
+  }
+
+  async function sendCommandNow(command: Command): Promise<void> {
+    const { snapshot } = get();
+    try {
+      const updated = await simulationApi.command({
+        run_generation: snapshot.run_generation,
+        expected_step: snapshot.step,
+        command,
+      });
+      const eventsPage = await simulationApi.getEvents(
+        updated.latest_event_id - 1,
+      );
+      set((current) => ({
+        snapshot: updated,
+        events: appendBounded(
+          current.events,
+          eventsPage.events,
+          eventFeedLimit,
+        ),
+      }));
+    } catch (error) {
+      await handleFailure(error);
+    }
+  }
+
+  async function resetRunNow(
+    scenarioId: ScenarioId,
+    seed: number,
+    controlPolicy: ControlPolicy,
+  ): Promise<void> {
+    try {
+      const snapshot = await simulationApi.reset({
+        scenario_id: scenarioId,
+        seed,
+        control_policy: controlPolicy,
+      });
+      const eventsPage = await simulationApi.getEvents(
+        snapshot.latest_event_id - 1,
+      );
+      set((current) => ({
+        snapshot,
+        connection: "live",
+        notice: null,
+        chartPoints: [toChartPoint(snapshot)],
+        events: appendBounded(
+          current.events,
+          eventsPage.events,
+          eventFeedLimit,
+        ),
+      }));
+    } catch (error) {
+      await handleFailure(error);
+    }
+  }
+
   return {
     snapshot: initialSnapshot,
     connection: "fixture",
@@ -199,39 +296,8 @@ export const useTwinStore = create<TwinState>()((set, get) => {
       set({ playing: false });
     },
 
-    async advance(steps) {
-      const { snapshot, requestInFlight } = get();
-      if (requestInFlight) {
-        return false;
-      }
-      set({ requestInFlight: true });
-      try {
-        const reply = await simulationApi.advance({
-          run_generation: snapshot.run_generation,
-          expected_step: snapshot.step,
-          steps,
-          request_id: `${getTabId()}-${String(snapshot.run_generation)}-${String(snapshot.step)}`,
-        });
-        set((current) => ({
-          snapshot: reply.snapshot,
-          connection: "live",
-          events: appendBounded(current.events, reply.events, eventFeedLimit),
-          chartPoints: appendBounded(
-            current.chartPoints,
-            [toChartPoint(reply.snapshot)],
-            chartWindowPoints,
-          ),
-          notice: reply.events_truncated
-            ? "Long fast-forward: only the latest events are shown in the feed."
-            : current.notice,
-        }));
-        return true;
-      } catch (error) {
-        await handleFailure(error);
-        return false;
-      } finally {
-        set({ requestInFlight: false });
-      }
+    advance(steps) {
+      return runExclusive(() => advanceNow(steps));
     },
 
     async fastForward(totalSteps) {
@@ -255,55 +321,13 @@ export const useTwinStore = create<TwinState>()((set, get) => {
       set({ selectedZoneId: zoneId });
     },
 
-    async sendCommand(command) {
-      const { snapshot } = get();
-      try {
-        const updated = await simulationApi.command({
-          run_generation: snapshot.run_generation,
-          expected_step: snapshot.step,
-          command,
-        });
-        const eventsPage = await simulationApi.getEvents(
-          updated.latest_event_id - 1,
-        );
-        set((current) => ({
-          snapshot: updated,
-          events: appendBounded(
-            current.events,
-            eventsPage.events,
-            eventFeedLimit,
-          ),
-        }));
-      } catch (error) {
-        await handleFailure(error);
-      }
+    sendCommand(command) {
+      return runExclusive(() => sendCommandNow(command));
     },
 
-    async resetRun(scenarioId, seed, controlPolicy) {
+    resetRun(scenarioId, seed, controlPolicy) {
       set({ playing: false });
-      try {
-        const snapshot = await simulationApi.reset({
-          scenario_id: scenarioId,
-          seed,
-          control_policy: controlPolicy,
-        });
-        const eventsPage = await simulationApi.getEvents(
-          snapshot.latest_event_id - 1,
-        );
-        set((current) => ({
-          snapshot,
-          connection: "live",
-          notice: null,
-          chartPoints: [toChartPoint(snapshot)],
-          events: appendBounded(
-            current.events,
-            eventsPage.events,
-            eventFeedLimit,
-          ),
-        }));
-      } catch (error) {
-        await handleFailure(error);
-      }
+      return runExclusive(() => resetRunNow(scenarioId, seed, controlPolicy));
     },
   };
 });
