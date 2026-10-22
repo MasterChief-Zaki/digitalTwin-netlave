@@ -8,7 +8,7 @@
 
 **Architecture:** FastAPI (one process, one worker, one `threading.Lock`) holds one in-memory run. `engine.step(state, cfg, inputs)` advances 60 s in the causal order of §6 and asserts water, soil and electrical balances every step. The browser reaches it through a Next.js rewrite (`/api/*` → `http://127.0.0.1:8000/*`). Zustand keeps the latest snapshot plus UI-only state (selected zone, play/pause, speed, chart window). React Three Fiber draws the same snapshot and never computes physics.
 
-**Tech stack:** Next.js 16.4.2, React 19.3, TypeScript strict, SCSS modules, three 0.186 + `@react-three/fiber` 9 + `@react-three/drei` 10 (the `netlave` compatibility line), Zustand, Recharts. Python 3.12+, FastAPI, Pydantic 2, pytest, httpx.
+**Tech stack:** Next.js 16.4.2, React 19.3, TypeScript strict, SCSS modules, three 0.186 + `@react-three/fiber` 9 + `@react-three/drei` 10 (the `netlave` compatibility line), Zustand, Recharts. Python 3.12+ managed with uv, FastAPI, Pydantic 2, pytest, httpx2.
 
 ## Global Constraints
 
@@ -42,7 +42,7 @@
 
 ## Rulings on the spec
 
-1. **Repository layout.** The Next.js app lives at the repo root (like `netlave` and `landing-netlave`) and the Python service in `backend/`, instead of `frontend/` + `backend/`. One `package.json`, one Husky hook, and `pnpm` commands from the root. `scripts/backend.mjs` runs the venv's Python on any OS.
+1. **Repository layout.** The Next.js app lives at the repo root (like `netlave` and `landing-netlave`) and the Python service in `backend/`, instead of `frontend/` + `backend/`. One `package.json`, one Husky hook, and `pnpm` commands from the root. The `backend:*` and `test:backend` scripts call `uv --directory backend …`, so they work on any OS.
 2. **Two battery thresholds.** The spec lists both "0.2–1.0 SoC" and a "20% pump reserve". The cells may discharge to 0.10 for the 50 W auxiliary load; the pump may only draw battery energy above 0.20. Otherwise the reserve reserves nothing, and `AUX_POWER_OUTAGE` and `BATTERY_BELOW_RESERVE` collapse into one condition.
 3. **Extra reason codes.** The required list has no code for an accepted hysteresis stop or fixed-timer actions, so three are added: `MOISTURE_TARGET_REACHED`, `SCHEDULE_WINDOW_OPEN`, `SCHEDULE_WINDOW_CLOSED`. A pump that would exceed its 3 kW envelope at the computed head is reported as `INSUFFICIENT_HEAD`.
 4. **Denial events are per episode.** Every denied step is in that step's `decisions`. The event log records a denial when it starts or its reason changes for that zone, not on every one of the up to 1,440 repeated steps per day; otherwise one night of pump denials pushes every flush and overflow event out of the 1,000-event history.
@@ -71,7 +71,7 @@
 
 ### Task 2: Simulation contract — `feature/simulation-contract`
 
-**Produces:** `backend/schemas.py` (Pydantic models of §3 plus rulings 5–6, request payloads, `ConflictError` envelope), `backend/config.py` (one frozen `SiteConfig` with every constant above), `src/types/simulation.ts` (the same shapes), `src/fixtures/initial-snapshot.json` (§3 initial fixture), the `/api` rewrite in `next.config.ts`, `backend/requirements.txt` (installation-tested pins), `scripts/backend.mjs` and the `backend:*` / `test:backend` scripts.
+**Produces:** `backend/schemas.py` (Pydantic models of §3 plus rulings 5–6, request payloads, `ConflictError` envelope), `backend/config.py` (one frozen `SiteConfig` with every constant above), `src/types/simulation.ts` (the same shapes), `src/fixtures/initial-snapshot.json` (§3 initial fixture), the `/api` rewrite in `next.config.ts`, `backend/pyproject.toml` and `backend/uv.lock` (uv-locked dependencies) and the `backend:*` / `test:backend` scripts.
 
 - [ ] Tests first: `test_contract.py` validates the fixture with Pydantic and asserts every reason code string.
 - Checks: `pnpm test:backend` plus the frontend checks.

@@ -18,12 +18,14 @@ A simulation-driven digital twin of a self-powered, treated-wastewater (TSE) irr
 - Styling: SCSS modules (`*.module.scss`), globals in `src/app/globals.scss`, design tokens in `src/styles/_tokens.scss` (the NetLave night palette)
 - 3D: three.js through React Three Fiber (`@react-three/fiber`) with drei (`@react-three/drei`) helpers
 - Charts: Recharts. Client state: Zustand.
-- Backend: Python 3.12+, FastAPI and Pydantic in `backend/`, tested with pytest
+- Backend: Python 3.12+ (pinned to 3.14 in `backend/.python-version`), FastAPI and Pydantic in `backend/`, tested with pytest
 - Import alias: `@/*` → `src/*`
 
 ## Commands
 
-Use **pnpm** only. Never npm or yarn, and never commit another lockfile.
+Use **pnpm** only for JavaScript. Never npm or yarn, and never commit another lockfile.
+
+Use **uv** only for Python: dependencies live in `backend/pyproject.toml` and `backend/uv.lock`. Add them with `uv add` (or `uv add --dev`) from `backend/`, and run Python through `uv run`. Never pip, a hand-made venv or a `requirements.txt`.
 
 | Command               | Purpose                                         |
 | --------------------- | ----------------------------------------------- |
@@ -34,7 +36,7 @@ Use **pnpm** only. Never npm or yarn, and never commit another lockfile.
 | `pnpm format`         | Prettier, write changes                         |
 | `pnpm format:check`   | Prettier, check only                            |
 | `pnpm typecheck`      | Generate Next types, run `tsc`                  |
-| `pnpm backend:setup`  | Create `backend/.venv` and install requirements |
+| `pnpm backend:setup`  | `uv sync`: install the locked backend environment |
 | `pnpm backend:dev`    | Start the FastAPI server on port 8000           |
 | `pnpm test:backend`   | Run the backend test suite                      |
 

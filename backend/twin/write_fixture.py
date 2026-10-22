@@ -1,6 +1,6 @@
 """Regenerate `src/fixtures/initial-snapshot.json` from the engine's step-0 state.
 
-Run from `backend/`: `.venv/Scripts/python -m twin.write_fixture` (or `.venv/bin/python`).
+Run from `backend/`: `uv run python -m twin.write_fixture`.
 `test_initial_snapshot_matches_the_shared_fixture` fails until it is rerun after a contract change.
 """
 
