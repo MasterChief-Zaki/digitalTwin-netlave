@@ -49,3 +49,14 @@
 .hint {
   color: var(--color-text);
 }
+
+.unavailable {
+  display: grid;
+  height: 100%;
+  padding: var(--space-xl);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+  text-align: center;
+  place-items: center;
+}
