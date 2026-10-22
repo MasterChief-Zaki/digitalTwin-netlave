@@ -1,0 +1,115 @@
+.controls {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: flex-end;
+
+  button {
+    min-height: 2.5rem;
+    padding-inline: var(--space-lg);
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fieldLabel {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-label);
+  color: var(--color-text-muted);
+}
+
+.daysInput {
+  width: 4.5rem;
+  min-height: 2.5rem;
+  padding: 0 var(--space-sm);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-small);
+  color: var(--color-text);
+  background: var(--color-background);
+  border: 1px solid var(--color-control-border);
+  border-radius: 0.5rem;
+}
+
+.note,
+.provenance {
+  max-width: 80ch;
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+
+.provenance {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-label);
+}
+
+.error {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-small);
+  color: var(--color-status-fault);
+}
+
+.tableScroll {
+  overflow-x: auto;
+}
+
+.reportTable {
+  width: 100%;
+  font-size: var(--font-size-small);
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: var(--space-xs) var(--space-sm);
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--color-border) 50%, transparent);
+  }
+
+  thead th {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-label);
+    font-weight: 500;
+    color: var(--color-text-muted);
+    text-align: right;
+  }
+
+  thead th:first-child,
+  tbody th {
+    text-align: left;
+  }
+
+  tbody th {
+    font-weight: 400;
+    color: var(--color-text-muted);
+  }
+
+  td {
+    font-family: var(--font-family-mono);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+  }
+}
+
+// The better value for rows where lower is clearly better; text stays in text ink.
+.better {
+  font-weight: 600;
+  box-shadow: inset 2px 0 0 var(--color-status-active);
+}
+
+.unit {
+  font-size: var(--font-size-label);
+  color: var(--color-text-muted);
+}
+
+.summary {
+  max-width: 80ch;
+  font-size: var(--font-size-small);
+}

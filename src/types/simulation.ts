@@ -233,3 +233,46 @@ export interface ScenariosResponse {
   scenarios: ScenarioInfo[];
   assumptions: AssumptionRow[];
 }
+
+export interface CompareRequest {
+  scenario_id: ScenarioId;
+  seed: number;
+  horizon_days: number;
+}
+
+export interface PolicyReport {
+  policy: ControlPolicy;
+  input_digest: string;
+  initial_state_digest: string;
+  tse_inflow_m3: number;
+  irrigation_delivered_m3: number;
+  requested_undelivered_m3: number;
+  potential_et_m3: number;
+  actual_et_m3: number;
+  et_deficit_m3: number;
+  et_deficit_mm: number;
+  deep_percolation_m3: number;
+  overflow_m3: number;
+  flush_water_m3: number;
+  flush_count: number;
+  pump_energy_kwh: number;
+  pump_kwh_per_delivered_m3: number;
+  required_electrical_kwh: number;
+  unserved_kwh: number;
+  electrical_autonomy_0_1: number;
+  final_battery_soc_0_1: number;
+  final_mean_moisture_m3_m3: number;
+  denied_request_steps: number;
+}
+
+export interface CompareResponse {
+  data_mode: "SIMULATED";
+  scenario_id: ScenarioId;
+  seed: number;
+  horizon_days: number;
+  steps: number;
+  fixed_timer: PolicyReport;
+  smart_hysteresis: PolicyReport;
+  water_savings_fraction: number;
+  elapsed_s: number;
+}
