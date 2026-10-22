@@ -17,6 +17,10 @@
   --color-mist: #c2dfd2;
   --color-moon: #f4fbf9;
 
+  // Dashboard-only accents for warnings and faults, outside the night palette
+  --color-sand: #e3c68f; // desert sand, used for warnings
+  --color-ember: #e8846b; // used for faults and denials
+
   // Colors: a midnight page with moon text and lagoon buttons.
   // Lagoon and deep teal are too dark for text on midnight, so they only fill
   // buttons and draw decorative dividers; text uses the lighter palette colors.
@@ -30,6 +34,12 @@
   --color-primary-hover: var(--color-deep-teal);
   --color-on-primary: var(--color-moon);
   --color-accent: var(--color-seafoam);
+
+  // Status colors the dashboard uses for equipment and event states
+  --color-status-active: var(--color-seafoam);
+  --color-status-idle: var(--color-teal);
+  --color-status-warning: var(--color-sand);
+  --color-status-fault: var(--color-ember);
 
   // Typography: the font variables come from next/font in layout.tsx
   --font-family-sans: var(--font-space-grotesk), system-ui, sans-serif;
