@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint:styles": "stylelint \"**/*.{css,scss}\""
+    "lint:styles": "stylelint \"**/*.{css,scss}\"",
+    "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
     "next": "16.4.2",
