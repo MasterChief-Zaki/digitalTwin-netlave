@@ -14,12 +14,23 @@ import { StatusBar } from "./StatusBar";
 import { ZoneControls } from "./ZoneControls";
 import styles from "./TwinDashboard.module.scss";
 
+const reconnectIntervalMs = 3000;
+
 export function TwinDashboard() {
   const connect = useTwinStore((state) => state.connect);
   const notice = useTwinStore((state) => state.notice);
 
   useEffect(() => {
     void connect();
+    // The backend may start after the page (pnpm demo) or restart mid-demo; keep retrying until live.
+    const reconnectTimer = setInterval(() => {
+      if (useTwinStore.getState().connection !== "live") {
+        void connect();
+      }
+    }, reconnectIntervalMs);
+    return () => {
+      clearInterval(reconnectTimer);
+    };
   }, [connect]);
 
   return (
