@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { LazyTwin } from "@/components/twin/LazyTwin";
 import { useTwinStore } from "@/store/useTwinStore";
 import { Charts } from "./Charts";
 import { Compare } from "./Compare";
@@ -13,12 +14,23 @@ import { StatusBar } from "./StatusBar";
 import { ZoneControls } from "./ZoneControls";
 import styles from "./TwinDashboard.module.scss";
 
+const reconnectIntervalMs = 3000;
+
 export function TwinDashboard() {
   const connect = useTwinStore((state) => state.connect);
   const notice = useTwinStore((state) => state.notice);
 
   useEffect(() => {
     void connect();
+    // The backend may start after the page (pnpm demo) or restart mid-demo; keep retrying until live.
+    const reconnectTimer = setInterval(() => {
+      if (useTwinStore.getState().connection !== "live") {
+        void connect();
+      }
+    }, reconnectIntervalMs);
+    return () => {
+      clearInterval(reconnectTimer);
+    };
   }, [connect]);
 
   return (
@@ -39,9 +51,7 @@ export function TwinDashboard() {
             className={styles.sitePanel}
           >
             <div className={styles.twinSlot}>
-              <p className={styles.twinPlaceholder}>
-                The 3D forest renders here.
-              </p>
+              <LazyTwin />
             </div>
           </Panel>
           <div className={styles.sideColumn}>

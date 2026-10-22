@@ -55,15 +55,6 @@
   }
 }
 
-.twinPlaceholder {
-  display: grid;
-  height: 100%;
-  font-family: var(--font-family-mono);
-  font-size: var(--font-size-small);
-  color: var(--color-text-muted);
-  place-items: center;
-}
-
 .sideColumn {
   display: flex;
   flex-direction: column;

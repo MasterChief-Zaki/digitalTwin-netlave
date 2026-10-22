@@ -49,6 +49,12 @@
 5. **Snapshot extensions.** Beyond §3's required members, the snapshot carries `environment` (water quality, cloud factor, solids multiplier, inflow availability, ET0), per-zone `control_mode`, `head_available_m` and `head_required_m`, `pump` hydraulics for zone C, and `reservoir.surface_elevation_m`. These make the "uphill proof" and "fault" demo acts visible without the UI inferring physics.
 6. **Operator commands are environment or control changes, never state edits.** `set_zone_mode` (AUTO / MANUAL_OPEN / MANUAL_CLOSED), `set_water_quality`, `set_cloud_factor`, `set_solids_multiplier` and `set_inflow_available`. A filter fault is injected by raising the solids-loading multiplier; the clogging itself comes from the engine.
 
+7. **Start margins against chatter.** Gate 3 needs 10 minutes of a zone's flow above the dead volume to START (one minute to KEEP_OPEN), and gate 7 needs 10 minutes of the pump's battery draw above the 20% reserve to START. Without them, valves near an empty reservoir and the pump under low solar flipped between granted and denied every minute.
+8. **No preemption.** Requests are ranked open valves first, then water stress, then zone ID. Ranking by stress alone made zones A and B take the shared manifold from each other every few minutes.
+9. **Low-solar preset at 24% SoC.** The spec suggests "around 0.21"; at 0.21 the pump is denied on the first step, and at 0.24 it visibly runs about 13 minutes before the reserve denies it.
+10. **Python uses uv.** `backend/pyproject.toml` and `backend/uv.lock` replace pip and `requirements.txt`; the pnpm scripts call `uv --directory backend …`.
+11. **The demo runs a production build.** Production React redraws the dashboard several times faster than development mode, and the charts redraw at most once a second because Recharts costs tens of milliseconds per render.
+
 ## Review Focus
 
 1. **Accounting:** every step closes the reservoir, soil and bus/cell balances with a mixed abs/rel tolerance, and a failure raises with step, account, lhs/rhs.

@@ -1,5 +1,7 @@
-// Starts the simulation backend (port 8000) and the Next.js dashboard (port 3000)
-// together for an offline demo: `pnpm demo`. Ctrl+C stops both.
+// Starts the simulation backend (port 8000) and the production Next.js server
+// (port 3000) together for an offline demo. `pnpm demo` builds the dashboard
+// first: production React redraws the dashboard several times faster than
+// development mode. Ctrl+C stops both.
 //
 // Each server is stopped with its whole process tree. Stopping only `pnpm` can
 // leave uvicorn or Next running on its port, and the next start then fails.
@@ -8,7 +10,7 @@ import { spawn, spawnSync } from "node:child_process";
 const isWindows = process.platform === "win32";
 const servers = [
   { name: "backend", scriptName: "backend:dev" },
-  { name: "dashboard", scriptName: "dev" },
+  { name: "dashboard", scriptName: "start" },
 ];
 let stopping = false;
 

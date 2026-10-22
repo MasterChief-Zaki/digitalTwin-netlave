@@ -30,7 +30,7 @@ Use **uv** only for Python: dependencies live in `backend/pyproject.toml` and `b
 | Command               | Purpose                                         |
 | --------------------- | ----------------------------------------------- |
 | `pnpm dev`            | Start the Next.js dev server                    |
-| `pnpm demo`           | Start the backend and the dashboard together    |
+| `pnpm demo`           | Build, then serve the dashboard and the backend |
 | `pnpm build`          | Production build                                |
 | `pnpm lint`           | ESLint (`next lint` is removed)                 |
 | `pnpm lint:styles`    | Stylelint for CSS/SCSS                          |
