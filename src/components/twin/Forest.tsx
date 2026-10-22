@@ -3,6 +3,7 @@
 import { Edges } from "@react-three/drei";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
+import { reasonPresentation } from "@/lib/reasonCodes";
 import {
   Color,
   ConeGeometry,
@@ -66,11 +67,14 @@ function zoneStateColor(
   id: ZoneId,
   palette: TwinPalette,
 ): Color {
-  const rejected = snapshot.decisions.some(
+  // Denials use the dashboard's tones: a wait (manifold, flush) is a warning, a hard limit a fault.
+  const denial = snapshot.decisions.find(
     (decision) => decision.zone_id === id && !decision.accepted,
   );
-  if (rejected) {
-    return palette.fault;
+  if (denial) {
+    return reasonPresentation[denial.reason_code].tone === "warning"
+      ? palette.warning
+      : palette.fault;
   }
   return findZone(snapshot, id)?.valve_open === true
     ? palette.active
