@@ -42,6 +42,10 @@
   background: var(--color-status-idle);
 }
 
+.waiting {
+  background: var(--color-status-warning);
+}
+
 .fault {
   background: var(--color-status-fault);
 }

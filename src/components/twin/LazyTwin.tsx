@@ -34,6 +34,10 @@ export function LazyTwin() {
           Idle
         </li>
         <li className={styles.legendItem}>
+          <span className={classNames(styles.swatch, styles.waiting)} />
+          Waiting
+        </li>
+        <li className={styles.legendItem}>
           <span className={classNames(styles.swatch, styles.fault)} />
           Fault
         </li>
