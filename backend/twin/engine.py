@@ -12,6 +12,7 @@ import schemas
 from config import DT_S, SiteConfig, ZoneConfig
 from control.policy import ZoneRequest, propose
 from control.safety import Grant, SafetyContext, ZoneHydraulics, resolve
+from control.scheduler import schedule
 from models.energy import Dispatch, dispatch
 from models.solar_profiles import profile_solar_power_w
 from models.filtration import FlushPlan, filter_head_loss_m, load_filter, plan_flush
@@ -114,6 +115,12 @@ def step(previous: SimState, cfg: SiteConfig) -> StepResult:
         DT_S,
     )
 
+    demand_requests = requests
+    deferred: dict[str, schemas.ReasonCode] = {}
+    if environment.control_policy == "SMART_RESOURCE_AWARE":
+        scheduled = schedule(requests, state, cfg, hydro_w + solar_w, aux_w + flush.power_w, flush.water_m3)
+        requests, deferred = scheduled.requests, scheduled.deferred
+
     # 4. Deterministic ranking: open valves keep their supply (no preemption), then water
     #    stress descending, then zone ID.
     ranked = sorted(
@@ -152,10 +159,12 @@ def step(previous: SimState, cfg: SiteConfig) -> StepResult:
     reservoir = update_reservoir(previous.reservoir_volume_m3, inflow_m3, delivered_m3 + flush.water_m3, cfg.reservoir)
     soil_results = []
     decisions = []
-    for zone, zone_config, request in zip(state.zones, cfg.zones, requests, strict=True):
+    for zone, zone_config, request, demand in zip(state.zones, cfg.zones, requests, demand_requests, strict=True):
         grant = grants[zone.zone_id]
         soil = update_soil(zone.theta_m3_m3, grant.flow_m3_s * DT_S, step_inputs.et0_step_mm, zone_config, cfg.soil)
         soil_results.append(soil)
+        if environment.control_policy == "SMART_RESOURCE_AWARE" and zone.control_mode == "AUTO":
+            _book_session(zone, demand, grant, deferred.get(zone.zone_id), state.step, cfg)
         decisions.append(_apply_grant(state, zone, request, grant, soil, hydraulics[zone.zone_id], events, cfg))
 
     _book_water(state, inflow_m3, delivered_m3, flush.water_m3, reservoir.overflow_m3, soil_results)
@@ -199,6 +208,40 @@ def step(previous: SimState, cfg: SiteConfig) -> StepResult:
     # 9. Advance the clock once.
     state.step = previous.step + 1
     return StepResult(state, tuple(decisions), tuple(events), tuple(soil_results), step_inputs)
+
+
+def _book_session(zone: ZoneState, demand: ZoneRequest, grant: Grant,
+                  deferral: schemas.ReasonCode | None, step_index: int, cfg: SiteConfig) -> None:
+    session = zone.session
+    if not demand.wants_water:
+        session.remaining_volume_m3 = 0.0
+        session.paused = False
+        session.active_minutes = 0
+        session.waiting_steps = 0
+        return
+    if deferral is not None:
+        zone.accounts.irrigation_requested_m3 += demand.flow_m3_s * DT_S
+        zone.accounts.deferred_by_reason_min[deferral] = zone.accounts.deferred_by_reason_min.get(deferral, 0.0) + DT_S / 60.0
+    if grant.flow_m3_s <= 0:
+        session.waiting_steps += 1
+        if zone.valve_open and session.remaining_volume_m3 > 0 and not session.paused:
+            session.paused = True
+            zone.accounts.pause_count += 1
+        return
+    if session.remaining_volume_m3 <= 0:
+        session.remaining_volume_m3 = demand.flow_m3_s * cfg.scheduler.session_minutes * 60
+        session.active_minutes = 0
+        zone.accounts.session_count += 1
+    elif session.paused:
+        zone.accounts.resume_count += 1
+        session.paused = False
+    session.remaining_volume_m3 = max(0.0, session.remaining_volume_m3 - grant.flow_m3_s * DT_S)
+    session.active_minutes += 1
+    session.waiting_steps = 0
+    if session.remaining_volume_m3 <= 1e-9:
+        session.remaining_volume_m3 = 0.0
+        session.rest_until_step = step_index + 1 + cfg.scheduler.minimum_rest_minutes
+        session.paused = False
 
 
 def _inflow_available(state: SimState) -> bool:
@@ -251,7 +294,7 @@ def _apply_grant(
     accounts.minimum_moisture_m3_m3 = min(accounts.minimum_moisture_m3_m3, soil.theta_m3_m3)
     margin_m = zone.head_available_m - zone.head_required_m
     accounts.minimum_head_margin_m = margin_m if accounts.minimum_head_margin_m is None else min(accounts.minimum_head_margin_m, margin_m)
-    if grant.flow_m3_s > 0 and not zone.valve_open:
+    if grant.flow_m3_s > 0 and not zone.valve_open and state.environment.control_policy != "SMART_RESOURCE_AWARE":
         accounts.session_count += 1
     zone.irrigation_latched = request.irrigation_latched
     zone.valve_open = grant.flow_m3_s > 0

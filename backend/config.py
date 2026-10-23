@@ -135,6 +135,21 @@ class ClimateConfig:
 
 
 @dataclass(frozen=True)
+class SchedulerConfig:
+    operating_inventory_m3: float = 850.0
+    head_margin_m: float = 0.10
+    pump_power_margin_fraction: float = 0.01
+    design_clog_index: float = 0.44
+    session_minutes: int = 30
+    minimum_run_minutes: int = 10
+    minimum_rest_minutes: int = 10
+    restart_inventory_margin_m3: float = 20.0
+    operating_battery_soc: float = 0.35
+    restart_battery_soc_margin: float = 0.02
+    energy_aware: bool = True
+
+
+@dataclass(frozen=True)
 class SiteConfig:
     zones: tuple[ZoneConfig, ...]
     soil: SoilConfig = field(default_factory=SoilConfig)
@@ -145,6 +160,7 @@ class SiteConfig:
     filtration: FiltrationConfig = field(default_factory=FiltrationConfig)
     climate: ClimateConfig = field(default_factory=ClimateConfig)
     start_hour: int = 6
+    scheduler: SchedulerConfig = field(default_factory=SchedulerConfig)
 
 
 SITE = SiteConfig(
@@ -199,5 +215,10 @@ ASSUMPTIONS: tuple[Assumption, ...] = (
     Assumption("Filter loading per filtered m3", "3.5e-4", "CI/m3", "assumed", "Chosen to flush about every 2 days at baseline"),
     Assumption("Flush threshold / water / energy", "0.60 / 1.5 / 0.10", "CI / m3 / kWh", "assumed", _PLAN),
     Assumption("Leaching allowance (fixed timer only)", "15", "%", "assumed", "Scenario allowance, not salinity control"),
+    Assumption("Scheduler inventory / head margin / design clog", "850 / 0.10 / 0.44", "m3 / m / CI", "assumed", "RCA scheduling operating targets, not safety limits"),
+    Assumption("Scheduler pump power margin", "1", "%", "assumed", "P0 avoids rated-flow envelope boundary"),
+    Assumption("Scheduler session / min run / rest", "30 / 10 / 10", "min", "assumed", "Bounded sessions and restart hysteresis"),
+    Assumption("Scheduler restart inventory margin", "20", "m3", "assumed", "Avoids inventory-boundary chatter"),
+    Assumption("Scheduler battery operating / restart margin", "0.35 / 0.02", "SoC", "assumed", "RCA P0 operating margin; safety reserve remains 0.20"),
     Assumption("Water-quality flag", "synthetic OK / HOLD / UNKNOWN", "-", "assumed", "Not an Egyptian regulatory compliance test"),
 )

@@ -14,7 +14,7 @@ from config import FeedMode, ZoneId
 SCHEMA_VERSION = "1.1"
 
 ControlMode = Literal["AUTO", "MANUAL_OPEN", "MANUAL_CLOSED"]
-ControlPolicy = Literal["SMART_HYSTERESIS", "FIXED_TIMER"]
+ControlPolicy = Literal["SMART_HYSTERESIS", "FIXED_TIMER", "SMART_RESOURCE_AWARE"]
 RequestedAction = Literal["START", "KEEP_OPEN", "STOP", "KEEP_CLOSED"]
 WaterQuality = Literal["OK", "HOLD", "UNKNOWN"]
 ScenarioId = Literal["baseline", "clogged_filter", "low_solar", "tse_interrupt"]
@@ -43,6 +43,10 @@ ReasonCode = Literal[
     "SCHEDULE_WINDOW_OPEN",
     "SCHEDULE_WINDOW_CLOSED",
     "OPERATOR_COMMAND",
+    "SCHEDULER_WATER_HOLD",
+    "SCHEDULER_ENERGY_HOLD",
+    "SCHEDULER_QUEUE",
+    "SCHEDULER_REST",
 ]
 
 

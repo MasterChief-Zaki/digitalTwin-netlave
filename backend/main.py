@@ -109,7 +109,7 @@ class TwinService:
         self.run_generation += 1
         self.replies.clear()
         self.state = build_scenario(self.cfg, scenario_id, seed=seed, control_policy=control_policy)
-        policy_name = "smart hysteresis" if control_policy == "SMART_HYSTERESIS" else "fixed timer"
+        policy_name = control_policy.replace("_", " ").lower()
         self._record(
             0,
             EventDraft(

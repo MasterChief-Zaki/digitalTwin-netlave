@@ -4,7 +4,8 @@
 export type ZoneId = "A" | "B" | "C";
 export type FeedMode = "GRAVITY" | "PUMPED";
 export type ControlMode = "AUTO" | "MANUAL_OPEN" | "MANUAL_CLOSED";
-export type ControlPolicy = "SMART_HYSTERESIS" | "FIXED_TIMER";
+export type ControlPolicy =
+  "SMART_HYSTERESIS" | "FIXED_TIMER" | "SMART_RESOURCE_AWARE";
 export type RequestedAction = "START" | "KEEP_OPEN" | "STOP" | "KEEP_CLOSED";
 export type WaterQuality = "OK" | "HOLD" | "UNKNOWN";
 export type ScenarioId =
@@ -34,7 +35,11 @@ export type ReasonCode =
   | "MOISTURE_TARGET_REACHED"
   | "SCHEDULE_WINDOW_OPEN"
   | "SCHEDULE_WINDOW_CLOSED"
-  | "OPERATOR_COMMAND";
+  | "OPERATOR_COMMAND"
+  | "SCHEDULER_WATER_HOLD"
+  | "SCHEDULER_ENERGY_HOLD"
+  | "SCHEDULER_QUEUE"
+  | "SCHEDULER_REST";
 
 export interface Reservoir {
   volume_m3: number;

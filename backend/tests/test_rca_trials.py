@@ -66,7 +66,9 @@ def test_historical_reference_is_pinned_to_code_and_configuration() -> None:
     reference = json.loads(REFERENCE_PATH.read_text(encoding="utf-8"))
     manifest = reference["provenance"]
     assert manifest["git_commit"] == REFERENCE_COMMIT
-    assert manifest["configuration_digest"] == json_digest(asdict(SITE))
+    historical_config = asdict(SITE)
+    historical_config.pop("scheduler")
+    assert manifest["configuration_digest"] == json_digest(historical_config)
     assert manifest["runtime"]["uv_lock_digest"] == text_digest(REPO_ROOT / "backend" / "uv.lock")
     assert {trial["scenario_id"] for trial in reference["trials"]} == {scenario.id for scenario in SCENARIOS}
 
