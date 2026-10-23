@@ -1,5 +1,6 @@
 .controls {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-sm);
   align-items: flex-end;
 

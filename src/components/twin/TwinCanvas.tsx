@@ -12,7 +12,8 @@ import { readPalette, type TwinPalette } from "./palette";
 
 function browserSupportsWebGl(): boolean {
   const probe = document.createElement("canvas");
-  const context = probe.getContext("webgl2") ?? probe.getContext("webgl");
+  // The installed three.js renderer requires WebGL2, not WebGL1.
+  const context = probe.getContext("webgl2");
   if (!context) return false;
   context.getExtension("WEBGL_lose_context")?.loseContext();
   return true;
@@ -46,7 +47,7 @@ export function TwinCanvas({ unavailable }: TwinCanvasProps) {
     <Canvas
       dpr={[1, 1.5]}
       orthographic
-      shadows
+      shadows="percentage"
       camera={{ position: [...cameraPosition], zoom: 19, near: 0.1, far: 150 }}
       aria-label="Live schematic forest digital twin"
       fallback={unavailable}
