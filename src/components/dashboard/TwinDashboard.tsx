@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+import { ProjectFacts } from "@/components/ProjectFacts";
+import truth from "@/content/ground-truth.json";
 import { LazyTwin } from "@/components/twin/LazyTwin";
 import { useTwinStore } from "@/store/useTwinStore";
 import { Charts } from "./Charts";
@@ -46,7 +48,7 @@ export function TwinDashboard() {
         <div className={styles.workspace}>
           <Panel
             label="01 — Site"
-            title="Three terraces, one reservoir, one closed loop"
+            title="Three terraces, one reservoir, one shared network"
             headingId="site-heading"
             className={styles.sitePanel}
           >
@@ -65,11 +67,8 @@ export function TwinDashboard() {
           <Events />
         </div>
         <Compare />
-        <p className={styles.disclaimer}>
-          Simulation-driven digital twin prototype with synthetic site
-          assumptions. It is not calibrated against field measurements, and its
-          numbers are simulated scenario outputs, not measured savings.
-        </p>
+        <ProjectFacts />
+        <p className={styles.disclaimer}>{truth.safetyBoundary}</p>
       </main>
     </div>
   );
