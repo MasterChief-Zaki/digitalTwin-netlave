@@ -12,7 +12,8 @@ import schemas
 from config import DT_S, SiteConfig, ZoneConfig
 from control.policy import ZoneRequest, propose
 from control.safety import Grant, SafetyContext, ZoneHydraulics, resolve
-from models.energy import Dispatch, dispatch, solar_power_w
+from models.energy import Dispatch, dispatch
+from models.solar_profiles import profile_solar_power_w
 from models.filtration import FlushPlan, filter_head_loss_m, load_filter, plan_flush
 from models.hydraulics import gravity_head, hydro_power_w, pump_requirement
 from models.water_soil import (
@@ -79,7 +80,10 @@ def step(previous: SimState, cfg: SiteConfig) -> StepResult:
     hydro_w = hydro_power_w(
         step_inputs.tse_inflow_m3_s, cfg.supply.hydro_recoverable_head_m, cfg.supply.hydro_turbine_efficiency
     )
-    solar_w = solar_power_w(step_inputs.hour_of_day, environment.cloud_factor, cfg.energy)
+    solar_w = profile_solar_power_w(
+        step_inputs.hour_of_day, environment.cloud_factor, cfg.energy,
+        environment.solar_profile_id, previous.step - environment.profile_start_step,
+    )
 
     # 2. Controller requests (smart hysteresis, fixed timer or manual).
     requests = [

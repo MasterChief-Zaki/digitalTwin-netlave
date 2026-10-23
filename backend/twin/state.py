@@ -51,6 +51,8 @@ class EnvironmentState:
     cloud_factor: float = 1.0
     solids_loading_multiplier: float = 1.0
     inflow_available: bool = True
+    solar_profile_id: str = "nominal"
+    profile_start_step: int = 0
     # Scenario-defined [start, end) step interval with no TSE arriving.
     inflow_outage_steps: tuple[int, int] | None = None
 

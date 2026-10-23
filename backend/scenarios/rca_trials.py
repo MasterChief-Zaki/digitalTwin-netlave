@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Sequence
 
 import schemas
+from pydantic import BaseModel
 from config import DT_S, SITE, STEPS_PER_DAY, SiteConfig, ZoneId
 from models.water_soil import soil_storage_m3
 from scenarios.evaluation import (
@@ -35,7 +36,7 @@ from scenarios.evaluation import (
 from scenarios.presets import SCENARIOS, build_scenario
 from scenarios.comparison import _policy_neutral_digest
 from twin.engine import step
-from twin.state import Metrics, SimState, physical_digest, to_snapshot
+from twin.state import Metrics, SimState, physical_digest, to_snapshot, zone_service, reset_accounts
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SPEC_PATH = REPO_ROOT / "docs" / "rca" / "evaluation-spec.md"
@@ -81,6 +82,7 @@ class TrialPolicyResult:
     soil_stock_adjusted_delivery_m3: float
     battery_equivalent_full_cycles: float
     account_residuals: AccountResiduals
+    zones: list[schemas.ZoneService]
 
 
 @dataclass(frozen=True)
@@ -143,10 +145,13 @@ def assert_accounts(initial: Stocks, final: Stocks, metrics: Metrics) -> Account
 def run_trial_policy(
     cfg: SiteConfig, scenario_id: schemas.ScenarioId, seed: int,
     horizon_days: int, policy: schemas.ControlPolicy,
+    initial_state: SimState | None = None,
 ) -> TrialPolicyResult:
     if seed < 0 or horizon_days not in range(1, 31):
         raise ValueError("Seed must be nonnegative and horizon_days must be in [1, 30].")
-    state = build_scenario(cfg, scenario_id, seed=seed, control_policy=policy)
+    state = build_scenario(cfg, scenario_id, seed=seed, control_policy=policy) if initial_state is None else initial_state.clone()
+    state.environment.control_policy = policy
+    reset_accounts(state, cfg)
     initial_digest = _policy_neutral_digest(state, cfg)
     initial_stocks = capture_stocks(state, cfg)
     minimum_volume_m3 = state.reservoir_volume_m3
@@ -183,6 +188,7 @@ def run_trial_policy(
             cfg.energy.battery_discharge_efficiency,
         ),
         account_residuals=residuals,
+        zones=[zone_service(zone, cfg) for zone in state.zones],
     )
 
 
@@ -193,6 +199,12 @@ def run_trial_pair(cfg: SiteConfig, scenario_id: schemas.ScenarioId, seed: int, 
     if fixed.input_digest != smart.input_digest or fixed.initial_state_digest != smart.initial_state_digest:
         raise ValueError("Trial policies must share inputs and their physical initial state.")
     return TrialPair(scenario_id, seed, horizon_days, 0, horizon_days * STEPS_PER_DAY, fixed, smart)
+
+
+def json_model(value: object) -> object:
+    if isinstance(value, BaseModel):
+        return value.model_dump(mode="json")
+    raise TypeError(f"Cannot serialize {type(value).__name__}")
 
 
 def json_digest(value: object) -> str:
@@ -283,7 +295,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "trials": trials,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(artifact, indent=2, sort_keys=True, allow_nan=False) + "\n", encoding="utf-8")
+    args.output.write_text(json.dumps(artifact, indent=2, sort_keys=True, allow_nan=False, default=json_model) + "\n", encoding="utf-8")
     print(f"Wrote {len(trials)} paired trials to {args.output}")
     return 0
 
