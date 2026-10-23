@@ -48,7 +48,9 @@ await sharp(mark)
 // ICO directory with PNG payloads at the common browser sizes.
 const sizes = [16, 32, 48];
 const frames = await Promise.all(
-  sizes.map((size) => sharp(mark).resize(size, size).png().toBuffer()),
+  sizes.map((size) =>
+    sharp(mark).resize(size, size).ensureAlpha().png().toBuffer(),
+  ),
 );
 const header = Buffer.alloc(6 + sizes.length * 16);
 header.writeUInt16LE(1, 2);
@@ -68,4 +70,16 @@ await writeFile(
   new URL("favicon.ico", app),
   Buffer.concat([header, ...frames]),
 );
-console.log("Generated NetLave logo crops, favicon and touch icons.");
+const socialLogo = await sharp(fileURLToPath(new URL("logo-light.png", brand)))
+  .resize({ height: 470 })
+  .png()
+  .toBuffer();
+await sharp({
+  create: { width: 1200, height: 630, channels: 3, background: "#290447" },
+})
+  .composite([{ input: socialLogo, gravity: "centre" }])
+  .png()
+  .toFile(fileURLToPath(new URL("social.png", brand)));
+console.log(
+  "Generated NetLave logo crops, favicon, touch icons and social card.",
+);
