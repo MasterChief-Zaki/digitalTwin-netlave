@@ -50,7 +50,7 @@ def load_fixture() -> dict:
 def test_fixture_validates_as_a_snapshot():
     snapshot = schemas.SimulationSnapshot.model_validate(load_fixture())
 
-    assert snapshot.schema_version == "1.1"
+    assert snapshot.schema_version == "1.2"
     assert snapshot.data_mode == "SIMULATED"
     assert snapshot.step == 0
     assert snapshot.sim_time_s == 0
@@ -68,6 +68,13 @@ def test_fixture_matches_the_initial_conditions():
     assert all(zone.delivered_flow_m3_s == 0 for zone in snapshot.zones)
     assert snapshot.environment.water_quality == "OK"
     assert len(snapshot.decisions) == 3
+
+
+def test_reservoir_geometry_is_exported_from_config():
+    snapshot = schemas.SimulationSnapshot.model_validate(load_fixture())
+    assert snapshot.reservoir.floor_elevation_m == SITE.reservoir.floor_elevation_m
+    assert snapshot.reservoir.depth_at_capacity_m == SITE.reservoir.depth_at_capacity_m
+    assert snapshot.reservoir.surface_elevation_m == pytest.approx(22.0)
 
 
 def test_snapshot_rejects_unknown_fields():

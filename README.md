@@ -184,6 +184,18 @@ startup or the day-one TSE outage, and does not establish steady-state savings.
 The original controller and default policy remain unchanged. The synchronized
 schema 1.1 contract now includes per-zone service and stock diagnostics.
 
+### Connected schematic site view
+
+The polished isometric site view has row-planted instanced trees, routed irrigation,
+a reservoir, filter/pump, turbine, solar array and battery/DC bus. Water markers
+follow **delivered** flows, while thin energy paths follow the snapshot's power
+fields. Scheduler deferrals display as Waiting, not idle. Clicking a terrace or
+scene-zone button selects the same dashboard zone.
+
+Schema 1.2 exposes reservoir floor/depth from Python so water elevation and basin
+geometry stay consistent. Tree color is only a moisture-stress proxy, not growth
+or health. See [rendering connections and tests](docs/rca/schematic-rendering.md).
+
 ### Experimental scheduling and validation
 
 Select **Resource aware (experimental, opt-in)** to use bounded joint inventory,

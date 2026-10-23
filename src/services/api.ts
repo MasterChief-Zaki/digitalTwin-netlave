@@ -28,6 +28,49 @@ export class SimulationUnavailableError extends Error {
   }
 }
 
+function validateSnapshotCompatibility(payload: unknown): void {
+  if (typeof payload !== "object" || payload === null) return;
+  if ("snapshot" in payload) {
+    validateSnapshotCompatibility(payload.snapshot);
+    return;
+  }
+  if (!("schema_version" in payload)) return;
+  if (payload.schema_version !== "1.2") {
+    throw new SimulationUnavailableError(
+      "The simulation backend is out of date. Restart it with `pnpm backend:dev` (or restart `pnpm demo`) to load schema 1.2. The scene is showing the last compatible snapshot.",
+    );
+  }
+  if (
+    !("reservoir" in payload) ||
+    typeof payload.reservoir !== "object" ||
+    payload.reservoir === null
+  ) {
+    throw new SimulationUnavailableError(
+      "The simulation snapshot is missing reservoir geometry.",
+    );
+  }
+  const reservoir = payload.reservoir;
+  for (const key of [
+    "floor_elevation_m",
+    "depth_at_capacity_m",
+    "surface_elevation_m",
+    "volume_m3",
+    "capacity_m3",
+  ] as const) {
+    if (!(key in reservoir)) {
+      throw new SimulationUnavailableError(
+        `The simulation snapshot is missing reservoir ${key}. Restart the backend.`,
+      );
+    }
+    const value: unknown = Reflect.get(reservoir, key);
+    if (typeof value !== "number" || !Number.isFinite(value)) {
+      throw new SimulationUnavailableError(
+        `The simulation snapshot has invalid reservoir ${key}.`,
+      );
+    }
+  }
+}
+
 async function requestJson<ResponseBody>(
   path: string,
   init?: RequestInit,
@@ -54,7 +97,9 @@ async function requestJson<ResponseBody>(
       `The simulation backend answered ${String(response.status)} for ${path}.`,
     );
   }
-  return (await response.json()) as ResponseBody;
+  const payload: unknown = await response.json();
+  validateSnapshotCompatibility(payload);
+  return payload as ResponseBody;
 }
 
 function postJson<ResponseBody>(path: string, body: unknown) {

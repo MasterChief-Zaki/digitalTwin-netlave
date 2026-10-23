@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "data_mode": "SIMULATED",
   "step": 0,
   "sim_time_s": 0,
@@ -13,6 +13,8 @@
     "capacity_m3": 1500.0,
     "dead_volume_m3": 50.0,
     "surface_elevation_m": 22.0,
+    "floor_elevation_m": 20.5,
+    "depth_at_capacity_m": 2.5,
     "inflow_m3_s": 0.0,
     "overflow_flow_m3_s": 0.0
   },

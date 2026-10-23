@@ -31,7 +31,7 @@ def test_state_returns_a_versioned_simulated_snapshot(client: TestClient):
 
     assert response.status_code == 200
     snapshot = response.json()
-    assert snapshot["schema_version"] == "1.1"
+    assert snapshot["schema_version"] == "1.2"
     assert snapshot["data_mode"] == "SIMULATED"
     assert snapshot["step"] == 0
     assert snapshot["run_generation"] == 1
