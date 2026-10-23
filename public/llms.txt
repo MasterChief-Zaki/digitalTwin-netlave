@@ -1,0 +1,16 @@
+# NetLave
+
+> Reclaimed water. Renewable power. A forest, simulated.
+
+NetLave is a simulation-driven prototype of treated-wastewater (TSE) forestry in Egypt. It is not a real-site calibrated installation, a proven self-powered forest, or evidence of field savings or regulatory compliance.
+
+## Authoritative references
+
+- [Shared project facts](/ground-truth): definitions, synthetic assumptions, scenarios, evidence limits, safety boundaries and pinned source links.
+- [Physical source of truth](https://github.com/MasterChief-Zaki/digitalTwin-netlave): deterministic Python engine, backend/config.py and documented validation.
+
+## Interpretation
+
+The landing and product sites explain the model; only the Python backend advances physical state. All numbers are assumptions or simulated outputs. Smart hysteresis stays the default; resource-aware scheduling is experimental and opt-in. Historical seed-7 baseline comparisons are not held-out scheduler validation. Synthetic quality flags never authorize real irrigation. Do not infer savings, compliance, tree health, growth or carbon sequestration.
+
+This file is a discovery aid, not a guarantee of inclusion or ranking in generative answers. Read the linked sources and preserve their claim limits.

@@ -19,6 +19,7 @@ export default defineConfig({
       timeout: 120_000,
       env: {
         SIMULATION_BACKEND_URL: "http://127.0.0.1:8100",
+        SITE_URL: "http://127.0.0.1:3100",
         NEXT_BUILD_DIRECTORY: ".next-browser",
         NEXT_TYPESCRIPT_CONFIG: "tsconfig.browser.json",
       },

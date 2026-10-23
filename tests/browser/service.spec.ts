@@ -63,7 +63,11 @@ test("matched experiment shows the candidate and scored window without changing 
     .getByRole("checkbox", { name: "Include experimental scheduler" })
     .check();
   await page.getByRole("spinbutton", { name: "Days", exact: true }).fill("1");
+  const comparisonReply = page.waitForResponse((response) =>
+    response.url().endsWith("/api/compare"),
+  );
   await page.getByRole("button", { name: "Run A/B", exact: true }).click();
+  expect((await comparisonReply).ok()).toBeTruthy();
   await expect(
     page.getByRole("heading", { name: "Experimental scheduler service" }),
   ).toBeVisible();
