@@ -33,6 +33,15 @@ test("shared reference is crawlable, branded and clear about claim limits", asyn
     page.getByRole("main").getByText(truth.controllerStatus, { exact: true }),
   ).toBeVisible();
   await expect(page.getByRole("table")).toBeVisible();
+  await expect(
+    page.getByRole("link", {
+      name: "Visit the project repository",
+      exact: true,
+    }),
+  ).toHaveAttribute(
+    "href",
+    "https://github.com/MasterChief-Zaki/landing-netlave",
+  );
   const schema = JSON.parse(
     await page
       .locator('script[type="application/ld+json"]')

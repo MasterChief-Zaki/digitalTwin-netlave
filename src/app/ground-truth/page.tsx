@@ -121,10 +121,8 @@ export default function GroundTruthPage() {
         verified.
       </p>
       <p>
-        <a href={truth.contactUrl}>
-          Contact the project through its public issue tracker
-        </a>{" "}
-        (do not post private information).
+        <a href={truth.contactUrl}>Visit the project repository</a> to learn
+        more and follow its development.
       </p>
       <h2>Sources and provenance</h2>
       <p>
