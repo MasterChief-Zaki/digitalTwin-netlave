@@ -6,12 +6,16 @@ import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { Forest } from "./Forest";
 import { Infrastructure } from "./Infrastructure";
-import { reservoirTopY } from "./layout";
+import { cameraPosition, cameraTarget } from "./layout";
+import { SceneTelemetry } from "./SceneTelemetry";
 import { readPalette, type TwinPalette } from "./palette";
 
 function browserSupportsWebGl(): boolean {
   const probe = document.createElement("canvas");
-  return (probe.getContext("webgl2") ?? probe.getContext("webgl")) !== null;
+  const context = probe.getContext("webgl2") ?? probe.getContext("webgl");
+  if (!context) return false;
+  context.getExtension("WEBGL_lose_context")?.loseContext();
+  return true;
 }
 
 interface TwinCanvasProps {
@@ -41,23 +45,42 @@ export function TwinCanvas({ unavailable }: TwinCanvasProps) {
   return (
     <Canvas
       dpr={[1, 1.5]}
-      camera={{ position: [27, 21, 30], fov: 38 }}
+      orthographic
+      shadows
+      camera={{ position: [...cameraPosition], zoom: 19, near: 0.1, far: 150 }}
+      aria-label="Live schematic forest digital twin"
       fallback={unavailable}
     >
       <color attach="background" args={[palette.background]} />
-      <ambientLight intensity={0.9} />
-      <directionalLight position={[12, 22, 10]} intensity={2.2} />
+      <ambientLight intensity={0.85} />
+      <directionalLight
+        position={[8, 22, 12]}
+        intensity={2.2}
+        castShadow
+        shadow-mapSize={[1024, 1024]}
+        shadow-camera-left={-20}
+        shadow-camera-right={20}
+        shadow-camera-top={18}
+        shadow-camera-bottom={-18}
+        shadow-bias={-0.001}
+      />
+      <directionalLight
+        position={[-12, 8, -10]}
+        intensity={0.7}
+        color={palette.accent}
+      />
       <OrbitControls
         enableDamping
         enablePan={false}
-        target={[0, reservoirTopY, 0]}
+        target={[...cameraTarget]}
         minPolarAngle={0.35}
         maxPolarAngle={Math.PI / 2.15}
-        minDistance={22}
-        maxDistance={85}
+        minZoom={10}
+        maxZoom={32}
       />
       <Forest palette={palette} />
       <Infrastructure palette={palette} />
+      <SceneTelemetry />
     </Canvas>
   );
 }

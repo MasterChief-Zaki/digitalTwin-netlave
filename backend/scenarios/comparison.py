@@ -171,6 +171,8 @@ def _policy_neutral_digest(state: SimState, cfg: SiteConfig) -> str:
     # Preserve the historical physical digest across additive reporting fields.
     physical.pop("diagnostics", None)
     physical["schema_version"] = "1.0"
+    physical["reservoir"].pop("floor_elevation_m", None)
+    physical["reservoir"].pop("depth_at_capacity_m", None)
     for zone in physical["zones"]:
         zone.pop("service", None)
     return hashlib.sha256(json.dumps(physical, sort_keys=True).encode("utf-8")).hexdigest()

@@ -11,7 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from config import FeedMode, ZoneId
 
-SCHEMA_VERSION = "1.1"
+SCHEMA_VERSION = "1.2"
 
 ControlMode = Literal["AUTO", "MANUAL_OPEN", "MANUAL_CLOSED"]
 ControlPolicy = Literal["SMART_HYSTERESIS", "FIXED_TIMER", "SMART_RESOURCE_AWARE"]
@@ -59,6 +59,8 @@ class Reservoir(ContractModel):
     capacity_m3: float
     dead_volume_m3: float
     surface_elevation_m: float
+    floor_elevation_m: float
+    depth_at_capacity_m: float
     inflow_m3_s: float
     overflow_flow_m3_s: float
 
@@ -193,7 +195,7 @@ class Metrics(ContractModel):
 
 
 class SimulationSnapshot(ContractModel):
-    schema_version: Literal["1.1"]
+    schema_version: Literal["1.2"]
     data_mode: Literal["SIMULATED"]
     step: int = Field(ge=0)
     sim_time_s: int = Field(ge=0)
