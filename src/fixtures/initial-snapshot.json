@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "data_mode": "SIMULATED",
   "step": 0,
   "sim_time_s": 0,
@@ -32,7 +32,28 @@
       "delivered_flow_m3_s": 0.0,
       "water_stress_0_1": 0.015151515151515138,
       "head_available_m": 0.0,
-      "head_required_m": 0.0
+      "head_required_m": 0.0,
+      "service": {
+        "zone_id": "A",
+        "irrigation_requested_m3": 0.0,
+        "irrigation_delivered_m3": 0.0,
+        "potential_et_m3": 0.0,
+        "actual_et_m3": 0.0,
+        "et_deficit_m3": 0.0,
+        "et_deficit_mm": 0.0,
+        "et_service_ratio_0_1": null,
+        "below_trigger_min": 0.0,
+        "denied_by_reason_min": {},
+        "deferred_by_reason_min": {},
+        "initial_root_zone_storage_m3": 7920.0,
+        "final_root_zone_storage_m3": 7920.0,
+        "soil_stock_adjusted_delivery_m3": 0.0,
+        "minimum_moisture_m3_m3": 0.165,
+        "minimum_head_margin_m": null,
+        "session_count": 0,
+        "pause_count": 0,
+        "resume_count": 0
+      }
     },
     {
       "id": "B",
@@ -49,7 +70,28 @@
       "delivered_flow_m3_s": 0.0,
       "water_stress_0_1": 0.015151515151515138,
       "head_available_m": 0.0,
-      "head_required_m": 0.0
+      "head_required_m": 0.0,
+      "service": {
+        "zone_id": "B",
+        "irrigation_requested_m3": 0.0,
+        "irrigation_delivered_m3": 0.0,
+        "potential_et_m3": 0.0,
+        "actual_et_m3": 0.0,
+        "et_deficit_m3": 0.0,
+        "et_deficit_mm": 0.0,
+        "et_service_ratio_0_1": null,
+        "below_trigger_min": 0.0,
+        "denied_by_reason_min": {},
+        "deferred_by_reason_min": {},
+        "initial_root_zone_storage_m3": 6600.0,
+        "final_root_zone_storage_m3": 6600.0,
+        "soil_stock_adjusted_delivery_m3": 0.0,
+        "minimum_moisture_m3_m3": 0.165,
+        "minimum_head_margin_m": null,
+        "session_count": 0,
+        "pause_count": 0,
+        "resume_count": 0
+      }
     },
     {
       "id": "C",
@@ -66,7 +108,28 @@
       "delivered_flow_m3_s": 0.0,
       "water_stress_0_1": 0.015151515151515138,
       "head_available_m": 0.0,
-      "head_required_m": 0.0
+      "head_required_m": 0.0,
+      "service": {
+        "zone_id": "C",
+        "irrigation_requested_m3": 0.0,
+        "irrigation_delivered_m3": 0.0,
+        "potential_et_m3": 0.0,
+        "actual_et_m3": 0.0,
+        "et_deficit_m3": 0.0,
+        "et_deficit_mm": 0.0,
+        "et_service_ratio_0_1": null,
+        "below_trigger_min": 0.0,
+        "denied_by_reason_min": {},
+        "deferred_by_reason_min": {},
+        "initial_root_zone_storage_m3": 5280.0,
+        "final_root_zone_storage_m3": 5280.0,
+        "soil_stock_adjusted_delivery_m3": 0.0,
+        "minimum_moisture_m3_m3": 0.165,
+        "minimum_head_margin_m": null,
+        "session_count": 0,
+        "pause_count": 0,
+        "resume_count": 0
+      }
     }
   ],
   "pump": {
@@ -153,6 +216,18 @@
     "unserved_energy_j": 0.0,
     "required_electrical_energy_j": 0.0,
     "flush_count": 0
+  },
+  "diagnostics": {
+    "electrical_autonomy_0_1": null,
+    "overflow_fraction_0_1": null,
+    "minimum_reservoir_volume_m3": 900.0,
+    "minimum_battery_soc_0_1": 0.8,
+    "battery_equivalent_full_cycles": 0.0,
+    "initial_reservoir_volume_m3": 900.0,
+    "final_reservoir_volume_m3": 900.0,
+    "initial_battery_energy_j": 43200000.0,
+    "final_battery_energy_j": 43200000.0,
+    "soil_stock_adjusted_delivery_m3": 0.0
   },
   "latest_event_id": 0
 }

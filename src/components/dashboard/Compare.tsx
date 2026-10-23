@@ -8,6 +8,7 @@ import { useTwinStore } from "@/store/useTwinStore";
 import buttonStyles from "@/styles/buttons.module.scss";
 import type { CompareResponse, PolicyReport } from "@/types/simulation";
 import { Panel } from "./Panel";
+import { ServiceTable } from "./ServiceTable";
 import styles from "./Compare.module.scss";
 
 interface ReportRow {
@@ -21,19 +22,43 @@ interface ReportRow {
 
 const reportRows: ReportRow[] = [
   {
+    label: "Soil-stock-adjusted delivery",
+    unit: "m³",
+    fractionDigits: 1,
+    read: (report) => report.diagnostics.soil_stock_adjusted_delivery_m3,
+  },
+  {
+    label: "Battery losses",
+    unit: "kWh",
+    fractionDigits: 2,
+    read: (report) => report.battery_losses_kwh,
+  },
+  {
+    label: "Minimum battery",
+    unit: "% SoC",
+    fractionDigits: 1,
+    read: (report) => report.diagnostics.minimum_battery_soc_0_1 * 100,
+  },
+  {
+    label: "Final reservoir",
+    unit: "m³",
+    fractionDigits: 1,
+    read: (report) => report.diagnostics.final_reservoir_volume_m3,
+  },
+  {
     label: "Irrigation delivered",
     unit: "m³",
     fractionDigits: 0,
     read: (report) => report.irrigation_delivered_m3,
   },
   {
-    label: "Requested, not delivered",
+    label: "Denied-request integral (not crop shortage)",
     unit: "m³",
     fractionDigits: 0,
     read: (report) => report.requested_undelivered_m3,
   },
   {
-    label: "ET deficit (tree water stress)",
+    label: "ET deficit (irrigation proxy)",
     unit: "mm",
     fractionDigits: 2,
     read: (report) => report.et_deficit_mm,
@@ -73,7 +98,7 @@ const reportRows: ReportRow[] = [
     lowerIsBetter: true,
   },
   {
-    label: "Electrical autonomy",
+    label: "Electrical autonomy — admitted loads",
     unit: "%",
     fractionDigits: 1,
     read: (report) => report.electrical_autonomy_0_1 * 100,
@@ -230,6 +255,10 @@ export function Compare() {
       {report ? (
         <>
           <ReportTable report={report} />
+          <h3>Fixed timer service</h3>
+          <ServiceTable zones={report.fixed_timer.zones} />
+          <h3>Smart hysteresis service</h3>
+          <ServiceTable zones={report.smart_hysteresis.zones} />
           <p className={styles.summary}>
             Water applied by the smart controller:{" "}
             <strong>
@@ -239,7 +268,8 @@ export function Compare() {
             versus the fixed timer, with an ET deficit of{" "}
             {formatNumber(report.smart_hysteresis.et_deficit_mm, 2)} mm against{" "}
             {formatNumber(report.fixed_timer.et_deficit_mm, 2)} mm. Less water
-            only counts as a saving if the trees are not more stressed.
+            is not a savings claim: this single-seed run is not validated for
+            service non-inferiority or final stocks.
           </p>
           <p className={styles.provenance}>
             {sameInputs

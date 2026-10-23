@@ -18,7 +18,7 @@ import schemas
 from config import STEPS_PER_DAY, SiteConfig
 from scenarios.presets import build_scenario
 from twin.engine import step
-from twin.state import SimState, to_snapshot
+from twin.state import SimState, to_snapshot, zone_service, site_diagnostics
 
 
 @dataclass(frozen=True)
@@ -37,6 +37,7 @@ class PolicyResult:
     overflow_m3: float
     flush_water_m3: float
     flush_count: int
+    battery_losses_kwh: float
     pump_energy_kwh: float
     pump_kwh_per_delivered_m3: float
     required_electrical_kwh: float
@@ -45,6 +46,8 @@ class PolicyResult:
     final_battery_soc_0_1: float
     final_mean_moisture_m3_m3: float
     denied_request_steps: int
+    zones: list[schemas.ZoneService]
+    diagnostics: schemas.SiteDiagnostics
 
 
 @dataclass(frozen=True)
@@ -125,6 +128,7 @@ def _run_policy(
         overflow_m3=metrics.overflow_m3,
         flush_water_m3=metrics.flush_water_m3,
         flush_count=metrics.flush_count,
+        battery_losses_kwh=metrics.battery_losses_j / 3.6e6,
         pump_energy_kwh=pump_kwh,
         pump_kwh_per_delivered_m3=pump_kwh / delivered_m3 if delivered_m3 > 0 else 0.0,
         required_electrical_kwh=required_j / 3.6e6,
@@ -133,6 +137,8 @@ def _run_policy(
         final_battery_soc_0_1=state.battery_energy_j / cfg.energy.battery_capacity_j,
         final_mean_moisture_m3_m3=sum(zone.theta_m3_m3 for zone in state.zones) / len(state.zones),
         denied_request_steps=denied_request_steps,
+        zones=[zone_service(zone, cfg) for zone in state.zones],
+        diagnostics=site_diagnostics(state, cfg),
     )
 
 
@@ -142,4 +148,9 @@ def _policy_neutral_digest(state: SimState, cfg: SiteConfig) -> str:
         mode="json", exclude={"run_generation", "latest_event_id"}
     )
     del physical["environment"]["control_policy"]
+    # Preserve the historical physical digest across additive reporting fields.
+    physical.pop("diagnostics", None)
+    physical["schema_version"] = "1.0"
+    for zone in physical["zones"]:
+        zone.pop("service", None)
     return hashlib.sha256(json.dumps(physical, sort_keys=True).encode("utf-8")).hexdigest()

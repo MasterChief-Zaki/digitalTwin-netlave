@@ -10,7 +10,7 @@ from dataclasses import dataclass
 
 import schemas
 from config import SiteConfig
-from twin.state import SimState, new_run_state
+from twin.state import SimState, new_run_state, reset_accounts
 
 
 @dataclass(frozen=True)
@@ -71,4 +71,5 @@ def build_scenario(
         zone_c.theta_m3_m3 = 0.150
     elif scenario_id == "tse_interrupt":
         state.environment.inflow_outage_steps = (30, 390)
+    reset_accounts(state, cfg)
     return state

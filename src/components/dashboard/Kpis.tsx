@@ -63,7 +63,8 @@ function KpiTile({
 export function Kpis() {
   const snapshot = useTwinStore((state) => state.snapshot);
   const events = useTwinStore((state) => state.events);
-  const { reservoir, energy, filtration, metrics, zones } = snapshot;
+  const { reservoir, energy, filtration, metrics, zones, diagnostics } =
+    snapshot;
 
   const deliveredFlowM3S = zones.reduce(
     (total, zone) => total + zone.delivered_flow_m3_s,
@@ -86,6 +87,31 @@ export function Kpis() {
         Simulated readings
       </h2>
       <ul className={styles.tiles}>
+        <KpiTile
+          label="ET service · zone C"
+          value={
+            zones.find((zone) => zone.id === "C")?.service
+              .et_service_ratio_0_1 === null
+              ? "Pending"
+              : formatPercent(
+                  zones.find((zone) => zone.id === "C")?.service
+                    .et_service_ratio_0_1 ?? 0,
+                  1,
+                )
+          }
+          unit=""
+          detail="Simulated actual / potential ET · see service ledger"
+        />
+        <KpiTile
+          label="Electrical autonomy"
+          value={
+            diagnostics.electrical_autonomy_0_1 === null
+              ? "Pending"
+              : formatPercent(diagnostics.electrical_autonomy_0_1, 1)
+          }
+          unit=""
+          detail="Admitted loads only — not irrigation service"
+        />
         <KpiTile
           label="Reservoir"
           value={formatNumber(reservoir.volume_m3)}

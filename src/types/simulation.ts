@@ -45,6 +45,41 @@ export interface Reservoir {
   overflow_flow_m3_s: number;
 }
 
+export interface ZoneService {
+  zone_id: ZoneId;
+  irrigation_requested_m3: number;
+  irrigation_delivered_m3: number;
+  potential_et_m3: number;
+  actual_et_m3: number;
+  et_deficit_m3: number;
+  et_deficit_mm: number;
+  et_service_ratio_0_1: number | null;
+  below_trigger_min: number;
+  denied_by_reason_min: Record<string, number>;
+  deferred_by_reason_min: Record<string, number>;
+  initial_root_zone_storage_m3: number;
+  final_root_zone_storage_m3: number;
+  soil_stock_adjusted_delivery_m3: number;
+  minimum_moisture_m3_m3: number;
+  minimum_head_margin_m: number | null;
+  session_count: number;
+  pause_count: number;
+  resume_count: number;
+}
+
+export interface SiteDiagnostics {
+  electrical_autonomy_0_1: number | null;
+  overflow_fraction_0_1: number | null;
+  minimum_reservoir_volume_m3: number;
+  minimum_battery_soc_0_1: number;
+  battery_equivalent_full_cycles: number;
+  initial_reservoir_volume_m3: number;
+  final_reservoir_volume_m3: number;
+  initial_battery_energy_j: number;
+  final_battery_energy_j: number;
+  soil_stock_adjusted_delivery_m3: number;
+}
+
 export interface Zone {
   id: ZoneId;
   feed_mode: FeedMode;
@@ -61,6 +96,7 @@ export interface Zone {
   water_stress_0_1: number;
   head_available_m: number;
   head_required_m: number;
+  service: ZoneService;
 }
 
 export interface Pump {
@@ -139,7 +175,7 @@ export interface Metrics {
 }
 
 export interface SimulationSnapshot {
-  schema_version: "1.0";
+  schema_version: "1.1";
   data_mode: "SIMULATED";
   step: number;
   sim_time_s: number;
@@ -156,6 +192,7 @@ export interface SimulationSnapshot {
   environment: Environment;
   decisions: Decision[];
   metrics: Metrics;
+  diagnostics: SiteDiagnostics;
   latest_event_id: number;
 }
 
@@ -255,6 +292,7 @@ export interface PolicyReport {
   overflow_m3: number;
   flush_water_m3: number;
   flush_count: number;
+  battery_losses_kwh: number;
   pump_energy_kwh: number;
   pump_kwh_per_delivered_m3: number;
   required_electrical_kwh: number;
@@ -263,6 +301,8 @@ export interface PolicyReport {
   final_battery_soc_0_1: number;
   final_mean_moisture_m3_m3: number;
   denied_request_steps: number;
+  zones: ZoneService[];
+  diagnostics: SiteDiagnostics;
 }
 
 export interface CompareResponse {

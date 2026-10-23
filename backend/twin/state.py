@@ -12,6 +12,23 @@ from twin.inputs import daily_et0_mm
 
 
 @dataclass
+class ZoneAccounts:
+    irrigation_requested_m3: float = 0.0
+    irrigation_delivered_m3: float = 0.0
+    potential_et_m3: float = 0.0
+    actual_et_m3: float = 0.0
+    below_trigger_min: float = 0.0
+    denied_by_reason_min: dict[str, float] = field(default_factory=dict)
+    deferred_by_reason_min: dict[str, float] = field(default_factory=dict)
+    initial_root_zone_storage_m3: float = 0.0
+    minimum_moisture_m3_m3: float = 0.0
+    minimum_head_margin_m: float | None = None
+    session_count: int = 0
+    pause_count: int = 0
+    resume_count: int = 0
+
+
+@dataclass
 class ZoneState:
     zone_id: ZoneId
     theta_m3_m3: float
@@ -24,6 +41,7 @@ class ZoneState:
     head_required_m: float = 0.0
     # The denial reason of the zone's current denial episode, for event de-duplication.
     active_denial: schemas.ReasonCode | None = None
+    accounts: ZoneAccounts = field(default_factory=ZoneAccounts)
 
 
 @dataclass
@@ -120,11 +138,19 @@ class SimState:
     metrics: Metrics = field(default_factory=Metrics)
     overflow_active: bool = False
     aux_outage_active: bool = False
+    initial_reservoir_volume_m3: float = 0.0
+    initial_battery_energy_j: float = 0.0
+    minimum_reservoir_volume_m3: float = 0.0
+    minimum_battery_soc_0_1: float = 0.0
 
     def clone(self) -> "SimState":
         """An owned copy for the next step; field copies are far cheaper than deepcopy or replace()."""
         copied = _shallow_copy(self)
         copied.zones = [_shallow_copy(zone) for zone in self.zones]
+        for zone in copied.zones:
+            zone.accounts = _shallow_copy(zone.accounts)
+            zone.accounts.denied_by_reason_min = dict(zone.accounts.denied_by_reason_min)
+            zone.accounts.deferred_by_reason_min = dict(zone.accounts.deferred_by_reason_min)
         copied.filter = _shallow_copy(self.filter)
         copied.environment = _shallow_copy(self.environment)
         copied.power = _shallow_copy(self.power)
@@ -148,7 +174,7 @@ def new_run_state(
     control_policy: schemas.ControlPolicy = "SMART_HYSTERESIS",
 ) -> SimState:
     """Documented site defaults at step 0, with near-threshold moisture for a quick demo."""
-    return SimState(
+    state = SimState(
         step=0,
         seed=seed,
         scenario_id=scenario_id,
@@ -162,6 +188,77 @@ def new_run_state(
             DecisionRecord(zone.zone_id, "KEEP_CLOSED", True, "KEEP_CLOSED", "No step has been simulated yet.")
             for zone in cfg.zones
         ],
+    )
+    reset_accounts(state, cfg)
+    return state
+
+
+def reset_accounts(state: SimState, cfg: SiteConfig) -> None:
+    """Start a measured window without changing physical state or the clock."""
+    from models.water_soil import soil_storage_m3
+
+    state.metrics = Metrics()
+    state.initial_reservoir_volume_m3 = state.reservoir_volume_m3
+    state.initial_battery_energy_j = state.battery_energy_j
+    state.minimum_reservoir_volume_m3 = state.reservoir_volume_m3
+    state.minimum_battery_soc_0_1 = state.battery_energy_j / cfg.energy.battery_capacity_j
+    for zone, zone_cfg in zip(state.zones, cfg.zones, strict=True):
+        zone.accounts = ZoneAccounts(
+            initial_root_zone_storage_m3=soil_storage_m3(zone.theta_m3_m3, zone_cfg, cfg.soil),
+            minimum_moisture_m3_m3=zone.theta_m3_m3,
+        )
+
+
+def zone_service(zone: ZoneState, cfg: SiteConfig) -> schemas.ZoneService:
+    from models.water_soil import soil_storage_m3
+    from scenarios.evaluation import stock_adjusted_delivery_m3
+
+    zone_cfg = next(item for item in cfg.zones if item.zone_id == zone.zone_id)
+    accounts = zone.accounts
+    final_storage = soil_storage_m3(zone.theta_m3_m3, zone_cfg, cfg.soil)
+    deficit = accounts.potential_et_m3 - accounts.actual_et_m3
+    return schemas.ZoneService(
+        zone_id=zone.zone_id,
+        irrigation_requested_m3=accounts.irrigation_requested_m3,
+        irrigation_delivered_m3=accounts.irrigation_delivered_m3,
+        potential_et_m3=accounts.potential_et_m3,
+        actual_et_m3=accounts.actual_et_m3,
+        et_deficit_m3=deficit,
+        et_deficit_mm=deficit / zone_cfg.area_m2 * 1000.0,
+        et_service_ratio_0_1=accounts.actual_et_m3 / accounts.potential_et_m3 if accounts.potential_et_m3 > 0 else None,
+        below_trigger_min=accounts.below_trigger_min,
+        denied_by_reason_min=accounts.denied_by_reason_min,
+        deferred_by_reason_min=accounts.deferred_by_reason_min,
+        initial_root_zone_storage_m3=accounts.initial_root_zone_storage_m3,
+        final_root_zone_storage_m3=final_storage,
+        soil_stock_adjusted_delivery_m3=stock_adjusted_delivery_m3(
+            accounts.irrigation_delivered_m3, final_storage - accounts.initial_root_zone_storage_m3,
+            cfg.soil.application_efficiency,
+        ),
+        minimum_moisture_m3_m3=accounts.minimum_moisture_m3_m3,
+        minimum_head_margin_m=accounts.minimum_head_margin_m,
+        session_count=accounts.session_count, pause_count=accounts.pause_count, resume_count=accounts.resume_count,
+    )
+
+
+def site_diagnostics(state: SimState, cfg: SiteConfig) -> schemas.SiteDiagnostics:
+    from scenarios.evaluation import battery_equivalent_full_cycles
+
+    metrics = state.metrics
+    return schemas.SiteDiagnostics(
+        electrical_autonomy_0_1=1.0 - metrics.unserved_energy_j / metrics.required_electrical_energy_j
+        if metrics.required_electrical_energy_j > 0 else None,
+        overflow_fraction_0_1=metrics.overflow_m3 / metrics.tse_inflow_m3 if metrics.tse_inflow_m3 > 0 else None,
+        minimum_reservoir_volume_m3=state.minimum_reservoir_volume_m3,
+        minimum_battery_soc_0_1=state.minimum_battery_soc_0_1,
+        battery_equivalent_full_cycles=battery_equivalent_full_cycles(
+            metrics.battery_discharge_energy_j, cfg.energy.battery_capacity_j, cfg.energy.battery_discharge_efficiency,
+        ),
+        initial_reservoir_volume_m3=state.initial_reservoir_volume_m3,
+        final_reservoir_volume_m3=state.reservoir_volume_m3,
+        initial_battery_energy_j=state.initial_battery_energy_j,
+        final_battery_energy_j=state.battery_energy_j,
+        soil_stock_adjusted_delivery_m3=sum(zone_service(zone, cfg).soil_stock_adjusted_delivery_m3 for zone in state.zones),
     )
 
 
@@ -204,6 +301,7 @@ def to_snapshot(
                 water_stress_0_1=water_stress(zone.theta_m3_m3, cfg.soil),
                 head_available_m=zone.head_available_m,
                 head_required_m=zone.head_required_m,
+                service=zone_service(zone, cfg),
             )
             for zone, zone_config in zip(state.zones, cfg.zones, strict=True)
         ],
@@ -255,6 +353,7 @@ def to_snapshot(
             for decision in state.decisions
         ],
         metrics=schemas.Metrics(**vars(state.metrics)),
+        diagnostics=site_diagnostics(state, cfg),
         latest_event_id=latest_event_id,
     )
 
