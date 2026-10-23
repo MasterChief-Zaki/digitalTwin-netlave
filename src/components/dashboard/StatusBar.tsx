@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import { classNames } from "@/lib/classNames";
 import { formatSimulatedClock } from "@/lib/format";
@@ -46,7 +48,10 @@ export function StatusBar() {
   return (
     <header className={styles.statusBar}>
       <div className={styles.identity}>
-        <p className={styles.wordmark}>netLave</p>
+        <Link className={styles.wordmark} href="/" aria-label="NetLave home">
+          <Image src="/brand/mark.png" alt="" width={36} height={36} />
+          NetLave
+        </Link>
         <p className={styles.product}>Digital Twin · TSE forest, Egypt</p>
       </div>
 
