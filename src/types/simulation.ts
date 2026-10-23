@@ -46,6 +46,8 @@ export interface Reservoir {
   capacity_m3: number;
   dead_volume_m3: number;
   surface_elevation_m: number;
+  floor_elevation_m: number;
+  depth_at_capacity_m: number;
   inflow_m3_s: number;
   overflow_flow_m3_s: number;
 }
@@ -180,7 +182,7 @@ export interface Metrics {
 }
 
 export interface SimulationSnapshot {
-  schema_version: "1.1";
+  schema_version: "1.2";
   data_mode: "SIMULATED";
   step: number;
   sim_time_s: number;

@@ -4,12 +4,13 @@ import { CanvasTexture, SRGBColorSpace } from "three";
 interface LabelProps {
   text: string;
   position: readonly [number, number, number];
+  height?: number;
 }
 
 // Texture pixels per text line, and the label's height in scene units.
 const textPixels = 40;
 const paddingPixels = 12;
-const labelHeight = 0.9;
+const labelHeight = 0.65;
 
 function readToken(name: string): string {
   return getComputedStyle(document.documentElement)
@@ -52,7 +53,7 @@ function createLabelTexture(text: string): {
 
 // A text label pinned to a scene position that always faces the camera and
 // never intercepts the pointer.
-export function Label({ text, position }: LabelProps) {
+export function Label({ text, position, height = labelHeight }: LabelProps) {
   const { texture, aspect } = useMemo(() => createLabelTexture(text), [text]);
 
   useEffect(
@@ -65,7 +66,7 @@ export function Label({ text, position }: LabelProps) {
   return (
     <sprite
       position={[position[0], position[1], position[2]]}
-      scale={[labelHeight * aspect, labelHeight, 1]}
+      scale={[height * aspect, height, 1]}
       raycast={() => null}
       renderOrder={10}
     >

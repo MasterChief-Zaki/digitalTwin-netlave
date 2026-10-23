@@ -298,6 +298,8 @@ def to_snapshot(
             capacity_m3=cfg.reservoir.capacity_m3,
             dead_volume_m3=cfg.reservoir.dead_volume_m3,
             surface_elevation_m=surface_elevation_m(state.reservoir_volume_m3, cfg.reservoir),
+            floor_elevation_m=cfg.reservoir.floor_elevation_m,
+            depth_at_capacity_m=cfg.reservoir.depth_at_capacity_m,
             inflow_m3_s=state.inflow_m3_s,
             overflow_flow_m3_s=state.overflow_flow_m3_s,
         ),
