@@ -1,0 +1,104 @@
+{
+  "brand": "NetLave",
+  "tagline": "Reclaimed water. Renewable power. A forest, simulated.",
+  "description": "NetLave explores treated-wastewater forestry in Egypt through a simulation-driven digital twin prototype, connecting reclaimed water, renewable power and explainable irrigation control.",
+  "claimLimit": "Built on synthetic site assumptions, not field measurements. The prototype is not synchronized with or calibrated against a real installation and does not establish real-world savings, electrical autonomy or regulatory compliance.",
+  "safetyBoundary": "Synthetic water-quality flags never authorize real-world irrigation. HOLD or UNKNOWN blocks irrigation; manual commands cannot bypass safety gates. A real Egyptian TSE deployment requires current reuse approvals, treatment-grade checks, species authorization, worker protection and monitoring.",
+  "modelLimit": "Salinity transport, pathogens, tree growth and carbon sequestration are not modelled. The 3D view is a schematic, not to scale; tree color is a moisture-stress proxy, not measured health.",
+  "authority": "One deterministic Python engine owns physical state and advances in 60-second steps. The dashboard displays snapshots; the landing and product websites explain the model without running physics or showing live field telemetry.",
+  "controllerStatus": "Smart hysteresis remains the default. Resource-aware scheduling is experimental and opt-in: held-out validation did not establish service non-inferiority at every endpoint, so no automatic promotion or savings claim follows.",
+  "evidence": "In the published synthetic baseline (seed 7, 14 days), smart hysteresis did not save water and used more pump energy than the ET-sized fixed timer. This historical startup-inclusive diagnostic is not the later warm-up/held-out scheduler validation or a field result.",
+  "source": {
+    "repository": "https://github.com/MasterChief-Zaki/digitalTwin-netlave",
+    "commit": "8337018e0460d29a9349378fa504492d19896b94",
+    "parameters": "backend/config.py",
+    "scenarios": "backend/scenarios/presets.py",
+    "reference": "README.md",
+    "validation": "docs/rca/validation/combined-validation.md"
+  },
+  "siteAssumptions": {
+    "forestAreaHa": 15,
+    "reservoirCapacityM3": 1500,
+    "initialReservoirM3": 900,
+    "meanInflowM3Hour": 60,
+    "solarCapacityKwp": 8,
+    "batteryCapacityKwh": 15,
+    "pumpLimitKw": 3,
+    "hydroPowerW": 294,
+    "hydroHeadM": 3,
+    "gravityManifoldM3Hour": 140,
+    "moistureStartM3M3": 0.166,
+    "moistureStopM3M3": 0.198,
+    "pumpReserveSoc": 0.2,
+    "stepSeconds": 60
+  },
+  "zones": [
+    {
+      "id": "A",
+      "areaHa": 6,
+      "feed": "Gravity",
+      "elevationM": 2,
+      "maxFlowM3Hour": 120
+    },
+    {
+      "id": "B",
+      "areaHa": 5,
+      "feed": "Gravity",
+      "elevationM": 8,
+      "maxFlowM3Hour": 100
+    },
+    {
+      "id": "C",
+      "areaHa": 4,
+      "feed": "Pumped",
+      "elevationM": 34,
+      "maxFlowM3Hour": 24
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "baseline",
+      "label": "Baseline",
+      "summary": "With all zones just below the moisture trigger, A and C start irrigating; B waits on the shared 140 m³/h gravity manifold."
+    },
+    {
+      "id": "clogged_filter",
+      "label": "Clogged filter",
+      "summary": "Solids loading ×8 reduces Zone B's available head while A runs. At clog index 0.60, a five-minute flush uses 1.5 m³ and 0.10 kWh; B can irrigate after head recovers."
+    },
+    {
+      "id": "low_solar",
+      "label": "Low solar (sandstorm)",
+      "summary": "Cloud factor 0.25 and initial battery charge 24%: the uphill pump runs about 13 minutes, then stops at the 20% reserve with zero delivered flow."
+    },
+    {
+      "id": "tse_interrupt",
+      "label": "TSE interruption",
+      "summary": "No inflow from 06:30 to 12:30 on day one. Micro-hydro falls to zero and the reservoir draws down; a low-storage denial occurs only if its gate is reached."
+    }
+  ],
+  "comparison": [
+    {
+      "label": "Irrigation delivered",
+      "fixed": "11,404",
+      "smart": "11,411",
+      "unit": "m³"
+    },
+    { "label": "ET deficit", "fixed": "0.42", "smart": "0.56", "unit": "mm" },
+    {
+      "label": "Overflow / diversion",
+      "fixed": "8,245",
+      "smart": "8,139",
+      "unit": "m³"
+    },
+    { "label": "Pump energy", "fixed": "360", "smart": "399", "unit": "kWh" },
+    {
+      "label": "Unserved electrical load",
+      "fixed": "0",
+      "smart": "0",
+      "unit": "kWh"
+    }
+  ],
+  "founders": ["Eyad", "Mahmoud", "Omar", "Hana"],
+  "contactUrl": "https://github.com/MasterChief-Zaki/landing-netlave/issues"
+}
