@@ -7,6 +7,7 @@ import {
 } from "@/lib/format";
 import { useTwinStore } from "@/store/useTwinStore";
 import { Panel } from "./Panel";
+import { ServiceTable } from "./ServiceTable";
 import styles from "./Metrics.module.scss";
 
 interface LedgerRow {
@@ -32,14 +33,13 @@ function Ledger({ caption, rows }: { caption: string; rows: LedgerRow[] }) {
 
 // Monotonic counters straight from the backend; nothing here is re-derived physics.
 export function Metrics() {
-  const metrics = useTwinStore((state) => state.snapshot.metrics);
+  const { metrics, diagnostics, zones } = useTwinStore(
+    (state) => state.snapshot,
+  );
   const cubicMetres = (value: number) => `${formatNumber(value, 1)} m³`;
   const kilowattHours = (value: number) =>
     `${formatNumber(joulesToKilowattHours(value), 2)} kWh`;
-  const autonomy =
-    metrics.required_electrical_energy_j > 0
-      ? 1 - metrics.unserved_energy_j / metrics.required_electrical_energy_j
-      : 1;
+  const autonomy = diagnostics.electrical_autonomy_0_1;
 
   return (
     <Panel
@@ -57,7 +57,7 @@ export function Metrics() {
               value: cubicMetres(metrics.irrigation_delivered_m3),
             },
             {
-              label: "Requested, not delivered",
+              label: "Repeated denied-request integral (not crop shortage)",
               value: cubicMetres(metrics.requested_undelivered_m3),
             },
             { label: "Overflow", value: cubicMetres(metrics.overflow_m3) },
@@ -107,12 +107,28 @@ export function Metrics() {
               value: kilowattHours(metrics.unserved_energy_j),
             },
             {
-              label: "Electrical autonomy",
-              value: `${formatPercent(autonomy, 1)} of ${kilowattHours(metrics.required_electrical_energy_j)} required`,
+              label: "Electrical autonomy — admitted loads",
+              value:
+                autonomy === null
+                  ? "Not yet measured"
+                  : `${formatPercent(autonomy, 1)} of ${kilowattHours(metrics.required_electrical_energy_j)} admitted`,
+            },
+            {
+              label: "Minimum battery / equivalent full cycles",
+              value: `${formatPercent(diagnostics.minimum_battery_soc_0_1, 1)} / ${formatNumber(diagnostics.battery_equivalent_full_cycles, 2)}`,
+            },
+            {
+              label: "Reservoir initial / final",
+              value: `${cubicMetres(diagnostics.initial_reservoir_volume_m3)} / ${cubicMetres(diagnostics.final_reservoir_volume_m3)}`,
+            },
+            {
+              label: "Battery initial / final",
+              value: `${kilowattHours(diagnostics.initial_battery_energy_j)} / ${kilowattHours(diagnostics.final_battery_energy_j)}`,
             },
           ]}
         />
       </div>
+      <ServiceTable zones={zones.map((zone) => zone.service)} />
     </Panel>
   );
 }

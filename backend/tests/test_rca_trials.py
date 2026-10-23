@@ -83,10 +83,11 @@ def test_primary_results_reproduce_the_pinned_commit(scenario_id: schemas.Scenar
     assert math.isclose(actual["water_savings_fraction"], expected["water_savings_fraction"],
                         abs_tol=1e-12, rel_tol=1e-9)
     for policy in ("fixed_timer", "smart_hysteresis"):
-        assert actual[policy].keys() == expected[policy].keys()
-        float_fields = {name for name, value in actual[policy].items() if isinstance(value, float)}
+        assert expected[policy].keys() <= actual[policy].keys()
+        float_fields = {name for name, value in expected[policy].items() if isinstance(value, float)}
         assert float_fields == HISTORICAL_FLOAT_UNITS.keys()
-        for name, value in actual[policy].items():
+        for name in expected[policy]:
+            value = actual[policy][name]
             if isinstance(value, float):
                 unit = HISTORICAL_FLOAT_UNITS[name]
                 absolute = 1e-6 if unit in ("m3", "kwh") else 1e-12

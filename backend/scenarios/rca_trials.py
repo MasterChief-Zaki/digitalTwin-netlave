@@ -33,6 +33,7 @@ from scenarios.evaluation import (
     stock_adjusted_delivery_m3,
 )
 from scenarios.presets import SCENARIOS, build_scenario
+from scenarios.comparison import _policy_neutral_digest
 from twin.engine import step
 from twin.state import Metrics, SimState, physical_digest, to_snapshot
 
@@ -146,10 +147,7 @@ def run_trial_policy(
     if seed < 0 or horizon_days not in range(1, 31):
         raise ValueError("Seed must be nonnegative and horizon_days must be in [1, 30].")
     state = build_scenario(cfg, scenario_id, seed=seed, control_policy=policy)
-    initial_snapshot = to_snapshot(state, cfg, run_generation=0, latest_event_id=0)
-    initial_physical = initial_snapshot.model_dump(mode="json", exclude={"run_generation", "latest_event_id"})
-    del initial_physical["environment"]["control_policy"]
-    initial_digest = json_digest(initial_physical)
+    initial_digest = _policy_neutral_digest(state, cfg)
     initial_stocks = capture_stocks(state, cfg)
     minimum_volume_m3 = state.reservoir_volume_m3
     minimum_soc = state.battery_energy_j / cfg.energy.battery_capacity_j

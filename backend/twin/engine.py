@@ -152,7 +152,7 @@ def step(previous: SimState, cfg: SiteConfig) -> StepResult:
         grant = grants[zone.zone_id]
         soil = update_soil(zone.theta_m3_m3, grant.flow_m3_s * DT_S, step_inputs.et0_step_mm, zone_config, cfg.soil)
         soil_results.append(soil)
-        decisions.append(_apply_grant(state, zone, request, grant, soil, hydraulics[zone.zone_id], events))
+        decisions.append(_apply_grant(state, zone, request, grant, soil, hydraulics[zone.zone_id], events, cfg))
 
     _book_water(state, inflow_m3, delivered_m3, flush.water_m3, reservoir.overflow_m3, soil_results)
     _update_filter(state, flush, delivered_m3, cfg, events)
@@ -176,6 +176,10 @@ def step(previous: SimState, cfg: SiteConfig) -> StepResult:
     state.aux_outage_active = power.unserved_power_w > 0
     state.reservoir_volume_m3 = reservoir.volume_m3
     state.battery_energy_j = power.battery_energy_j
+    state.minimum_reservoir_volume_m3 = min(state.minimum_reservoir_volume_m3, reservoir.volume_m3)
+    state.minimum_battery_soc_0_1 = min(
+        state.minimum_battery_soc_0_1, power.battery_energy_j / cfg.energy.battery_capacity_j
+    )
     state.inflow_m3_s = step_inputs.tse_inflow_m3_s
     state.overflow_flow_m3_s = reservoir.overflow_m3 / DT_S
     state.et0_mm_day = step_inputs.et0_mm_day
@@ -214,6 +218,7 @@ def _apply_grant(
     soil: SoilStepResult,
     hydraulics: ZoneHydraulics,
     events: list[EventDraft],
+    cfg: SiteConfig,
 ) -> DecisionRecord:
     if request.wants_water and not grant.accepted:
         state.metrics.requested_undelivered_m3 += grant.requested_flow_m3_s * DT_S
@@ -230,6 +235,20 @@ def _apply_grant(
         zone.head_available_m = hydraulics.pump.head_within_limit_m
         zone.head_required_m = hydraulics.pump.total_dynamic_head_m
 
+    accounts = zone.accounts
+    accounts.irrigation_requested_m3 += grant.requested_flow_m3_s * DT_S
+    accounts.irrigation_delivered_m3 += grant.flow_m3_s * DT_S
+    accounts.potential_et_m3 += soil.potential_et_m3
+    accounts.actual_et_m3 += soil.actual_et_m3
+    if zone.theta_m3_m3 < cfg.soil.theta_on_m3_m3:
+        accounts.below_trigger_min += DT_S / 60.0
+    if request.wants_water and not grant.accepted:
+        accounts.denied_by_reason_min[grant.reason_code] = accounts.denied_by_reason_min.get(grant.reason_code, 0.0) + DT_S / 60.0
+    accounts.minimum_moisture_m3_m3 = min(accounts.minimum_moisture_m3_m3, soil.theta_m3_m3)
+    margin_m = zone.head_available_m - zone.head_required_m
+    accounts.minimum_head_margin_m = margin_m if accounts.minimum_head_margin_m is None else min(accounts.minimum_head_margin_m, margin_m)
+    if grant.flow_m3_s > 0 and not zone.valve_open:
+        accounts.session_count += 1
     zone.irrigation_latched = request.irrigation_latched
     zone.valve_open = grant.flow_m3_s > 0
     zone.requested_flow_m3_s = grant.requested_flow_m3_s
