@@ -21,6 +21,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm backend:setup
       - run: pnpm test:backend
+      - run: pnpm exec node scripts/check-fiber-timer.mjs
       - run: pnpm lint
       - run: pnpm lint:styles
       - run: pnpm typecheck

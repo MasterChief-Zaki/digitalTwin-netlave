@@ -12,6 +12,8 @@ All three NetLave sites publish identical `src/content/ground-truth.json` and a 
 
 Run `pnpm exec node scripts/check-shared-truth.mjs --siblings` with the three repos adjacent. `test_site_ground_truth.py` checks published assumptions, zones and scenario IDs against Python. Set `SITE_URL` to this dashboard's verified production origin at build time for canonicals, social cards and sitemap URLs; no production domain is assumed.
 
+See [development troubleshooting](docs/development-troubleshooting.md) for root configuration, the tracked Fiber Timer patch, supported shadows and browser-extension hydration diagnostics.
+
 ## Quick start
 
 Prerequisites: Node.js 24 with pnpm 10, and [uv](https://docs.astral.sh/uv/) (it installs the pinned Python 3.14 itself). Everything runs offline after the first install.

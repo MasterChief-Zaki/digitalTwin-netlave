@@ -1,0 +1,177 @@
+diff --git a/dist/events-0dab3c53.cjs.dev.js b/dist/events-0dab3c53.cjs.dev.js
+index 705fbd514d4207a07fb3c6c28e631903746d5789..818d2170c10806fe013d7701990050acc5cc9201 100644
+--- a/dist/events-0dab3c53.cjs.dev.js
++++ b/dist/events-0dab3c53.cjs.dev.js
+@@ -1161,6 +1161,45 @@ function attempt$1(step) {
+ }
+ 
+ const context = /* @__PURE__ */React__namespace.createContext(null);
++// Bridge the existing Fiber clock contract to the supported three.js Timer.
++// Keep writable elapsedTime for manual advance() and start/stop for frameloop changes.
++const createTimerClock = () => {
++  const timer = new THREE__namespace.Timer();
++  return {
++    autoStart: true,
++    startTime: 0,
++    oldTime: 0,
++    elapsedTime: 0,
++    running: false,
++    start() {
++      this.startTime = this.oldTime = performance.now();
++      this.elapsedTime = 0;
++      this.running = true;
++      timer.reset();
++    },
++    stop() {
++      this.getElapsedTime();
++      this.running = false;
++      this.autoStart = false;
++    },
++    getDelta() {
++      if (this.autoStart && !this.running) {
++        this.start();
++        return 0;
++      }
++      if (!this.running) return 0;
++      timer.update();
++      const delta = timer.getDelta();
++      this.oldTime = performance.now();
++      this.elapsedTime += delta;
++      return delta;
++    },
++    getElapsedTime() {
++      this.getDelta();
++      return this.elapsedTime;
++    }
++  };
++};
+ const createStore = (invalidate, advance) => {
+   const rootStore = traditional.createWithEqualityFn((set, get) => {
+     const position = new THREE__namespace.Vector3();
+@@ -1229,7 +1268,7 @@ const createStore = (invalidate, advance) => {
+       linear: false,
+       flat: false,
+       controls: null,
+-      clock: new THREE__namespace.Clock(),
++      clock: createTimerClock(),
+       pointer,
+       mouse: pointer,
+       frameloop: 'always',
+diff --git a/dist/events-98e95d43.cjs.prod.js b/dist/events-98e95d43.cjs.prod.js
+index c265e9e358f1fd6d7155216b013471ab445b9ce4..ebcbe9503592ebddf39e2e81606601547011e9a4 100644
+--- a/dist/events-98e95d43.cjs.prod.js
++++ b/dist/events-98e95d43.cjs.prod.js
+@@ -1161,6 +1161,45 @@ function attempt$1(step) {
+ }
+ 
+ const context = /* @__PURE__ */React__namespace.createContext(null);
++// Bridge the existing Fiber clock contract to the supported three.js Timer.
++// Keep writable elapsedTime for manual advance() and start/stop for frameloop changes.
++const createTimerClock = () => {
++  const timer = new THREE__namespace.Timer();
++  return {
++    autoStart: true,
++    startTime: 0,
++    oldTime: 0,
++    elapsedTime: 0,
++    running: false,
++    start() {
++      this.startTime = this.oldTime = performance.now();
++      this.elapsedTime = 0;
++      this.running = true;
++      timer.reset();
++    },
++    stop() {
++      this.getElapsedTime();
++      this.running = false;
++      this.autoStart = false;
++    },
++    getDelta() {
++      if (this.autoStart && !this.running) {
++        this.start();
++        return 0;
++      }
++      if (!this.running) return 0;
++      timer.update();
++      const delta = timer.getDelta();
++      this.oldTime = performance.now();
++      this.elapsedTime += delta;
++      return delta;
++    },
++    getElapsedTime() {
++      this.getDelta();
++      return this.elapsedTime;
++    }
++  };
++};
+ const createStore = (invalidate, advance) => {
+   const rootStore = traditional.createWithEqualityFn((set, get) => {
+     const position = new THREE__namespace.Vector3();
+@@ -1229,7 +1268,7 @@ const createStore = (invalidate, advance) => {
+       linear: false,
+       flat: false,
+       controls: null,
+-      clock: new THREE__namespace.Clock(),
++      clock: createTimerClock(),
+       pointer,
+       mouse: pointer,
+       frameloop: 'always',
+diff --git a/dist/events-e51d7528.esm.js b/dist/events-e51d7528.esm.js
+index 6c801a280936890feb78c502a0bf47cd2b478e15..9a78177af82dd2960f075f6fd4bdf53b33b2b888 100644
+--- a/dist/events-e51d7528.esm.js
++++ b/dist/events-e51d7528.esm.js
+@@ -1136,6 +1136,45 @@ function attempt$1(step) {
+ }
+ 
+ const context = /* @__PURE__ */React.createContext(null);
++// Bridge the existing Fiber clock contract to the supported three.js Timer.
++// Keep writable elapsedTime for manual advance() and start/stop for frameloop changes.
++const createTimerClock = () => {
++  const timer = new THREE.Timer();
++  return {
++    autoStart: true,
++    startTime: 0,
++    oldTime: 0,
++    elapsedTime: 0,
++    running: false,
++    start() {
++      this.startTime = this.oldTime = performance.now();
++      this.elapsedTime = 0;
++      this.running = true;
++      timer.reset();
++    },
++    stop() {
++      this.getElapsedTime();
++      this.running = false;
++      this.autoStart = false;
++    },
++    getDelta() {
++      if (this.autoStart && !this.running) {
++        this.start();
++        return 0;
++      }
++      if (!this.running) return 0;
++      timer.update();
++      const delta = timer.getDelta();
++      this.oldTime = performance.now();
++      this.elapsedTime += delta;
++      return delta;
++    },
++    getElapsedTime() {
++      this.getDelta();
++      return this.elapsedTime;
++    }
++  };
++};
+ const createStore = (invalidate, advance) => {
+   const rootStore = createWithEqualityFn((set, get) => {
+     const position = new THREE.Vector3();
+@@ -1204,7 +1243,7 @@ const createStore = (invalidate, advance) => {
+       linear: false,
+       flat: false,
+       controls: null,
+-      clock: new THREE.Clock(),
++      clock: createTimerClock(),
+       pointer,
+       mouse: pointer,
+       frameloop: 'always',

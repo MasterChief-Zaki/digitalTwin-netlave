@@ -7,6 +7,11 @@ test("schematic tracks snapshots and selection in both directions", async ({
 }) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (message) => {
+    if (/THREE\.(Clock|WebGLShadowMap)/.test(message.text())) {
+      errors.push(message.text());
+    }
+  });
   await page.goto("/");
   await expect(page.getByText("Live backend", { exact: true })).toBeVisible();
   const canvas = page
@@ -124,6 +129,13 @@ test("schematic tracks snapshots and selection in both directions", async ({
     )
     .toBeGreaterThan(6);
   expect(errors).toEqual([]);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBeTruthy();
+  await page.setViewportSize({ width: 900, height: 900 });
   await page
     .getByLabel("Schematic snapshot status")
     .screenshot({ path: "test-results/schematic-readout.png" });
