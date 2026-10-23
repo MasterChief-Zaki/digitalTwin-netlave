@@ -166,6 +166,23 @@ In this synthetic baseline the smart controller does **not** save water: −0.1%
 
 **Benchmark:** the 14-day comparison (2 × 20,160 steps) runs in about **2.9 s** on the development laptop, inside the 5 s budget (`test_fourteen_day_comparison_runs_in_under_five_seconds`).
 
+### RCA reference trials
+
+The [RCA evaluation specification](docs/rca/evaluation-spec.md) pins the original
+controller reference to a Git commit and defines stock adjustment, cycle counting,
+and cumulative account tolerances. Run the full startup/fault matrix (four
+scenarios, seeds 3/7/11, 14/30 days, both unchanged policies) from the repo root:
+
+```bash
+uv --directory backend run python -m scenarios.rca_trials --output ../artifacts/rca/reference.json
+```
+
+Exports contain code/runtime/configuration provenance, initial/final stocks,
+computed accounts and closure residuals. Add `--require-clean` when publishing a
+reference; dirty-tree diagnostic runs are labelled. This runner does not discard
+startup or the day-one TSE outage, and does not establish steady-state savings.
+The controller, API contract and default policy remain unchanged.
+
 ## Tests and acceptance gates
 
 | Gate | Test                                                                                                        |
