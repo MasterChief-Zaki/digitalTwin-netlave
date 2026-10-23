@@ -11,10 +11,10 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from config import FeedMode, ZoneId
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"
 
 ControlMode = Literal["AUTO", "MANUAL_OPEN", "MANUAL_CLOSED"]
-ControlPolicy = Literal["SMART_HYSTERESIS", "FIXED_TIMER"]
+ControlPolicy = Literal["SMART_HYSTERESIS", "FIXED_TIMER", "SMART_RESOURCE_AWARE"]
 RequestedAction = Literal["START", "KEEP_OPEN", "STOP", "KEEP_CLOSED"]
 WaterQuality = Literal["OK", "HOLD", "UNKNOWN"]
 ScenarioId = Literal["baseline", "clogged_filter", "low_solar", "tse_interrupt"]
@@ -43,6 +43,10 @@ ReasonCode = Literal[
     "SCHEDULE_WINDOW_OPEN",
     "SCHEDULE_WINDOW_CLOSED",
     "OPERATOR_COMMAND",
+    "SCHEDULER_WATER_HOLD",
+    "SCHEDULER_ENERGY_HOLD",
+    "SCHEDULER_QUEUE",
+    "SCHEDULER_REST",
 ]
 
 
@@ -57,6 +61,41 @@ class Reservoir(ContractModel):
     surface_elevation_m: float
     inflow_m3_s: float
     overflow_flow_m3_s: float
+
+
+class ZoneService(ContractModel):
+    zone_id: ZoneId
+    irrigation_requested_m3: float
+    irrigation_delivered_m3: float
+    potential_et_m3: float
+    actual_et_m3: float
+    et_deficit_m3: float
+    et_deficit_mm: float
+    et_service_ratio_0_1: float | None
+    below_trigger_min: float
+    denied_by_reason_min: dict[str, float]
+    deferred_by_reason_min: dict[str, float]
+    initial_root_zone_storage_m3: float
+    final_root_zone_storage_m3: float
+    soil_stock_adjusted_delivery_m3: float
+    minimum_moisture_m3_m3: float
+    minimum_head_margin_m: float | None
+    session_count: int
+    pause_count: int
+    resume_count: int
+
+
+class SiteDiagnostics(ContractModel):
+    electrical_autonomy_0_1: float | None
+    overflow_fraction_0_1: float | None
+    minimum_reservoir_volume_m3: float
+    minimum_battery_soc_0_1: float
+    battery_equivalent_full_cycles: float
+    initial_reservoir_volume_m3: float
+    final_reservoir_volume_m3: float
+    initial_battery_energy_j: float
+    final_battery_energy_j: float
+    soil_stock_adjusted_delivery_m3: float
 
 
 class Zone(ContractModel):
@@ -75,6 +114,7 @@ class Zone(ContractModel):
     water_stress_0_1: float
     head_available_m: float
     head_required_m: float
+    service: ZoneService
 
 
 class Pump(ContractModel):
@@ -153,7 +193,7 @@ class Metrics(ContractModel):
 
 
 class SimulationSnapshot(ContractModel):
-    schema_version: Literal["1.0"]
+    schema_version: Literal["1.1"]
     data_mode: Literal["SIMULATED"]
     step: int = Field(ge=0)
     sim_time_s: int = Field(ge=0)
@@ -170,6 +210,7 @@ class SimulationSnapshot(ContractModel):
     environment: Environment
     decisions: list[Decision] = Field(min_length=3, max_length=3)
     metrics: Metrics
+    diagnostics: SiteDiagnostics
     latest_event_id: int = Field(ge=0)
 
 
@@ -283,6 +324,9 @@ class CompareRequest(ContractModel):
     scenario_id: ScenarioId = "baseline"
     seed: int = Field(default=7, ge=0)
     horizon_days: int = Field(default=14, ge=1, le=30)
+    evaluation_mode: Literal["STARTUP_FAULT", "MATCHED_OPERATION"] = "STARTUP_FAULT"
+    warmup_days: Literal[5, 10, 20] = 10
+    include_resource_aware: bool = False
 
 
 class PolicyReport(ContractModel):
@@ -300,6 +344,7 @@ class PolicyReport(ContractModel):
     overflow_m3: float
     flush_water_m3: float
     flush_count: int
+    battery_losses_kwh: float
     pump_energy_kwh: float
     pump_kwh_per_delivered_m3: float
     required_electrical_kwh: float
@@ -308,6 +353,8 @@ class PolicyReport(ContractModel):
     final_battery_soc_0_1: float
     final_mean_moisture_m3_m3: float
     denied_request_steps: int
+    zones: list[ZoneService]
+    diagnostics: SiteDiagnostics
 
 
 class CompareResponse(ContractModel):
@@ -320,3 +367,8 @@ class CompareResponse(ContractModel):
     smart_hysteresis: PolicyReport
     water_savings_fraction: float
     elapsed_s: float
+    resource_aware: PolicyReport | None
+    evaluation_mode: Literal["STARTUP_FAULT", "MATCHED_OPERATION"]
+    warmup_days: int
+    measurement_start_step: int
+    measurement_end_step: int

@@ -8,6 +8,7 @@ import { useTwinStore } from "@/store/useTwinStore";
 import buttonStyles from "@/styles/buttons.module.scss";
 import type { CompareResponse, PolicyReport } from "@/types/simulation";
 import { Panel } from "./Panel";
+import { ServiceTable } from "./ServiceTable";
 import styles from "./Compare.module.scss";
 
 interface ReportRow {
@@ -21,19 +22,43 @@ interface ReportRow {
 
 const reportRows: ReportRow[] = [
   {
+    label: "Soil-stock-adjusted delivery",
+    unit: "m³",
+    fractionDigits: 1,
+    read: (report) => report.diagnostics.soil_stock_adjusted_delivery_m3,
+  },
+  {
+    label: "Battery losses",
+    unit: "kWh",
+    fractionDigits: 2,
+    read: (report) => report.battery_losses_kwh,
+  },
+  {
+    label: "Minimum battery",
+    unit: "% SoC",
+    fractionDigits: 1,
+    read: (report) => report.diagnostics.minimum_battery_soc_0_1 * 100,
+  },
+  {
+    label: "Final reservoir",
+    unit: "m³",
+    fractionDigits: 1,
+    read: (report) => report.diagnostics.final_reservoir_volume_m3,
+  },
+  {
     label: "Irrigation delivered",
     unit: "m³",
     fractionDigits: 0,
     read: (report) => report.irrigation_delivered_m3,
   },
   {
-    label: "Requested, not delivered",
+    label: "Denied-request integral (not crop shortage)",
     unit: "m³",
     fractionDigits: 0,
     read: (report) => report.requested_undelivered_m3,
   },
   {
-    label: "ET deficit (tree water stress)",
+    label: "ET deficit (irrigation proxy)",
     unit: "mm",
     fractionDigits: 2,
     read: (report) => report.et_deficit_mm,
@@ -73,7 +98,7 @@ const reportRows: ReportRow[] = [
     lowerIsBetter: true,
   },
   {
-    label: "Electrical autonomy",
+    label: "Electrical autonomy — admitted loads",
     unit: "%",
     fractionDigits: 1,
     read: (report) => report.electrical_autonomy_0_1 * 100,
@@ -109,6 +134,9 @@ function ReportTable({ report }: { report: CompareResponse }) {
             <th scope="col">Simulated over {report.horizon_days} days</th>
             <th scope="col">Fixed timer</th>
             <th scope="col">Smart hysteresis</th>
+            {report.resource_aware ? (
+              <th scope="col">Resource aware (experimental)</th>
+            ) : null}
           </tr>
         </thead>
         <tbody>
@@ -135,6 +163,15 @@ function ReportTable({ report }: { report: CompareResponse }) {
                   {formatNumber(smartValue, row.fractionDigits)}{" "}
                   <span className={styles.unit}>{row.unit}</span>
                 </td>
+                {report.resource_aware ? (
+                  <td>
+                    {formatNumber(
+                      row.read(report.resource_aware),
+                      row.fractionDigits,
+                    )}{" "}
+                    <span className={styles.unit}>{row.unit}</span>
+                  </td>
+                ) : null}
               </tr>
             );
           })}
@@ -149,6 +186,8 @@ export function Compare() {
   const seed = useTwinStore((state) => state.snapshot.seed);
   const connection = useTwinStore((state) => state.connection);
   const [horizonDays, setHorizonDays] = useState(14);
+  const [matchedOperation, setMatchedOperation] = useState(false);
+  const [includeCandidate, setIncludeCandidate] = useState(false);
   const [report, setReport] = useState<CompareResponse | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -162,6 +201,11 @@ export function Compare() {
           scenario_id: scenarioId,
           seed,
           horizon_days: horizonDays,
+          evaluation_mode: matchedOperation
+            ? "MATCHED_OPERATION"
+            : "STARTUP_FAULT",
+          warmup_days: 10,
+          include_resource_aware: includeCandidate,
         }),
       );
     } catch (caught) {
@@ -192,6 +236,26 @@ export function Compare() {
             void runComparison();
           }}
         >
+          <label>
+            <input
+              type="checkbox"
+              checked={matchedOperation}
+              onChange={(event) => {
+                setMatchedOperation(event.target.checked);
+              }}
+            />
+            Matched operation (10-day warm-up)
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={includeCandidate}
+              onChange={(event) => {
+                setIncludeCandidate(event.target.checked);
+              }}
+            />
+            Include experimental scheduler
+          </label>
           <label className={styles.field}>
             <span className={styles.fieldLabel}>Days</span>
             <input
@@ -230,6 +294,16 @@ export function Compare() {
       {report ? (
         <>
           <ReportTable report={report} />
+          <h3>Fixed timer service</h3>
+          <ServiceTable zones={report.fixed_timer.zones} />
+          <h3>Smart hysteresis service</h3>
+          <ServiceTable zones={report.smart_hysteresis.zones} />
+          {report.resource_aware ? (
+            <>
+              <h3>Experimental scheduler service</h3>
+              <ServiceTable zones={report.resource_aware.zones} />
+            </>
+          ) : null}
           <p className={styles.summary}>
             Water applied by the smart controller:{" "}
             <strong>
@@ -239,13 +313,17 @@ export function Compare() {
             versus the fixed timer, with an ET deficit of{" "}
             {formatNumber(report.smart_hysteresis.et_deficit_mm, 2)} mm against{" "}
             {formatNumber(report.fixed_timer.et_deficit_mm, 2)} mm. Less water
-            only counts as a saving if the trees are not more stressed.
+            is not a savings claim: this single-seed run is not validated for
+            service non-inferiority or final stocks.
           </p>
           <p className={styles.provenance}>
             {sameInputs
               ? "Identical input series and initial state (matching digests)"
               : "Input digests differ — the comparison is not matched"}{" "}
-            · {report.steps.toLocaleString("en-US")} steps per policy · computed
+            · {report.evaluation_mode} · warm-up {report.warmup_days} days ·
+            measured steps [{report.measurement_start_step},{" "}
+            {report.measurement_end_step}) ·{" "}
+            {report.steps.toLocaleString("en-US")} steps per policy · computed
             in {formatNumber(report.elapsed_s, 2)} s · simulated scenario
             outputs, not measured savings.
           </p>

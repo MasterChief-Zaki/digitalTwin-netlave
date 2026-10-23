@@ -1,0 +1,959 @@
+{
+  "all_service_endpoints_pass": false,
+  "data_mode": "SIMULATED",
+  "default_policy_promoted": false,
+  "maximum_absolute_account_residuals": {
+    "battery_cells_kwh": 3.0442315335221792e-12,
+    "electrical_bus_kwh": 1.1141310096718371e-11,
+    "reservoir_m3": 4.60715909866849e-9,
+    "soil_m3": 2.4665496312081814e-8
+  },
+  "protocol": {
+    "additional_et_margin_mm": 0.1,
+    "bootstrap_replicates": 20000,
+    "bootstrap_seed": 20261023,
+    "familywise_alpha": 0.05,
+    "service_margin_fraction": 0.005
+  },
+  "protocol_version": "rca-paired-v2",
+  "provenance": {
+    "configuration": {
+      "climate": {
+        "et0_daily_variation": 0.1,
+        "et0_nominal_mm_day": 4.9
+      },
+      "energy": {
+        "aux_power_w": 50.0,
+        "battery_capacity_kwh": 15.0,
+        "battery_charge_efficiency": 0.95,
+        "battery_discharge_efficiency": 0.95,
+        "battery_floor_soc": 0.1,
+        "battery_initial_soc": 0.8,
+        "battery_max_charge_w": 3000.0,
+        "battery_max_discharge_w": 3000.0,
+        "day_length_h": 12.0,
+        "pump_reserve_soc": 0.2,
+        "pump_start_reserve_minutes": 10,
+        "solar_derate": 0.75,
+        "solar_peak_w": 8000.0,
+        "solar_shape_exponent": 1.2,
+        "sunrise_hour": 6.0
+      },
+      "filtration": {
+        "clean_pressure_drop_pa": 12000.0,
+        "clog_after_flush": 0.05,
+        "clog_per_filtered_m3": 0.00035,
+        "clog_pressure_drop_pa": 40000.0,
+        "flush_power_w": 1200.0,
+        "flush_steps": 5,
+        "flush_threshold": 0.6,
+        "flush_water_m3": 1.5,
+        "initial_clog_index": 0.1
+      },
+      "hydraulics": {
+        "darcy_friction_factor": 0.025,
+        "gravity_manifold_limit_m3_h": 140.0,
+        "pump_power_limit_w": 3000.0,
+        "pump_wire_to_water_efficiency": 0.55
+      },
+      "reservoir": {
+        "capacity_m3": 1500.0,
+        "dead_volume_m3": 50.0,
+        "depth_at_capacity_m": 2.5,
+        "floor_elevation_m": 20.5,
+        "initial_volume_m3": 900.0,
+        "start_reserve_minutes": 10
+      },
+      "scheduler": {
+        "design_clog_index": 0.44,
+        "energy_aware": false,
+        "head_margin_m": 0.1,
+        "minimum_rest_minutes": 10,
+        "minimum_run_minutes": 10,
+        "operating_battery_soc": 0.35,
+        "operating_inventory_m3": 850.0,
+        "pump_power_margin_fraction": 0.01,
+        "restart_battery_soc_margin": 0.02,
+        "restart_inventory_margin_m3": 20.0,
+        "session_minutes": 30
+      },
+      "soil": {
+        "allowed_depletion_fraction": 0.45,
+        "application_efficiency": 0.9,
+        "crop_coefficient": 0.85,
+        "leaching_fraction": 0.15,
+        "root_depth_m": 0.8,
+        "stop_fraction_of_fc": 0.9,
+        "theta_fc_m3_m3": 0.22,
+        "theta_sat_m3_m3": 0.38,
+        "theta_wp_m3_m3": 0.1
+      },
+      "start_hour": 6,
+      "supply": {
+        "hydro_recoverable_head_m": 3.0,
+        "hydro_turbine_efficiency": 0.6,
+        "tse_diurnal_amplitude": 0.25,
+        "tse_mean_inflow_m3_h": 60.0,
+        "tse_peak_hour": 14.0
+      },
+      "zones": [
+        {
+          "area_m2": 60000.0,
+          "elevation_m": 2.0,
+          "emitter_head_m": 10.0,
+          "feed_mode": "GRAVITY",
+          "mainline_diameter_m": 0.2,
+          "mainline_length_m": 350.0,
+          "max_flow_m3_h": 120.0,
+          "timer_start_minute": 1200,
+          "zone_id": "A"
+        },
+        {
+          "area_m2": 50000.0,
+          "elevation_m": 8.0,
+          "emitter_head_m": 9.0,
+          "feed_mode": "GRAVITY",
+          "mainline_diameter_m": 0.2,
+          "mainline_length_m": 350.0,
+          "max_flow_m3_h": 100.0,
+          "timer_start_minute": 1380,
+          "zone_id": "B"
+        },
+        {
+          "area_m2": 40000.0,
+          "elevation_m": 34.0,
+          "emitter_head_m": 10.0,
+          "feed_mode": "PUMPED",
+          "mainline_diameter_m": 0.2,
+          "mainline_length_m": 450.0,
+          "max_flow_m3_h": 24.0,
+          "timer_start_minute": 480,
+          "zone_id": "C"
+        }
+      ]
+    },
+    "configuration_digest": "2918f1747317c022b5d0c8e3d09a82b91f28e3eca63a508016002baad709a801",
+    "git_commit": "dc6d9d77620dc5d42175a1777a35438c46c07680",
+    "protocol_spec_digest": "9d234f2e432c592592f0f60f6c051106e54aa36ee91b58bfed112cfc8322287e",
+    "protocol_version": "rca-startup-v1",
+    "reference_commit": "4ae12eb774e422679c04e0d94c661351ae879747",
+    "runtime": {
+      "implementation": "CPython",
+      "machine": "AMD64",
+      "platform": "win32",
+      "python_version": "3.14.3",
+      "uv_lock_digest": "9b39e9061661938201b27488e4c94a1a206853c10a00887bfc69db31071bff59"
+    },
+    "source_digest": "b758bdf0e0d4a66fb946ec7565e258829f8f76374cb0663b3472ab7a34fa898b",
+    "working_tree_dirty": false
+  },
+  "raw_artifact_sha256": "72a7e1885188695e59b55393c18977cdea290b5b9793e92111c928a51d762341",
+  "summaries": [
+    {
+      "additional_et_deficit_mm": {
+        "lower_bound": 4.637927942591583e-6,
+        "maximum": 0.0011844553212085884,
+        "mean": 0.00012819223127735313,
+        "minimum": -1.61613180959345e-6,
+        "negative_count": 3,
+        "seed_count": 20,
+        "standard_deviation": 0.00034098765790460347,
+        "upper_bound": 0.00039063468061537304
+      },
+      "battery_losses_difference_kwh": {
+        "lower_bound": 5.921097673580692,
+        "maximum": 10.149072004336375,
+        "mean": 6.7763215740336165,
+        "minimum": 4.152156250278428,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 1.4438136904191876,
+        "upper_bound": 7.697830754985861
+      },
+      "et_service_degradation_fraction": {
+        "lower_bound": 3.7214188801563516e-8,
+        "maximum": 9.657953925783472e-6,
+        "mean": 1.0316419974822446e-6,
+        "minimum": -1.3134278373251096e-8,
+        "negative_count": 3,
+        "seed_count": 20,
+        "standard_deviation": 2.750516449429026e-6,
+        "upper_bound": 3.140703624333631e-6
+      },
+      "profile_id": "nominal",
+      "pump_energy_difference_kwh": {
+        "lower_bound": -26.612542182122418,
+        "maximum": 20.091810157467393,
+        "mean": -11.731875790387623,
+        "minimum": -61.90193105572886,
+        "negative_count": 13,
+        "seed_count": 20,
+        "standard_deviation": 22.312666311507442,
+        "upper_bound": 0.7668861251042617
+      },
+      "scenario_id": "baseline",
+      "service_noninferiority": "PASS",
+      "stock_adjusted_delivery_difference_m3": {
+        "lower_bound": 12.31709516792871,
+        "maximum": 23.38854048778012,
+        "mean": 14.950880219421743,
+        "minimum": 7.448416719082161,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 4.371683226986024,
+        "upper_bound": 17.676982115210194
+      },
+      "warmup_days": 10,
+      "water_delivery_difference_m3": {
+        "lower_bound": -854.5133333298876,
+        "maximum": 1374.0000000060609,
+        "mean": -254.5133333297319,
+        "minimum": -1726.9333333281174,
+        "negative_count": 13,
+        "seed_count": 20,
+        "standard_deviation": 985.3123768872239,
+        "upper_bound": 364.7400000039228
+      },
+      "zone_id": "A"
+    },
+    {
+      "additional_et_deficit_mm": {
+        "lower_bound": -0.05153032665484989,
+        "maximum": -0.00010360481315728975,
+        "mean": -0.03131540299982862,
+        "minimum": -0.12024983353623611,
+        "negative_count": 20,
+        "seed_count": 20,
+        "standard_deviation": 0.02911706660668031,
+        "upper_bound": -0.01608769854426646
+      },
+      "battery_losses_difference_kwh": {
+        "lower_bound": 5.921097673580692,
+        "maximum": 10.149072004336375,
+        "mean": 6.7763215740336165,
+        "minimum": 4.152156250278428,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 1.4438136904191876,
+        "upper_bound": 7.697830754985861
+      },
+      "et_service_degradation_fraction": {
+        "lower_bound": -0.0004106690715398087,
+        "maximum": -8.25410775866726e-7,
+        "mean": -0.0002507088498415557,
+        "minimum": -0.0009574778290165646,
+        "negative_count": 20,
+        "seed_count": 20,
+        "standard_deviation": 0.00023153624152183762,
+        "upper_bound": -0.00012938549077684292
+      },
+      "profile_id": "nominal",
+      "pump_energy_difference_kwh": {
+        "lower_bound": -26.612542182122418,
+        "maximum": 20.091810157467393,
+        "mean": -11.731875790387623,
+        "minimum": -61.90193105572886,
+        "negative_count": 13,
+        "seed_count": 20,
+        "standard_deviation": 22.312666311507442,
+        "upper_bound": 0.7668861251042617
+      },
+      "scenario_id": "baseline",
+      "service_noninferiority": "PASS",
+      "stock_adjusted_delivery_difference_m3": {
+        "lower_bound": 12.31709516792871,
+        "maximum": 23.38854048778012,
+        "mean": 14.950880219421743,
+        "minimum": 7.448416719082161,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 4.371683226986024,
+        "upper_bound": 17.676982115210194
+      },
+      "warmup_days": 10,
+      "water_delivery_difference_m3": {
+        "lower_bound": -854.5133333298876,
+        "maximum": 1374.0000000060609,
+        "mean": -254.5133333297319,
+        "minimum": -1726.9333333281174,
+        "negative_count": 13,
+        "seed_count": 20,
+        "standard_deviation": 985.3123768872239,
+        "upper_bound": 364.7400000039228
+      },
+      "zone_id": "B"
+    },
+    {
+      "additional_et_deficit_mm": {
+        "lower_bound": -0.3712957432233361,
+        "maximum": -0.1149527916039915,
+        "mean": -0.2974428394934705,
+        "minimum": -0.509894077823651,
+        "negative_count": 20,
+        "seed_count": 20,
+        "standard_deviation": 0.11608313568366757,
+        "upper_bound": -0.22719643495461125
+      },
+      "battery_losses_difference_kwh": {
+        "lower_bound": 5.921097673580692,
+        "maximum": 10.149072004336375,
+        "mean": 6.7763215740336165,
+        "minimum": 4.152156250278428,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 1.4438136904191876,
+        "upper_bound": 7.697830754985861
+      },
+      "et_service_degradation_fraction": {
+        "lower_bound": -0.00297688945129386,
+        "maximum": -0.0009153006379107897,
+        "mean": -0.002384684478708943,
+        "minimum": -0.004095651903366478,
+        "negative_count": 20,
+        "seed_count": 20,
+        "standard_deviation": 0.0009311692161251153,
+        "upper_bound": -0.0018272517478377178
+      },
+      "profile_id": "nominal",
+      "pump_energy_difference_kwh": {
+        "lower_bound": -26.612542182122418,
+        "maximum": 20.091810157467393,
+        "mean": -11.731875790387623,
+        "minimum": -61.90193105572886,
+        "negative_count": 13,
+        "seed_count": 20,
+        "standard_deviation": 22.312666311507442,
+        "upper_bound": 0.7668861251042617
+      },
+      "scenario_id": "baseline",
+      "service_noninferiority": "PASS",
+      "stock_adjusted_delivery_difference_m3": {
+        "lower_bound": 12.31709516792871,
+        "maximum": 23.38854048778012,
+        "mean": 14.950880219421743,
+        "minimum": 7.448416719082161,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 4.371683226986024,
+        "upper_bound": 17.676982115210194
+      },
+      "warmup_days": 10,
+      "water_delivery_difference_m3": {
+        "lower_bound": -854.5133333298876,
+        "maximum": 1374.0000000060609,
+        "mean": -254.5133333297319,
+        "minimum": -1726.9333333281174,
+        "negative_count": 13,
+        "seed_count": 20,
+        "standard_deviation": 985.3123768872239,
+        "upper_bound": 364.7400000039228
+      },
+      "zone_id": "C"
+    },
+    {
+      "additional_et_deficit_mm": {
+        "lower_bound": -0.003070117119867367,
+        "maximum": 0.007616664307215615,
+        "mean": -0.0007821679249104818,
+        "minimum": -0.008403343267885551,
+        "negative_count": 13,
+        "seed_count": 20,
+        "standard_deviation": 0.0036544368158937905,
+        "upper_bound": 0.0015317059327314081
+      },
+      "battery_losses_difference_kwh": {
+        "lower_bound": 1.6799389343429703,
+        "maximum": 4.370695906227599,
+        "mean": 2.341386901017395,
+        "minimum": 0.6092935167539782,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 1.091071495649767,
+        "upper_bound": 3.0229050600355354
+      },
+      "et_service_degradation_fraction": {
+        "lower_bound": -2.456776198213801e-5,
+        "maximum": 6.056901668491173e-5,
+        "mean": -6.304638589690321e-6,
+        "minimum": -6.691081918372428e-5,
+        "negative_count": 13,
+        "seed_count": 20,
+        "standard_deviation": 2.9146492937417947e-5,
+        "upper_bound": 1.2089819816589729e-5
+      },
+      "profile_id": "nominal",
+      "pump_energy_difference_kwh": {
+        "lower_bound": -74.97923255595674,
+        "maximum": -2.7875169496941568,
+        "mean": -57.39852992730872,
+        "minimum": -95.92270729125586,
+        "negative_count": 20,
+        "seed_count": 20,
+        "standard_deviation": 29.609921453524336,
+        "upper_bound": -38.28351845501983
+      },
+      "scenario_id": "clogged_filter",
+      "service_noninferiority": "PASS",
+      "stock_adjusted_delivery_difference_m3": {
+        "lower_bound": -4.271200165017399,
+        "maximum": 1.212140808296681,
+        "mean": -2.077526352580571,
+        "minimum": -11.38328146351705,
+        "negative_count": 17,
+        "seed_count": 20,
+        "standard_deviation": 3.0227992823615293,
+        "upper_bound": -0.6033404425479603
+      },
+      "warmup_days": 10,
+      "water_delivery_difference_m3": {
+        "lower_bound": -1268.5166666709379,
+        "maximum": 1275.8666666656427,
+        "mean": -768.0966666713537,
+        "minimum": -2088.400000004811,
+        "negative_count": 17,
+        "seed_count": 20,
+        "standard_deviation": 842.6692106551124,
+        "upper_bound": -215.81333333674974
+      },
+      "zone_id": "A"
+    },
+    {
+      "additional_et_deficit_mm": {
+        "lower_bound": -0.01159229184760352,
+        "maximum": 0.00031455582824492013,
+        "mean": -0.0043570297128189845,
+        "minimum": -0.03186257067396582,
+        "negative_count": 9,
+        "seed_count": 20,
+        "standard_deviation": 0.010154335605607356,
+        "upper_bound": 6.0932836334359296e-5
+      },
+      "battery_losses_difference_kwh": {
+        "lower_bound": 1.6799389343429703,
+        "maximum": 4.370695906227599,
+        "mean": 2.341386901017395,
+        "minimum": 0.6092935167539782,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 1.091071495649767,
+        "upper_bound": 3.0229050600355354
+      },
+      "et_service_degradation_fraction": {
+        "lower_bound": -9.253948885191364e-5,
+        "maximum": 2.4663941482424646e-6,
+        "mean": -3.4874733686112364e-5,
+        "minimum": -0.00025370267965154773,
+        "negative_count": 9,
+        "seed_count": 20,
+        "standard_deviation": 8.122155748714769e-5,
+        "upper_bound": 4.875111839432049e-7
+      },
+      "profile_id": "nominal",
+      "pump_energy_difference_kwh": {
+        "lower_bound": -74.97923255595674,
+        "maximum": -2.7875169496941568,
+        "mean": -57.39852992730872,
+        "minimum": -95.92270729125586,
+        "negative_count": 20,
+        "seed_count": 20,
+        "standard_deviation": 29.609921453524336,
+        "upper_bound": -38.28351845501983
+      },
+      "scenario_id": "clogged_filter",
+      "service_noninferiority": "PASS",
+      "stock_adjusted_delivery_difference_m3": {
+        "lower_bound": -4.271200165017399,
+        "maximum": 1.212140808296681,
+        "mean": -2.077526352580571,
+        "minimum": -11.38328146351705,
+        "negative_count": 17,
+        "seed_count": 20,
+        "standard_deviation": 3.0227992823615293,
+        "upper_bound": -0.6033404425479603
+      },
+      "warmup_days": 10,
+      "water_delivery_difference_m3": {
+        "lower_bound": -1268.5166666709379,
+        "maximum": 1275.8666666656427,
+        "mean": -768.0966666713537,
+        "minimum": -2088.400000004811,
+        "negative_count": 17,
+        "seed_count": 20,
+        "standard_deviation": 842.6692106551124,
+        "upper_bound": -215.81333333674974
+      },
+      "zone_id": "B"
+    },
+    {
+      "additional_et_deficit_mm": {
+        "lower_bound": 0.0209893798833491,
+        "maximum": 0.25515018485127705,
+        "mean": 0.05336388183534041,
+        "minimum": 1.030000021273736e-6,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 0.06557643036027357,
+        "upper_bound": 0.10183986447088274
+      },
+      "battery_losses_difference_kwh": {
+        "lower_bound": 1.6799389343429703,
+        "maximum": 4.370695906227599,
+        "mean": 2.341386901017395,
+        "minimum": 0.6092935167539782,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 1.091071495649767,
+        "upper_bound": 3.0229050600355354
+      },
+      "et_service_degradation_fraction": {
+        "lower_bound": 0.00016757835621887372,
+        "maximum": 0.002000601693986693,
+        "mean": 0.00042565858556097073,
+        "minimum": 8.131331115975584e-9,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 0.0005178606428677505,
+        "upper_bound": 0.0008080066764500314
+      },
+      "profile_id": "nominal",
+      "pump_energy_difference_kwh": {
+        "lower_bound": -74.97923255595674,
+        "maximum": -2.7875169496941568,
+        "mean": -57.39852992730872,
+        "minimum": -95.92270729125586,
+        "negative_count": 20,
+        "seed_count": 20,
+        "standard_deviation": 29.609921453524336,
+        "upper_bound": -38.28351845501983
+      },
+      "scenario_id": "clogged_filter",
+      "service_noninferiority": "INCONCLUSIVE",
+      "stock_adjusted_delivery_difference_m3": {
+        "lower_bound": -4.271200165017399,
+        "maximum": 1.212140808296681,
+        "mean": -2.077526352580571,
+        "minimum": -11.38328146351705,
+        "negative_count": 17,
+        "seed_count": 20,
+        "standard_deviation": 3.0227992823615293,
+        "upper_bound": -0.6033404425479603
+      },
+      "warmup_days": 10,
+      "water_delivery_difference_m3": {
+        "lower_bound": -1268.5166666709379,
+        "maximum": 1275.8666666656427,
+        "mean": -768.0966666713537,
+        "minimum": -2088.400000004811,
+        "negative_count": 17,
+        "seed_count": 20,
+        "standard_deviation": 842.6692106551124,
+        "upper_bound": -215.81333333674974
+      },
+      "zone_id": "C"
+    },
+    {
+      "additional_et_deficit_mm": {
+        "lower_bound": -0.019236908348027555,
+        "maximum": 0.0005413349821537849,
+        "mean": -0.005340796488301294,
+        "minimum": -0.07738008352933623,
+        "negative_count": 3,
+        "seed_count": 20,
+        "standard_deviation": 0.018455550266173695,
+        "upper_bound": 0.00024120563855755485
+      },
+      "battery_losses_difference_kwh": {
+        "lower_bound": 1.8483325235441395,
+        "maximum": 2.6306269466183005,
+        "mean": 2.113056403209913,
+        "minimum": 1.396939529726853,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 0.4165811995798373,
+        "upper_bound": 2.3540986094692755
+      },
+      "et_service_degradation_fraction": {
+        "lower_bound": -0.00015316301533180646,
+        "maximum": 4.339536562882347e-6,
+        "mean": -4.252050876307955e-5,
+        "minimum": -0.0006161315338907579,
+        "negative_count": 3,
+        "seed_count": 20,
+        "standard_deviation": 0.00014696585993621012,
+        "upper_bound": 1.9382487062288855e-6
+      },
+      "profile_id": "nominal",
+      "pump_energy_difference_kwh": {
+        "lower_bound": 10.826129344357911,
+        "maximum": 19.319305831143392,
+        "mean": 13.206840291701862,
+        "minimum": 4.7726240646155675,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 3.424805497179617,
+        "upper_bound": 15.176510783777431
+      },
+      "scenario_id": "low_solar",
+      "service_noninferiority": "PASS",
+      "stock_adjusted_delivery_difference_m3": {
+        "lower_bound": 73.68315734769094,
+        "maximum": 133.2216215385415,
+        "mean": 92.3359925105171,
+        "minimum": 26.52937089632178,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 25.757753425692165,
+        "upper_bound": 105.84336868795326
+      },
+      "warmup_days": 10,
+      "water_delivery_difference_m3": {
+        "lower_bound": -523.0833333340772,
+        "maximum": 751.3333333328992,
+        "mean": -164.1133333340228,
+        "minimum": -1616.6666666673045,
+        "negative_count": 12,
+        "seed_count": 20,
+        "standard_deviation": 552.97591462206,
+        "upper_bound": 162.17333333268198
+      },
+      "zone_id": "A"
+    },
+    {
+      "additional_et_deficit_mm": {
+        "lower_bound": -0.05721537161307424,
+        "maximum": 5.498903599800542e-5,
+        "mean": -0.0446553345061584,
+        "minimum": -0.07263155660955817,
+        "negative_count": 18,
+        "seed_count": 20,
+        "standard_deviation": 0.022318766094347034,
+        "upper_bound": -0.0301025655437561
+      },
+      "battery_losses_difference_kwh": {
+        "lower_bound": 1.8483325235441395,
+        "maximum": 2.6306269466183005,
+        "mean": 2.113056403209913,
+        "minimum": 1.396939529726853,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 0.4165811995798373,
+        "upper_bound": 2.3540986094692755
+      },
+      "et_service_degradation_fraction": {
+        "lower_bound": -0.0004596544818698775,
+        "maximum": 4.3784495378297674e-7,
+        "mean": -0.0003585688880438041,
+        "minimum": -0.0005738623309695952,
+        "negative_count": 18,
+        "seed_count": 20,
+        "standard_deviation": 0.0001796780434861175,
+        "upper_bound": -0.0002414625273077722
+      },
+      "profile_id": "nominal",
+      "pump_energy_difference_kwh": {
+        "lower_bound": 10.826129344357911,
+        "maximum": 19.319305831143392,
+        "mean": 13.206840291701862,
+        "minimum": 4.7726240646155675,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 3.424805497179617,
+        "upper_bound": 15.176510783777431
+      },
+      "scenario_id": "low_solar",
+      "service_noninferiority": "PASS",
+      "stock_adjusted_delivery_difference_m3": {
+        "lower_bound": 73.68315734769094,
+        "maximum": 133.2216215385415,
+        "mean": 92.3359925105171,
+        "minimum": 26.52937089632178,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 25.757753425692165,
+        "upper_bound": 105.84336868795326
+      },
+      "warmup_days": 10,
+      "water_delivery_difference_m3": {
+        "lower_bound": -523.0833333340772,
+        "maximum": 751.3333333328992,
+        "mean": -164.1133333340228,
+        "minimum": -1616.6666666673045,
+        "negative_count": 12,
+        "seed_count": 20,
+        "standard_deviation": 552.97591462206,
+        "upper_bound": 162.17333333268198
+      },
+      "zone_id": "B"
+    },
+    {
+      "additional_et_deficit_mm": {
+        "lower_bound": -2.3170370674704963,
+        "maximum": -0.5136934762765293,
+        "mean": -2.0137294686434237,
+        "minimum": -2.9259992800635857,
+        "negative_count": 20,
+        "seed_count": 20,
+        "standard_deviation": 0.5775292715236899,
+        "upper_bound": -1.595722204813288
+      },
+      "battery_losses_difference_kwh": {
+        "lower_bound": 1.8483325235441395,
+        "maximum": 2.6306269466183005,
+        "mean": 2.113056403209913,
+        "minimum": 1.396939529726853,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 0.4165811995798373,
+        "upper_bound": 2.3540986094692755
+      },
+      "et_service_degradation_fraction": {
+        "lower_bound": -0.018613845453334478,
+        "maximum": -0.004084454450009781,
+        "mean": -0.01615189666117777,
+        "minimum": -0.023455866103986964,
+        "negative_count": 20,
+        "seed_count": 20,
+        "standard_deviation": 0.0046530933627156185,
+        "upper_bound": -0.012758096340212965
+      },
+      "profile_id": "nominal",
+      "pump_energy_difference_kwh": {
+        "lower_bound": 10.826129344357911,
+        "maximum": 19.319305831143392,
+        "mean": 13.206840291701862,
+        "minimum": 4.7726240646155675,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 3.424805497179617,
+        "upper_bound": 15.176510783777431
+      },
+      "scenario_id": "low_solar",
+      "service_noninferiority": "PASS",
+      "stock_adjusted_delivery_difference_m3": {
+        "lower_bound": 73.68315734769094,
+        "maximum": 133.2216215385415,
+        "mean": 92.3359925105171,
+        "minimum": 26.52937089632178,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 25.757753425692165,
+        "upper_bound": 105.84336868795326
+      },
+      "warmup_days": 10,
+      "water_delivery_difference_m3": {
+        "lower_bound": -523.0833333340772,
+        "maximum": 751.3333333328992,
+        "mean": -164.1133333340228,
+        "minimum": -1616.6666666673045,
+        "negative_count": 12,
+        "seed_count": 20,
+        "standard_deviation": 552.97591462206,
+        "upper_bound": 162.17333333268198
+      },
+      "zone_id": "C"
+    },
+    {
+      "additional_et_deficit_mm": {
+        "lower_bound": 4.637927942591583e-6,
+        "maximum": 0.0011844553212085884,
+        "mean": 0.00012819223127735313,
+        "minimum": -1.61613180959345e-6,
+        "negative_count": 3,
+        "seed_count": 20,
+        "standard_deviation": 0.00034098765790460347,
+        "upper_bound": 0.00039063468061537304
+      },
+      "battery_losses_difference_kwh": {
+        "lower_bound": 5.921097673580692,
+        "maximum": 10.149072004336375,
+        "mean": 6.7763215740336165,
+        "minimum": 4.152156250278428,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 1.4438136904191876,
+        "upper_bound": 7.697830754985861
+      },
+      "et_service_degradation_fraction": {
+        "lower_bound": 3.7214188801563516e-8,
+        "maximum": 9.657953925783472e-6,
+        "mean": 1.0316419974822446e-6,
+        "minimum": -1.3134278373251096e-8,
+        "negative_count": 3,
+        "seed_count": 20,
+        "standard_deviation": 2.750516449429026e-6,
+        "upper_bound": 3.140703624333631e-6
+      },
+      "profile_id": "nominal",
+      "pump_energy_difference_kwh": {
+        "lower_bound": -26.612542182122418,
+        "maximum": 20.091810157467393,
+        "mean": -11.731875790387623,
+        "minimum": -61.90193105572886,
+        "negative_count": 13,
+        "seed_count": 20,
+        "standard_deviation": 22.312666311507442,
+        "upper_bound": 0.7668861251042617
+      },
+      "scenario_id": "tse_interrupt",
+      "service_noninferiority": "PASS",
+      "stock_adjusted_delivery_difference_m3": {
+        "lower_bound": 12.31709516792871,
+        "maximum": 23.38854048778012,
+        "mean": 14.950880219421743,
+        "minimum": 7.448416719082161,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 4.371683226986024,
+        "upper_bound": 17.676982115210194
+      },
+      "warmup_days": 10,
+      "water_delivery_difference_m3": {
+        "lower_bound": -854.5133333298876,
+        "maximum": 1374.0000000060609,
+        "mean": -254.5133333297319,
+        "minimum": -1726.9333333281174,
+        "negative_count": 13,
+        "seed_count": 20,
+        "standard_deviation": 985.3123768872239,
+        "upper_bound": 364.7400000039228
+      },
+      "zone_id": "A"
+    },
+    {
+      "additional_et_deficit_mm": {
+        "lower_bound": -0.05153032665484989,
+        "maximum": -0.00010360481315728975,
+        "mean": -0.03131540299982862,
+        "minimum": -0.12024983353623611,
+        "negative_count": 20,
+        "seed_count": 20,
+        "standard_deviation": 0.02911706660668031,
+        "upper_bound": -0.01608769854426646
+      },
+      "battery_losses_difference_kwh": {
+        "lower_bound": 5.921097673580692,
+        "maximum": 10.149072004336375,
+        "mean": 6.7763215740336165,
+        "minimum": 4.152156250278428,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 1.4438136904191876,
+        "upper_bound": 7.697830754985861
+      },
+      "et_service_degradation_fraction": {
+        "lower_bound": -0.0004106690715398087,
+        "maximum": -8.25410775866726e-7,
+        "mean": -0.0002507088498415557,
+        "minimum": -0.0009574778290165646,
+        "negative_count": 20,
+        "seed_count": 20,
+        "standard_deviation": 0.00023153624152183762,
+        "upper_bound": -0.00012938549077684292
+      },
+      "profile_id": "nominal",
+      "pump_energy_difference_kwh": {
+        "lower_bound": -26.612542182122418,
+        "maximum": 20.091810157467393,
+        "mean": -11.731875790387623,
+        "minimum": -61.90193105572886,
+        "negative_count": 13,
+        "seed_count": 20,
+        "standard_deviation": 22.312666311507442,
+        "upper_bound": 0.7668861251042617
+      },
+      "scenario_id": "tse_interrupt",
+      "service_noninferiority": "PASS",
+      "stock_adjusted_delivery_difference_m3": {
+        "lower_bound": 12.31709516792871,
+        "maximum": 23.38854048778012,
+        "mean": 14.950880219421743,
+        "minimum": 7.448416719082161,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 4.371683226986024,
+        "upper_bound": 17.676982115210194
+      },
+      "warmup_days": 10,
+      "water_delivery_difference_m3": {
+        "lower_bound": -854.5133333298876,
+        "maximum": 1374.0000000060609,
+        "mean": -254.5133333297319,
+        "minimum": -1726.9333333281174,
+        "negative_count": 13,
+        "seed_count": 20,
+        "standard_deviation": 985.3123768872239,
+        "upper_bound": 364.7400000039228
+      },
+      "zone_id": "B"
+    },
+    {
+      "additional_et_deficit_mm": {
+        "lower_bound": -0.3712957432233361,
+        "maximum": -0.1149527916039915,
+        "mean": -0.2974428394934705,
+        "minimum": -0.509894077823651,
+        "negative_count": 20,
+        "seed_count": 20,
+        "standard_deviation": 0.11608313568366757,
+        "upper_bound": -0.22719643495461125
+      },
+      "battery_losses_difference_kwh": {
+        "lower_bound": 5.921097673580692,
+        "maximum": 10.149072004336375,
+        "mean": 6.7763215740336165,
+        "minimum": 4.152156250278428,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 1.4438136904191876,
+        "upper_bound": 7.697830754985861
+      },
+      "et_service_degradation_fraction": {
+        "lower_bound": -0.00297688945129386,
+        "maximum": -0.0009153006379107897,
+        "mean": -0.002384684478708943,
+        "minimum": -0.004095651903366478,
+        "negative_count": 20,
+        "seed_count": 20,
+        "standard_deviation": 0.0009311692161251153,
+        "upper_bound": -0.0018272517478377178
+      },
+      "profile_id": "nominal",
+      "pump_energy_difference_kwh": {
+        "lower_bound": -26.612542182122418,
+        "maximum": 20.091810157467393,
+        "mean": -11.731875790387623,
+        "minimum": -61.90193105572886,
+        "negative_count": 13,
+        "seed_count": 20,
+        "standard_deviation": 22.312666311507442,
+        "upper_bound": 0.7668861251042617
+      },
+      "scenario_id": "tse_interrupt",
+      "service_noninferiority": "PASS",
+      "stock_adjusted_delivery_difference_m3": {
+        "lower_bound": 12.31709516792871,
+        "maximum": 23.38854048778012,
+        "mean": 14.950880219421743,
+        "minimum": 7.448416719082161,
+        "negative_count": 0,
+        "seed_count": 20,
+        "standard_deviation": 4.371683226986024,
+        "upper_bound": 17.676982115210194
+      },
+      "warmup_days": 10,
+      "water_delivery_difference_m3": {
+        "lower_bound": -854.5133333298876,
+        "maximum": 1374.0000000060609,
+        "mean": -254.5133333297319,
+        "minimum": -1726.9333333281174,
+        "negative_count": 13,
+        "seed_count": 20,
+        "standard_deviation": 985.3123768872239,
+        "upper_bound": 364.7400000039228
+      },
+      "zone_id": "C"
+    }
+  ],
+  "trial_count": 80,
+  "water_only": true
+}

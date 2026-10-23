@@ -166,6 +166,57 @@ In this synthetic baseline the smart controller does **not** save water: −0.1%
 
 **Benchmark:** the 14-day comparison (2 × 20,160 steps) runs in about **2.9 s** on the development laptop, inside the 5 s budget (`test_fourteen_day_comparison_runs_in_under_five_seconds`).
 
+### RCA reference trials
+
+The [RCA evaluation specification](docs/rca/evaluation-spec.md) pins the original
+controller reference to a Git commit and defines stock adjustment, cycle counting,
+and cumulative account tolerances. Run the full startup/fault matrix (four
+scenarios, seeds 3/7/11, 14/30 days, both unchanged policies) from the repo root:
+
+```bash
+uv --directory backend run python -m scenarios.rca_trials --output ../artifacts/rca/reference.json
+```
+
+Exports contain code/runtime/configuration provenance, initial/final stocks,
+computed accounts and closure residuals. Add `--require-clean` when publishing a
+reference; dirty-tree diagnostic runs are labelled. This runner does not discard
+startup or the day-one TSE outage, and does not establish steady-state savings.
+The original controller and default policy remain unchanged. The synchronized
+schema 1.1 contract now includes per-zone service and stock diagnostics.
+
+### Experimental scheduling and validation
+
+Select **Resource aware (experimental, opt-in)** to use bounded joint inventory,
+head and battery scheduling. The original `SMART_HYSTERESIS` stays the default:
+[water-only validation](docs/rca/validation/water-scheduler-validation.md) and
+[combined held-out validation](docs/rca/validation/combined-validation.md) did not
+establish service non-inferiority at every endpoint. No savings or field-health
+claim follows from lower raw delivery.
+
+The Experiment panel can include the candidate and score matched operation after
+a common 10-day fixed-timer warm-up. Faults move into the scored window. Single
+seed reports remain diagnostics. Batch commands from the root:
+
+```bash
+uv --directory backend run python -m scenarios.paired_evaluation --output ../artifacts/rca/combined-validation.json --require-clean
+uv --directory backend run python -m scenarios.paired_evaluation --output ../artifacts/rca/water-scheduler-validation.json --profiles nominal --water-only --require-clean
+uv --directory backend run python -m scenarios.design_study --output ../artifacts/rca/design-study.json
+```
+
+Full validation uses seeds 100–119, 30 measured days and the documented bootstrap
+protocol; the combined sweep includes four solar profiles and can take an hour
+on the development laptop. Run it without parallel benchmarks. Computed summary
+artifacts and their raw-result hashes are committed under `docs/rca/validation/`.
+[Design/deployment boundaries](docs/rca/validation/design-and-deployment.md) explain
+which engineering and site decisions remain open.
+
+`pnpm test:browser` builds an isolated production dashboard and launches a private
+backend on ports 3100/8100, leaving the demo on 3000/8000 untouched. Install its
+browser first with `pnpm exec playwright install chromium`. CI runs backend,
+style/lint/type/build and these real-backend browser checks. Browser builds use
+`.next-browser/` and `tsconfig.browser.json`; `SIMULATION_BACKEND_URL`,
+`NEXT_BUILD_DIRECTORY` and `NEXT_TYPESCRIPT_CONFIG` are server/build settings.
+
 ## Tests and acceptance gates
 
 | Gate | Test                                                                                                        |

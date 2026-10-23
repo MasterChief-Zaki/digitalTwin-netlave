@@ -32,6 +32,9 @@ const eslintConfig = defineConfig([
   prettierCompatibility,
   globalIgnores([
     ".next/**",
+    ".next-browser/**",
+    "test-results/**",
+    "playwright-report/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

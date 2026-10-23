@@ -36,6 +36,10 @@ FROZEN_REASON_CODES = {
     "SCHEDULE_WINDOW_OPEN",
     "SCHEDULE_WINDOW_CLOSED",
     "OPERATOR_COMMAND",
+    "SCHEDULER_WATER_HOLD",
+    "SCHEDULER_ENERGY_HOLD",
+    "SCHEDULER_QUEUE",
+    "SCHEDULER_REST",
 }
 
 
@@ -46,7 +50,7 @@ def load_fixture() -> dict:
 def test_fixture_validates_as_a_snapshot():
     snapshot = schemas.SimulationSnapshot.model_validate(load_fixture())
 
-    assert snapshot.schema_version == "1.0"
+    assert snapshot.schema_version == "1.1"
     assert snapshot.data_mode == "SIMULATED"
     assert snapshot.step == 0
     assert snapshot.sim_time_s == 0

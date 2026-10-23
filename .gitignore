@@ -12,9 +12,13 @@
 
 # testing
 /coverage
+/artifacts/rca/
+/test-results/
+/playwright-report/
 
 # next.js
 /.next/
+/.next-browser/
 /out/
 
 # production

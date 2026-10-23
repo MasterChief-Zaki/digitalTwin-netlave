@@ -31,7 +31,7 @@ def test_state_returns_a_versioned_simulated_snapshot(client: TestClient):
 
     assert response.status_code == 200
     snapshot = response.json()
-    assert snapshot["schema_version"] == "1.0"
+    assert snapshot["schema_version"] == "1.1"
     assert snapshot["data_mode"] == "SIMULATED"
     assert snapshot["step"] == 0
     assert snapshot["run_generation"] == 1
@@ -231,6 +231,8 @@ def test_scenarios_lists_presets_and_assumptions(client: TestClient):
 
 def test_compare_reports_both_policies_without_touching_the_live_run(client: TestClient):
     advance(client, expected_step=0, steps=3, request_id="before-compare")
+    state_before = client.get("/state").json()
+    events_before = client.get("/events", params={"since_id": 0}).json()
 
     response = client.post("/compare", json={"scenario_id": "baseline", "seed": 7, "horizon_days": 2})
 
@@ -244,6 +246,13 @@ def test_compare_reports_both_policies_without_touching_the_live_run(client: Tes
     state = client.get("/state").json()
     assert state["step"] == 3
     assert state["environment"]["control_policy"] == "SMART_HYSTERESIS"
+    assert state == state_before
+    assert client.get("/events", params={"since_id": 0}).json() == events_before
+    # The comparison did not invalidate the idempotency ledger or advance again.
+    retry = advance(client, expected_step=0, steps=3, request_id="before-compare")
+    assert retry.status_code == 200
+    assert retry.json()["snapshot"] == state_before
+    assert client.get("/state").json() == state_before
 
 
 def test_compare_limits_the_horizon(client: TestClient):

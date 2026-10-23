@@ -1,9 +1,14 @@
 import type { NextConfig } from "next";
 
 // The FastAPI simulation runs as a single local process; see `pnpm backend:dev`.
-const simulationBackendUrl = "http://127.0.0.1:8000";
+const simulationBackendUrl =
+  process.env.SIMULATION_BACKEND_URL ?? "http://127.0.0.1:8000";
 
 const nextConfig: NextConfig = {
+  distDir: process.env.NEXT_BUILD_DIRECTORY ?? ".next",
+  typescript: {
+    tsconfigPath: process.env.NEXT_TYPESCRIPT_CONFIG ?? "tsconfig.json",
+  },
   cacheComponents: true,
   partialPrefetching: true,
   rewrites() {

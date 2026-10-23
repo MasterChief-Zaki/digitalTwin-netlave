@@ -31,6 +31,10 @@ export const reasonPresentation: Record<ReasonCode, ReasonPresentation> = {
   SCHEDULE_WINDOW_OPEN: { label: "Timer window open", tone: "active" },
   SCHEDULE_WINDOW_CLOSED: { label: "Timer window closed", tone: "idle" },
   OPERATOR_COMMAND: { label: "Operator command", tone: "idle" },
+  SCHEDULER_WATER_HOLD: { label: "Inventory/head deferral", tone: "warning" },
+  SCHEDULER_ENERGY_HOLD: { label: "Energy budget deferral", tone: "warning" },
+  SCHEDULER_QUEUE: { label: "Queued session", tone: "warning" },
+  SCHEDULER_REST: { label: "Session rest", tone: "idle" },
 };
 
 export const toneSymbol: Record<StatusTone, string> = {

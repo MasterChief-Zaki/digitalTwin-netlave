@@ -109,7 +109,7 @@ class TwinService:
         self.run_generation += 1
         self.replies.clear()
         self.state = build_scenario(self.cfg, scenario_id, seed=seed, control_policy=control_policy)
-        policy_name = "smart hysteresis" if control_policy == "SMART_HYSTERESIS" else "fixed timer"
+        policy_name = control_policy.replace("_", " ").lower()
         self._record(
             0,
             EventDraft(
@@ -224,7 +224,8 @@ def create_app(cfg: SiteConfig = SITE) -> FastAPI:
     @app.post("/compare")
     def post_compare(request: schemas.CompareRequest) -> schemas.CompareResponse:
         """A headless A/B run on private states; it never takes the live run's lock or touches it."""
-        report = run_comparison(cfg, request.scenario_id, request.seed, request.horizon_days)
+        report = run_comparison(cfg, request.scenario_id, request.seed, request.horizon_days,
+                                request.evaluation_mode, request.warmup_days, request.include_resource_aware)
         return schemas.CompareResponse(
             data_mode="SIMULATED",
             scenario_id=report.scenario_id,
@@ -235,6 +236,9 @@ def create_app(cfg: SiteConfig = SITE) -> FastAPI:
             smart_hysteresis=schemas.PolicyReport(**asdict(report.smart_hysteresis)),
             water_savings_fraction=report.water_savings_fraction,
             elapsed_s=report.elapsed_s,
+            resource_aware=schemas.PolicyReport(**asdict(report.resource_aware)) if report.resource_aware is not None else None,
+            evaluation_mode=report.evaluation_mode, warmup_days=report.warmup_days,
+            measurement_start_step=report.measurement_start_step, measurement_end_step=report.measurement_end_step,
         )
 
     return app
