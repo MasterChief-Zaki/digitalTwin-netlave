@@ -20,6 +20,7 @@ export default defineConfig({
       env: {
         SIMULATION_BACKEND_URL: "http://127.0.0.1:8100",
         NEXT_BUILD_DIRECTORY: ".next-browser",
+        NEXT_TYPESCRIPT_CONFIG: "tsconfig.browser.json",
       },
       reuseExistingServer: false,
     },

@@ -101,6 +101,12 @@ def summarize(trials: list[PairedTrial]) -> list[dict[str, object]]:
     summaries: list[dict[str, object]] = []
     for scenario_id, profile_id, warmup_days in groups:
         paired = [trial for trial in trials if (trial.scenario_id, trial.profile_id, trial.warmup_days) == (scenario_id, profile_id, warmup_days)]
+        distinct_seeds = {trial.seed for trial in paired}
+        release_eligible = (
+            len(paired) == len(distinct_seeds)
+            and distinct_seeds == set(VALIDATION_SEEDS)
+            and all(trial.measurement_end_step - trial.measurement_start_step == 30 * STEPS_PER_DAY for trial in paired)
+        )
         for zone_index, zone_cfg in enumerate(SITE.zones):
             deficits = [trial.candidate.zones[zone_index].et_deficit_mm - trial.reference.zones[zone_index].et_deficit_mm for trial in paired]
             degradation = [
@@ -115,7 +121,7 @@ def summarize(trials: list[PairedTrial]) -> list[dict[str, object]]:
                 "scenario_id": scenario_id, "profile_id": profile_id, "warmup_days": warmup_days,
                 "zone_id": zone_cfg.zone_id, "additional_et_deficit_mm": deficit_interval,
                 "et_service_degradation_fraction": service_interval,
-                "service_noninferiority": "PASS" if pass_service and len(paired) >= 20 else "INCONCLUSIVE",
+                "service_noninferiority": "PASS" if pass_service and release_eligible else "INCONCLUSIVE",
                 "water_delivery_difference_m3": paired_interval([
                     trial.candidate.metrics.irrigation_delivered_m3 - trial.reference.metrics.irrigation_delivered_m3 for trial in paired], endpoint_count),
                 "stock_adjusted_delivery_difference_m3": paired_interval([
@@ -139,6 +145,12 @@ def main() -> None:
     parser.add_argument("--require-clean", action="store_true")
     parser.add_argument("--water-only", action="store_true", help="Water-scheduler ablation; disable only operating energy shaping.")
     args = parser.parse_args()
+    if len(set(args.seeds)) != len(args.seeds) or any(seed < 0 for seed in args.seeds):
+        parser.error("Seeds must be distinct and nonnegative.")
+    if len(set(args.profiles)) != len(args.profiles) or len(set(args.warmup_days)) != len(args.warmup_days):
+        parser.error("Profiles and warm-up durations must not repeat.")
+    if args.horizon_days not in range(1, 31):
+        parser.error("Measured horizon must be in [1, 30] days.")
     from dataclasses import replace
     cfg = replace(SITE, scheduler=replace(SITE.scheduler, energy_aware=not args.water_only))
     manifest = provenance(cfg, args.require_clean)
