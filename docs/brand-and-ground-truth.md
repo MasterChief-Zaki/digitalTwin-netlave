@@ -1,39 +1,143 @@
-# Shared NetLave brand and ground truth
+# Shared brand and project facts
 
-## Authority and site roles
+This guide is the same in all three NetLave repos. It explains what should stay consistent, where the facts come from, and how to publish them without overstating what the prototype proves.
 
-All three repos publish the same `src/content/ground-truth.json` and the same server-rendered `/ground-truth` reference. Home-page layouts remain distinct: the landing page introduces the founders, the product site explains systems and scenarios, and the twin dashboard operates the simulation.
+## Three sites, one project
 
-The Python engine in [digitalTwin-netlave](https://github.com/MasterChief-Zaki/digitalTwin-netlave) is the only physical authority. `backend/config.py` owns parameters; `backend/scenarios/presets.py` owns presets. The JSON is a static, pinned editorial reference, not a second engine or a substitute for live snapshots. Provenance links pin the reference commit. The historical seed-7, 14-day comparison is distinct from later warm-up/held-out scheduler trials.
+| Repository                                                                     | Its job                                              |
+| ------------------------------------------------------------------------------ | ---------------------------------------------------- |
+| [landing-netlave](https://github.com/MasterChief-Zaki/landing-netlave)         | Introduce the idea and founders.                     |
+| [netlave](https://github.com/MasterChief-Zaki/netlave)                         | Explain the systems, scenarios and evidence.         |
+| [digitalTwin-netlave](https://github.com/MasterChief-Zaki/digitalTwin-netlave) | Run the Python simulation and display its snapshots. |
 
-Always call the project **NetLave**. Say **simulation-driven prototype**, **synthetic assumptions** and **simulated outputs**. Do not claim proven self-power, field savings, tree health, carbon sequestration or regulatory compliance. Smart hysteresis remains the default; resource-aware control is experimental and opt-in.
+Their home pages do not need identical layouts or every identical sentence. They do need the same project identity, assumptions, evidence boundaries and sources.
 
-The founder names and existing portraits come from the landing repository. Roles/bios were not supplied, so placeholders are not published. No email is verified; the existing public GitHub issue tracker is linked instead. Do not post private information there.
+Every site publishes `src/content/ground-truth.json` and a server-rendered `/ground-truth` page. This is a common editorial reference: it lets a visitor find the same answer from any site. It is **not** another simulation model.
 
-## Logo and typography
+## What owns the facts?
 
-- `public/brand/source.png` is the unmodified user-supplied `NetLave.png` (1545 × 1999).
-- `scripts/generate-brand.mjs` crops the supplied dark monogram (535, 141, 475, 524), pads it on the artwork's pale background, and exports `mark.png`, PNG icons and a 16/32/48-pixel ICO.
-- The lower light lockup is cropped at (535, 1131, 475, 691). Only the flat purple background is removed; no logo geometry is redrawn. `logo-light.png` is for dark surfaces. `social.png` is a 1200 × 630 card made from this lockup.
-- Regenerate with `pnpm exec node scripts/generate-brand.mjs`. It uses Sharp already installed with Next.js; no added dependency.
-- `src/styles/fonts.ts` is identical across repos: Space Grotesk variable for headings/body, IBM Plex Mono 400/500/600 for labels, code and metrics, Latin subset and swap display. Next.js self-hosts the fonts after build. The artwork's embedded lettering is preserved, not used as a body font.
-- Next.js App Router serves `src/app/favicon.ico`, `icon.png` and `apple-icon.png` automatically. Do not restore the starter icons.
+There are three different kinds of information:
 
-## Synchronizing changes
+1. **Physical assumptions:** the twin's `backend/config.py` owns the parameters. `backend/scenarios/presets.py` owns the starting conditions and fault presets.
+2. **Simulation evidence:** a trial or report records its inputs, source revision and results. Its original provenance must remain attached to it.
+3. **Website copy:** `ground-truth.json` gives a pinned, readable summary of those assumptions and reports. Live twin readings still come from Python snapshots, not this JSON.
 
-1. Verify changes against Python configuration, presets and published validation. Never edit physics to fit marketing copy.
-2. Update `ground-truth.json` with a real source commit and copy it to all three repos. Keep claim limits visible in the UI, not just metadata.
-3. Keep the shared font file, reference page, discovery file and generated branding byte-identical.
-4. From any repo run `pnpm exec node scripts/check-shared-truth.mjs --siblings` with all three repos next to each other. Without siblings, omit `--siblings` for local checks.
-5. In the twin run `pnpm test:backend`: `test_site_ground_truth.py` compares the published parameters, zones and scenario IDs with Python.
-6. Run the repository's lint, style, formatting, type and production-build checks. Follow `AGENTS.md`, use pnpm (uv for Python), retain pre-commit hooks and submit PRs to `main`.
+A new website commit does not make an old trial a new trial. For example, the published baseline uses seed 7 and 14 simulated days including startup. The later resource-aware validation uses common warm-up and held-out trials. They answer different questions and must not be presented as interchangeable results.
 
-## SEO and generative discovery
+## How to talk about NetLave
 
-- Each home page has a unique descriptive title; descriptions and claim boundaries use the shared reference. Open Graph/Twitter cards and sanitized WebSite JSON-LD describe the prototype without fake ratings, offers, organizations or field results.
-- `/ground-truth` provides crawlable semantic headings, direct answers, a parameter list, historical evidence table and pinned source citations, without JavaScript or WebGL. Every home page links to it.
-- `public/llms.txt` is a discovery aid, not a standard ranking guarantee. It directs readers to the reference and physical authority and retains claim limits.
-- Set **`SITE_URL=https://your-verified-production-origin` at build time**, separately in each deployment. This must be an HTTP(S) origin without a path/query/fragment. No real domains were supplied or recorded in these repos, so domains are not guessed. Without it, absolute canonicals and social image URLs are omitted and the sitemap is empty; set it before public release.
-- `/robots.txt` allows public content but excludes `/api/`. `/sitemap.xml` includes `/` and `/ground-truth` only when a production origin is configured. `VERCEL_ENV=preview` emits noindex/nofollow and blocks crawling; protect previews on other hosts similarly.
-- Each domain self-canonicalizes: do not canonicalize the interactive twin or founder page to the product site. The shared reference is intentionally identical; assign a cross-domain reference canonical only after deciding the authoritative public domain.
-- After deployment, inspect canonical/OG tags, verify sitemap origins, validate JSON-LD with Schema.org's validator, submit the sitemap to search consoles, and test desktop/mobile rendering. Better discovery is not a promise of search or generative-answer placement.
+Use **NetLave** for the name and **simulation-driven prototype** for its current status. In ordinary sentences, explain what a number represents instead of attaching a large warning to every paragraph.
+
+| Clear wording                                     | Avoid                                     |
+| ------------------------------------------------- | ----------------------------------------- |
+| “The model assumes an 8 kWp solar array.”         | “The installation has 8 kWp of solar.”    |
+| “The pump stops at the modelled battery reserve.” | “The forest is proven self-powered.”      |
+| “This synthetic baseline did not save water.”     | “Smart control guarantees water savings.” |
+| “Tree color shows a moisture-stress proxy.”       | “The twin measures tree health.”          |
+
+Smart hysteresis remains the default. Resource-aware scheduling is implemented but experimental and opt-in because held-out validation did not establish acceptable irrigation service at every endpoint.
+
+Synthetic quality flags never authorize real-world irrigation. Site surveys, treatment-grade and water-quality checks, species approval, worker protection and current reuse permissions remain real deployment requirements. Salinity, pathogens, tree growth and carbon sequestration are not modelled.
+
+The landing page identifies Eyad, Mahmoud, Omar and Hana and publishes their existing portraits. Detailed role biographies have not been supplied, and no contact email has been verified. The landing page's contact button opens the project repository homepage so visitors can learn more and follow development; it does not point directly to the issues page.
+
+## Update a shared fact without creating drift
+
+Use this order:
+
+1. **Check the source.** Read the Python configuration, preset or published validation that supports the change. Do not change physics to match marketing copy.
+2. **Decide what changed.** A clearer sentence may keep the same source revision. A new assumption or result needs the actual supporting revision or report, not merely the latest site commit.
+3. **Update the shared JSON.** Keep the units, synthetic status, source links and claim limits together.
+4. **Copy the shared change to all three repos.** If you changed the reference-page wording, copy its TSX and SCSS too. Review product-only text that may repeat the old claim.
+5. **Run the comparison.** From any repo, with all three adjacent:
+
+   ```bash
+   pnpm exec node scripts/check-shared-truth.mjs --siblings
+   ```
+
+6. **Check Python consistency in the twin.** `pnpm test:backend` includes `test_site_ground_truth.py`, which compares published parameters, zone properties and scenario IDs with Python.
+7. **Run each repo's regular checks and submit its PR.** Keep the shared update understandable in the PR description.
+
+Without adjacent repos, omit `--siblings`. That checks the local reference and favicon structure only; it does not prove the other sites agree.
+
+The sibling check compares the JSON, fonts, artwork, icons, reference page and `llms.txt`. It normalizes text line endings and compares binary assets exactly. It does not validate the science behind a sentence, compare every home-page paragraph or refresh historical reports. Source review is still needed.
+
+## Logo files and when to use them
+
+`public/brand/source.png` is the supplied `NetLave.png`, kept unchanged. The generated files are derived from that artwork, not a redrawn approximation.
+
+| Asset                    | Purpose                                                                         |
+| ------------------------ | ------------------------------------------------------------------------------- |
+| `mark.png`               | Dark monogram on a pale padded background; used in headers and to create icons. |
+| `logo-light.png`         | Light full logo for dark surfaces; the flat purple background is removed.       |
+| `social.png`             | 1200 × 630 social-sharing image.                                                |
+| `src/app/favicon.ico`    | Browser favicon with 16, 32 and 48px entries.                                   |
+| `src/app/icon.png`       | 192px application icon.                                                         |
+| `src/app/apple-icon.png` | 180px touch icon.                                                               |
+
+Regenerate them with:
+
+```bash
+pnpm exec node scripts/generate-brand.mjs
+```
+
+The script uses Sharp already installed with Next.js. It crops the monogram from the upper panel at `(535, 141, 475, 524)` and the light lockup from the lower panel at `(535, 1131, 475, 691)` of the 1545 × 1999 source. If the source artwork changes, review these crop coordinates before generating anything.
+
+The favicon PNG payloads must remain RGBA, which the generator ensures. Next.js's App Router discovers the icon files automatically; do not restore starter icons or add conflicting hand-written icon tags.
+
+After regeneration, inspect the small favicon as well as the full logo, copy the resulting assets to all three repos, and run the sibling check.
+
+## Fonts and controls
+
+`src/styles/fonts.ts` is identical across repos:
+
+- **Space Grotesk:** variable font for headings and body text.
+- **IBM Plex Mono:** weights 400, 500 and 600 for labels, code and readings.
+- Latin subset and `swap` display behavior for both.
+
+Next.js obtains the Google font files during a build and serves them from the site afterward. Do not describe a first install or uncached build as guaranteed offline. The logo's lettering is part of the image; it is not the body font.
+
+The landing and product sites share the same glass-control design, although their SCSS is organized differently. Keep the rounded capsules, tinted primary/clear secondary contrast, visible selected states and reduced-motion/transparency behavior. The twin's denser operational controls keep their own layout while using the same typography and palette.
+
+## Publishing: search and generative discovery
+
+SEO helps search engines understand the pages. GEO here means helping generative answer systems find clear, attributable project information. Neither is a reason to add unsupported claims or promise a ranking.
+
+The existing setup includes:
+
+- Unique descriptive home-page titles and a shared project description.
+- Open Graph and Twitter social-card metadata.
+- Sanitized `WebSite` JSON-LD describing the prototype without fake ratings or offers.
+- A linked, server-rendered `/ground-truth` page with direct answers, units, evidence and pinned sources.
+- `robots.txt`, `sitemap.xml` and an `llms.txt` discovery aid.
+
+`llms.txt` is guidance for discovery, not a guarantee that a crawler will read it or an answer engine will cite the project. The useful part is still the visible, well-sourced reference page.
+
+### Set the real production origin before building
+
+Each deployment needs its own `SITE_URL`, such as an actual verified HTTPS origin. It must not include a path, query or fragment. No production domains are supplied by these repos, so the code does not guess them.
+
+Set the environment variable in the hosting platform before the build. Locally, you can put it in an untracked `.env.local`. Use the site's real origin when preparing a public build—not `localhost`, a made-up domain or a temporary preview address.
+
+| Setting               | What the site emits                                                                               |
+| --------------------- | ------------------------------------------------------------------------------------------------- |
+| `SITE_URL` configured | Self-canonical URLs, absolute social-image URLs and a sitemap containing `/` and `/ground-truth`. |
+| `SITE_URL` absent     | No explicit production canonical or absolute social-image URL; empty sitemap.                     |
+| `VERCEL_ENV=preview`  | `noindex`/`nofollow`, crawl blocking and no sitemap entries.                                      |
+
+`robots.txt` allows public content but excludes `/api/`. That is a crawler hint, **not access control**. The twin backend has no authentication; do not expose its command endpoints as a production control service without a separate security design.
+
+On a non-Vercel preview host, configure equivalent noindex/crawl protection yourself. The code does not automatically recognize every host's preview environment.
+
+### Review a deployment
+
+1. Open `/` and `/ground-truth` and inspect their titles, descriptions, canonical links and social-image URLs.
+2. Open `/robots.txt` and `/sitemap.xml`; make sure they contain the intended production origin and no temporary domain.
+3. Open the social image and favicon. Check that their URLs are public and return the correct assets.
+4. Validate JSON-LD with the [Schema.org validator](https://validator.schema.org/). It should describe what visitors can actually read.
+5. Check mobile, keyboard navigation and no-WebGL rendering. Clear source material should not depend on the decorative scene.
+6. Submit the real sitemap to the appropriate search consoles if you manage that deployment.
+
+Keep each home page self-canonical; the founder page and interactive twin are not duplicates of the product page. The shared reference is intentionally repeated. Choose a cross-domain canonical for that reference only after deciding which public domain should own it.
+
+For page-specific changes, use the README's site guide or the twin's dashboard guide. For a technical warning, use [development troubleshooting](development-troubleshooting.md).
