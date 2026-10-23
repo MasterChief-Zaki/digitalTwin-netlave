@@ -69,7 +69,12 @@ directories. The sweep fails if source bytes change while it is executing.
 1. **Pinned-runtime replay:** exact equality of physical results and digests in
    the same runtime/source/configuration. Runtime/provenance fields and elapsed
    wall time are not physical results. The trial runner omits wall time entirely.
-2. **Historical fixture checks:** strings, integers and booleans match exactly.
+2. **Historical fixture checks:** strings, integers and booleans match exactly,
+   except binary-float input/state hashes: historical hashes match exactly only
+   when implementation, Python version, OS and machine match the fixture runtime.
+   Cross-runtime runs still assert exact matching hashes between paired policies;
+   numerical outcomes use the tolerances below. Platform math-library differences
+   can change floating-point bits without changing the measured result.
    Floats use field units: m³ absolute tolerance `1e-6`, kWh absolute tolerance
    `1e-6`, mm/kWh-per-m³/moisture/fractions absolute tolerance `1e-12`; relative tolerance
    `1e-9`. The test maps every historical numeric field explicitly to a unit.

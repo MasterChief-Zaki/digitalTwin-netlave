@@ -2,6 +2,8 @@
 
 import json
 import math
+import platform
+import sys
 import subprocess
 from dataclasses import asdict, replace
 from pathlib import Path
@@ -78,6 +80,17 @@ def test_primary_results_reproduce_the_pinned_commit(scenario_id: schemas.Scenar
     reference = json.loads(REFERENCE_PATH.read_text(encoding="utf-8"))
     expected = next(trial for trial in reference["trials"] if trial["scenario_id"] == scenario_id)
     actual = asdict(run_comparison(SITE, scenario_id, seed=7, horizon_days=14))
+    recorded_runtime = reference["provenance"]["runtime"]
+    same_runtime = (
+        recorded_runtime["implementation"] == platform.python_implementation()
+        and recorded_runtime["python_version"] == platform.python_version()
+        and recorded_runtime["platform"] == sys.platform
+        and recorded_runtime["machine"] == platform.machine()
+    )
+    # Binary floating-point hashes are exact provenance, not tolerance-aware values.
+    # Cross-platform libm differences can change bits without changing outcomes.
+    assert actual["fixed_timer"]["input_digest"] == actual["smart_hysteresis"]["input_digest"]
+    assert actual["fixed_timer"]["initial_state_digest"] == actual["smart_hysteresis"]["initial_state_digest"]
     assert actual["scenario_id"] == expected["scenario_id"]
     assert actual["seed"] == expected["seed"]
     assert actual["horizon_days"] == expected["horizon_days"]
@@ -90,6 +103,9 @@ def test_primary_results_reproduce_the_pinned_commit(scenario_id: schemas.Scenar
         assert float_fields == HISTORICAL_FLOAT_UNITS.keys()
         for name in expected[policy]:
             value = actual[policy][name]
+            if name in ("input_digest", "initial_state_digest") and not same_runtime:
+                assert isinstance(value, str) and len(value) == 64
+                continue
             if isinstance(value, float):
                 unit = HISTORICAL_FLOAT_UNITS[name]
                 absolute = 1e-6 if unit in ("m3", "kwh") else 1e-12
