@@ -18,7 +18,7 @@ import schemas
 from config import STEPS_PER_DAY, SiteConfig
 from scenarios.presets import build_scenario
 from twin.engine import step
-from twin.state import SimState, to_snapshot, zone_service, site_diagnostics
+from twin.state import SimState, to_snapshot, zone_service, site_diagnostics, reset_accounts
 
 
 @dataclass(frozen=True)
@@ -61,15 +61,28 @@ class ComparisonReport:
     # (V_fixed - V_smart) / V_fixed; positive means the smart controller applied less water.
     water_savings_fraction: float
     elapsed_s: float
+    resource_aware: PolicyResult | None = None
+    evaluation_mode: str = "STARTUP_FAULT"
+    warmup_days: int = 0
+    measurement_start_step: int = 0
+    measurement_end_step: int = 0
 
 
 def run_comparison(
-    cfg: SiteConfig, scenario_id: schemas.ScenarioId, seed: int, horizon_days: int
+    cfg: SiteConfig, scenario_id: schemas.ScenarioId, seed: int, horizon_days: int,
+    evaluation_mode: str = "STARTUP_FAULT", warmup_days: int = 10, include_resource_aware: bool = False,
 ) -> ComparisonReport:
     started = time.perf_counter()
     steps = horizon_days * STEPS_PER_DAY
-    fixed = _run_policy(cfg, scenario_id, seed, "FIXED_TIMER", steps)
-    smart = _run_policy(cfg, scenario_id, seed, "SMART_HYSTERESIS", steps)
+    initial = None
+    if evaluation_mode == "MATCHED_OPERATION":
+        from scenarios.paired_evaluation import matched_initial_state
+        initial = matched_initial_state(cfg, scenario_id, seed, warmup_days)
+    elif evaluation_mode != "STARTUP_FAULT":
+        raise ValueError("Unknown evaluation mode.")
+    fixed = _run_policy(cfg, scenario_id, seed, "FIXED_TIMER", steps, initial)
+    smart = _run_policy(cfg, scenario_id, seed, "SMART_HYSTERESIS", steps, initial)
+    candidate = _run_policy(cfg, scenario_id, seed, "SMART_RESOURCE_AWARE", steps, initial) if include_resource_aware else None
     fixed_m3 = fixed.irrigation_delivered_m3
     return ComparisonReport(
         scenario_id=scenario_id,
@@ -80,14 +93,21 @@ def run_comparison(
         smart_hysteresis=smart,
         water_savings_fraction=(fixed_m3 - smart.irrigation_delivered_m3) / fixed_m3 if fixed_m3 > 0 else 0.0,
         elapsed_s=time.perf_counter() - started,
+        resource_aware=candidate, evaluation_mode=evaluation_mode,
+        warmup_days=warmup_days if initial is not None else 0,
+        measurement_start_step=initial.step if initial is not None else 0,
+        measurement_end_step=(initial.step if initial is not None else 0) + steps,
     )
 
 
 def _run_policy(
-    cfg: SiteConfig, scenario_id: schemas.ScenarioId, seed: int, policy: schemas.ControlPolicy, steps: int
+    cfg: SiteConfig, scenario_id: schemas.ScenarioId, seed: int, policy: schemas.ControlPolicy, steps: int,
+    initial_state: SimState | None = None,
 ) -> PolicyResult:
     """A tight scalar loop: no Pydantic and no event IDs per step."""
-    state = build_scenario(cfg, scenario_id, seed=seed, control_policy=policy)
+    state = build_scenario(cfg, scenario_id, seed=seed, control_policy=policy) if initial_state is None else initial_state.clone()
+    state.environment.control_policy = policy
+    reset_accounts(state, cfg)
     initial_state_digest = _policy_neutral_digest(state, cfg)
     input_hash = hashlib.sha256()
     denied_request_steps = 0

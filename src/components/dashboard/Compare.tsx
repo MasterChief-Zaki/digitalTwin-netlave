@@ -134,6 +134,9 @@ function ReportTable({ report }: { report: CompareResponse }) {
             <th scope="col">Simulated over {report.horizon_days} days</th>
             <th scope="col">Fixed timer</th>
             <th scope="col">Smart hysteresis</th>
+            {report.resource_aware ? (
+              <th scope="col">Resource aware (experimental)</th>
+            ) : null}
           </tr>
         </thead>
         <tbody>
@@ -160,6 +163,15 @@ function ReportTable({ report }: { report: CompareResponse }) {
                   {formatNumber(smartValue, row.fractionDigits)}{" "}
                   <span className={styles.unit}>{row.unit}</span>
                 </td>
+                {report.resource_aware ? (
+                  <td>
+                    {formatNumber(
+                      row.read(report.resource_aware),
+                      row.fractionDigits,
+                    )}{" "}
+                    <span className={styles.unit}>{row.unit}</span>
+                  </td>
+                ) : null}
               </tr>
             );
           })}
@@ -174,6 +186,8 @@ export function Compare() {
   const seed = useTwinStore((state) => state.snapshot.seed);
   const connection = useTwinStore((state) => state.connection);
   const [horizonDays, setHorizonDays] = useState(14);
+  const [matchedOperation, setMatchedOperation] = useState(false);
+  const [includeCandidate, setIncludeCandidate] = useState(false);
   const [report, setReport] = useState<CompareResponse | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -187,6 +201,11 @@ export function Compare() {
           scenario_id: scenarioId,
           seed,
           horizon_days: horizonDays,
+          evaluation_mode: matchedOperation
+            ? "MATCHED_OPERATION"
+            : "STARTUP_FAULT",
+          warmup_days: 10,
+          include_resource_aware: includeCandidate,
         }),
       );
     } catch (caught) {
@@ -217,6 +236,26 @@ export function Compare() {
             void runComparison();
           }}
         >
+          <label>
+            <input
+              type="checkbox"
+              checked={matchedOperation}
+              onChange={(event) => {
+                setMatchedOperation(event.target.checked);
+              }}
+            />
+            Matched operation (10-day warm-up)
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={includeCandidate}
+              onChange={(event) => {
+                setIncludeCandidate(event.target.checked);
+              }}
+            />
+            Include experimental scheduler
+          </label>
           <label className={styles.field}>
             <span className={styles.fieldLabel}>Days</span>
             <input
@@ -259,6 +298,12 @@ export function Compare() {
           <ServiceTable zones={report.fixed_timer.zones} />
           <h3>Smart hysteresis service</h3>
           <ServiceTable zones={report.smart_hysteresis.zones} />
+          {report.resource_aware ? (
+            <>
+              <h3>Experimental scheduler service</h3>
+              <ServiceTable zones={report.resource_aware.zones} />
+            </>
+          ) : null}
           <p className={styles.summary}>
             Water applied by the smart controller:{" "}
             <strong>
@@ -275,7 +320,10 @@ export function Compare() {
             {sameInputs
               ? "Identical input series and initial state (matching digests)"
               : "Input digests differ — the comparison is not matched"}{" "}
-            · {report.steps.toLocaleString("en-US")} steps per policy · computed
+            · {report.evaluation_mode} · warm-up {report.warmup_days} days ·
+            measured steps [{report.measurement_start_step},{" "}
+            {report.measurement_end_step}) ·{" "}
+            {report.steps.toLocaleString("en-US")} steps per policy · computed
             in {formatNumber(report.elapsed_s, 2)} s · simulated scenario
             outputs, not measured savings.
           </p>

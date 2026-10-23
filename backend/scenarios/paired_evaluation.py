@@ -116,10 +116,14 @@ def summarize(trials: list[PairedTrial]) -> list[dict[str, object]]:
                 "zone_id": zone_cfg.zone_id, "additional_et_deficit_mm": deficit_interval,
                 "et_service_degradation_fraction": service_interval,
                 "service_noninferiority": "PASS" if pass_service and len(paired) >= 20 else "INCONCLUSIVE",
-                "water_delivery_difference_m3": statistics.fmean(
-                    trial.candidate.metrics.irrigation_delivered_m3 - trial.reference.metrics.irrigation_delivered_m3 for trial in paired),
-                "stock_adjusted_delivery_difference_m3": statistics.fmean(
-                    trial.candidate.soil_stock_adjusted_delivery_m3 - trial.reference.soil_stock_adjusted_delivery_m3 for trial in paired),
+                "water_delivery_difference_m3": paired_interval([
+                    trial.candidate.metrics.irrigation_delivered_m3 - trial.reference.metrics.irrigation_delivered_m3 for trial in paired], endpoint_count),
+                "stock_adjusted_delivery_difference_m3": paired_interval([
+                    trial.candidate.soil_stock_adjusted_delivery_m3 - trial.reference.soil_stock_adjusted_delivery_m3 for trial in paired], endpoint_count),
+                "pump_energy_difference_kwh": paired_interval([
+                    (trial.candidate.metrics.pump_energy_j - trial.reference.metrics.pump_energy_j) / 3.6e6 for trial in paired], endpoint_count),
+                "battery_losses_difference_kwh": paired_interval([
+                    (trial.candidate.metrics.battery_losses_j - trial.reference.metrics.battery_losses_j) / 3.6e6 for trial in paired], endpoint_count),
             })
     return summaries
 
@@ -133,15 +137,20 @@ def main() -> None:
     parser.add_argument("--profiles", nargs="+", choices=PROFILE_IDS, default=PROFILE_IDS)
     parser.add_argument("--candidate", choices=("SMART_HYSTERESIS", "SMART_RESOURCE_AWARE"), default="SMART_RESOURCE_AWARE")
     parser.add_argument("--require-clean", action="store_true")
+    parser.add_argument("--water-only", action="store_true", help="Water-scheduler ablation; disable only operating energy shaping.")
     args = parser.parse_args()
-    manifest = provenance(SITE, args.require_clean)
-    trials = [run_paired_trial(SITE, scenario.id, seed, args.horizon_days, warmup, profile, args.candidate)
+    from dataclasses import replace
+    cfg = replace(SITE, scheduler=replace(SITE.scheduler, energy_aware=not args.water_only))
+    manifest = provenance(cfg, args.require_clean)
+    trials = [run_paired_trial(cfg, scenario.id, seed, args.horizon_days, warmup, profile, args.candidate)
               for scenario in SCENARIOS for profile in args.profiles for warmup in args.warmup_days for seed in args.seeds]
-    if provenance(SITE, args.require_clean) != manifest:
+    if provenance(cfg, args.require_clean) != manifest:
         raise RuntimeError("Sources changed during validation.")
     artifact = {"data_mode": "SIMULATED", "protocol_version": PROTOCOL, "provenance": manifest,
                 "summaries": summarize(trials), "trials": [asdict(trial) for trial in trials],
-                "default_policy_promoted": False}
+                "default_policy_promoted": False, "water_only": args.water_only,
+                "protocol": {"bootstrap_replicates": BOOTSTRAP_REPLICATES, "bootstrap_seed": BOOTSTRAP_SEED,
+                             "familywise_alpha": 0.05, "additional_et_margin_mm": 0.10, "service_margin_fraction": 0.005}}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(artifact, indent=2, sort_keys=True, allow_nan=False, default=json_model) + "\n", encoding="utf-8")
     print(f"Wrote {len(trials)} paired validation trials to {args.output}")

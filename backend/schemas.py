@@ -324,6 +324,9 @@ class CompareRequest(ContractModel):
     scenario_id: ScenarioId = "baseline"
     seed: int = Field(default=7, ge=0)
     horizon_days: int = Field(default=14, ge=1, le=30)
+    evaluation_mode: Literal["STARTUP_FAULT", "MATCHED_OPERATION"] = "STARTUP_FAULT"
+    warmup_days: Literal[5, 10, 20] = 10
+    include_resource_aware: bool = False
 
 
 class PolicyReport(ContractModel):
@@ -364,3 +367,8 @@ class CompareResponse(ContractModel):
     smart_hysteresis: PolicyReport
     water_savings_fraction: float
     elapsed_s: float
+    resource_aware: PolicyReport | None
+    evaluation_mode: Literal["STARTUP_FAULT", "MATCHED_OPERATION"]
+    warmup_days: int
+    measurement_start_step: int
+    measurement_end_step: int
