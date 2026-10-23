@@ -1,10 +1,16 @@
-# netLave Digital Twin
+# NetLave Digital Twin
 
-A simulation-driven digital twin of a self-powered, treated-wastewater (TSE) irrigated forest in Egypt. Reclaimed effluent arrives continuously, passes a micro-hydro turbine into a reservoir, and feeds three drip zones: two by gravity and one uphill by a solar- and battery-powered pump, through a shared filter that clogs and flushes. An explainable controller asks for water. A safety resolver grants or denies each request against water quality, the filter, reservoir storage, hydraulic head, the shared manifold, instantaneous power and the battery reserve, and gives its reason.
+A simulation-driven prototype of treated-wastewater (TSE) forestry irrigation in Egypt, connecting reclaimed water, renewable power and explainable control. Reclaimed effluent arrives continuously, passes a micro-hydro turbine into a reservoir, and feeds three drip zones: two by gravity and one uphill by a solar- and battery-powered pump, through a shared filter that clogs and flushes. An explainable controller asks for water. A safety resolver grants or denies each request against water quality, the filter, reservoir storage, hydraulic head, the shared manifold, instantaneous power and the battery reserve, and gives its reason.
 
 One deterministic Python engine is the physical authority. The Next.js dashboard and the 3D forest only draw the snapshots it returns.
 
 > **Claim limit.** This is a simulation-driven digital twin **prototype** built on synthetic site assumptions. It is not synchronized with, or calibrated against, a real site. Every number is a simulated scenario output, not a measurement. The synthetic water-quality flag is not an Egyptian regulatory compliance test and never permits real-world irrigation.
+
+## Shared brand, content and discovery
+
+All three NetLave sites publish identical `src/content/ground-truth.json` and a server-rendered `/ground-truth` reference. Python remains the physical authority; static references never drive live KPIs. The supplied logo, generated favicons, matching fonts, claim boundaries and SEO/GEO setup are documented in [brand and ground truth](docs/brand-and-ground-truth.md).
+
+Run `pnpm exec node scripts/check-shared-truth.mjs --siblings` with the three repos adjacent. `test_site_ground_truth.py` checks published assumptions, zones and scenario IDs against Python. Set `SITE_URL` to this dashboard's verified production origin at build time for canonicals, social cards and sitemap URLs; no production domain is assumed.
 
 ## Quick start
 
