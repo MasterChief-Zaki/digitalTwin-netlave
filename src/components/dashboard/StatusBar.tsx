@@ -158,12 +158,17 @@ export function StatusBar() {
               setControlPolicy(
                 event.target.value === "FIXED_TIMER"
                   ? "FIXED_TIMER"
-                  : "SMART_HYSTERESIS",
+                  : event.target.value === "SMART_RESOURCE_AWARE"
+                    ? "SMART_RESOURCE_AWARE"
+                    : "SMART_HYSTERESIS",
               );
             }}
           >
             <option value="SMART_HYSTERESIS">Smart hysteresis</option>
             <option value="FIXED_TIMER">Fixed timer</option>
+            <option value="SMART_RESOURCE_AWARE">
+              Resource aware (experimental, opt-in)
+            </option>
           </select>
         </label>
         <label className={styles.field}>

@@ -29,6 +29,15 @@ class ZoneAccounts:
 
 
 @dataclass
+class SessionState:
+    remaining_volume_m3: float = 0.0
+    active_minutes: int = 0
+    rest_until_step: int = 0
+    waiting_steps: int = 0
+    paused: bool = False
+
+
+@dataclass
 class ZoneState:
     zone_id: ZoneId
     theta_m3_m3: float
@@ -42,6 +51,7 @@ class ZoneState:
     # The denial reason of the zone's current denial episode, for event de-duplication.
     active_denial: schemas.ReasonCode | None = None
     accounts: ZoneAccounts = field(default_factory=ZoneAccounts)
+    session: SessionState = field(default_factory=SessionState)
 
 
 @dataclass
@@ -145,11 +155,16 @@ class SimState:
     minimum_reservoir_volume_m3: float = 0.0
     minimum_battery_soc_0_1: float = 0.0
 
+    @property
+    def zones_by_id(self) -> dict[str, ZoneState]:
+        return {zone.zone_id: zone for zone in self.zones}
+
     def clone(self) -> "SimState":
         """An owned copy for the next step; field copies are far cheaper than deepcopy or replace()."""
         copied = _shallow_copy(self)
         copied.zones = [_shallow_copy(zone) for zone in self.zones]
         for zone in copied.zones:
+            zone.session = _shallow_copy(zone.session)
             zone.accounts = _shallow_copy(zone.accounts)
             zone.accounts.denied_by_reason_min = dict(zone.accounts.denied_by_reason_min)
             zone.accounts.deferred_by_reason_min = dict(zone.accounts.deferred_by_reason_min)
