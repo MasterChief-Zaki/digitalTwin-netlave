@@ -280,6 +280,9 @@ export interface CompareRequest {
   scenario_id: ScenarioId;
   seed: number;
   horizon_days: number;
+  evaluation_mode: "STARTUP_FAULT" | "MATCHED_OPERATION";
+  warmup_days: 5 | 10 | 20;
+  include_resource_aware: boolean;
 }
 
 export interface PolicyReport {
@@ -320,4 +323,9 @@ export interface CompareResponse {
   smart_hysteresis: PolicyReport;
   water_savings_fraction: number;
   elapsed_s: number;
+  resource_aware: PolicyReport | null;
+  evaluation_mode: "STARTUP_FAULT" | "MATCHED_OPERATION";
+  warmup_days: number;
+  measurement_start_step: number;
+  measurement_end_step: number;
 }

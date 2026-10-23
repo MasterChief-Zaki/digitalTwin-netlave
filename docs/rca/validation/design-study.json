@@ -1,0 +1,1794 @@
+{
+  "data_mode": "SIMULATED",
+  "deployment_approved": false,
+  "provenance": {
+    "configuration": {
+      "climate": {
+        "et0_daily_variation": 0.1,
+        "et0_nominal_mm_day": 4.9
+      },
+      "energy": {
+        "aux_power_w": 50.0,
+        "battery_capacity_kwh": 15.0,
+        "battery_charge_efficiency": 0.95,
+        "battery_discharge_efficiency": 0.95,
+        "battery_floor_soc": 0.1,
+        "battery_initial_soc": 0.8,
+        "battery_max_charge_w": 3000.0,
+        "battery_max_discharge_w": 3000.0,
+        "day_length_h": 12.0,
+        "pump_reserve_soc": 0.2,
+        "pump_start_reserve_minutes": 10,
+        "solar_derate": 0.75,
+        "solar_peak_w": 8000.0,
+        "solar_shape_exponent": 1.2,
+        "sunrise_hour": 6.0
+      },
+      "filtration": {
+        "clean_pressure_drop_pa": 12000.0,
+        "clog_after_flush": 0.05,
+        "clog_per_filtered_m3": 0.00035,
+        "clog_pressure_drop_pa": 40000.0,
+        "flush_power_w": 1200.0,
+        "flush_steps": 5,
+        "flush_threshold": 0.6,
+        "flush_water_m3": 1.5,
+        "initial_clog_index": 0.1
+      },
+      "hydraulics": {
+        "darcy_friction_factor": 0.025,
+        "gravity_manifold_limit_m3_h": 140.0,
+        "pump_power_limit_w": 3000.0,
+        "pump_wire_to_water_efficiency": 0.55
+      },
+      "reservoir": {
+        "capacity_m3": 1500.0,
+        "dead_volume_m3": 50.0,
+        "depth_at_capacity_m": 2.5,
+        "floor_elevation_m": 20.5,
+        "initial_volume_m3": 900.0,
+        "start_reserve_minutes": 10
+      },
+      "scheduler": {
+        "design_clog_index": 0.44,
+        "energy_aware": true,
+        "head_margin_m": 0.1,
+        "minimum_rest_minutes": 10,
+        "minimum_run_minutes": 10,
+        "operating_battery_soc": 0.35,
+        "operating_inventory_m3": 850.0,
+        "pump_power_margin_fraction": 0.01,
+        "restart_battery_soc_margin": 0.02,
+        "restart_inventory_margin_m3": 20.0,
+        "session_minutes": 30
+      },
+      "soil": {
+        "allowed_depletion_fraction": 0.45,
+        "application_efficiency": 0.9,
+        "crop_coefficient": 0.85,
+        "leaching_fraction": 0.15,
+        "root_depth_m": 0.8,
+        "stop_fraction_of_fc": 0.9,
+        "theta_fc_m3_m3": 0.22,
+        "theta_sat_m3_m3": 0.38,
+        "theta_wp_m3_m3": 0.1
+      },
+      "start_hour": 6,
+      "supply": {
+        "hydro_recoverable_head_m": 3.0,
+        "hydro_turbine_efficiency": 0.6,
+        "tse_diurnal_amplitude": 0.25,
+        "tse_mean_inflow_m3_h": 60.0,
+        "tse_peak_hour": 14.0
+      },
+      "zones": [
+        {
+          "area_m2": 60000.0,
+          "elevation_m": 2.0,
+          "emitter_head_m": 10.0,
+          "feed_mode": "GRAVITY",
+          "mainline_diameter_m": 0.2,
+          "mainline_length_m": 350.0,
+          "max_flow_m3_h": 120.0,
+          "timer_start_minute": 1200,
+          "zone_id": "A"
+        },
+        {
+          "area_m2": 50000.0,
+          "elevation_m": 8.0,
+          "emitter_head_m": 9.0,
+          "feed_mode": "GRAVITY",
+          "mainline_diameter_m": 0.2,
+          "mainline_length_m": 350.0,
+          "max_flow_m3_h": 100.0,
+          "timer_start_minute": 1380,
+          "zone_id": "B"
+        },
+        {
+          "area_m2": 40000.0,
+          "elevation_m": 34.0,
+          "emitter_head_m": 10.0,
+          "feed_mode": "PUMPED",
+          "mainline_diameter_m": 0.2,
+          "mainline_length_m": 450.0,
+          "max_flow_m3_h": 24.0,
+          "timer_start_minute": 480,
+          "zone_id": "C"
+        }
+      ]
+    },
+    "configuration_digest": "50303c248b145306216ee79fc59399bda4e99345ed0ee16ecaea325d36ba9b4a",
+    "git_commit": "dc6d9d77620dc5d42175a1777a35438c46c07680",
+    "protocol_spec_digest": "9d234f2e432c592592f0f60f6c051106e54aa36ee91b58bfed112cfc8322287e",
+    "protocol_version": "rca-startup-v1",
+    "reference_commit": "4ae12eb774e422679c04e0d94c661351ae879747",
+    "runtime": {
+      "implementation": "CPython",
+      "machine": "AMD64",
+      "platform": "win32",
+      "python_version": "3.14.3",
+      "uv_lock_digest": "9b39e9061661938201b27488e4c94a1a206853c10a00887bfc69db31071bff59"
+    },
+    "source_digest": "b758bdf0e0d4a66fb946ec7565e258829f8f76374cb0663b3472ab7a34fa898b",
+    "working_tree_dirty": false
+  },
+  "raw_artifact_sha256": "1fe6d5bf7a136e86e911ec4badb26d7b0fd8046b8d31bb672baea684665c4c5a",
+  "studies": [
+    {
+      "candidate": "reference",
+      "configuration": {
+        "climate": {
+          "et0_daily_variation": 0.1,
+          "et0_nominal_mm_day": 4.9
+        },
+        "energy": {
+          "aux_power_w": 50.0,
+          "battery_capacity_kwh": 15.0,
+          "battery_charge_efficiency": 0.95,
+          "battery_discharge_efficiency": 0.95,
+          "battery_floor_soc": 0.1,
+          "battery_initial_soc": 0.8,
+          "battery_max_charge_w": 3000.0,
+          "battery_max_discharge_w": 3000.0,
+          "day_length_h": 12.0,
+          "pump_reserve_soc": 0.2,
+          "pump_start_reserve_minutes": 10,
+          "solar_derate": 0.75,
+          "solar_peak_w": 8000.0,
+          "solar_shape_exponent": 1.2,
+          "sunrise_hour": 6.0
+        },
+        "filtration": {
+          "clean_pressure_drop_pa": 12000.0,
+          "clog_after_flush": 0.05,
+          "clog_per_filtered_m3": 0.00035,
+          "clog_pressure_drop_pa": 40000.0,
+          "flush_power_w": 1200.0,
+          "flush_steps": 5,
+          "flush_threshold": 0.6,
+          "flush_water_m3": 1.5,
+          "initial_clog_index": 0.1
+        },
+        "hydraulics": {
+          "darcy_friction_factor": 0.025,
+          "gravity_manifold_limit_m3_h": 140.0,
+          "pump_power_limit_w": 3000.0,
+          "pump_wire_to_water_efficiency": 0.55
+        },
+        "reservoir": {
+          "capacity_m3": 1500.0,
+          "dead_volume_m3": 50.0,
+          "depth_at_capacity_m": 2.5,
+          "floor_elevation_m": 20.5,
+          "initial_volume_m3": 900.0,
+          "start_reserve_minutes": 10
+        },
+        "scheduler": {
+          "design_clog_index": 0.44,
+          "energy_aware": true,
+          "head_margin_m": 0.1,
+          "minimum_rest_minutes": 10,
+          "minimum_run_minutes": 10,
+          "operating_battery_soc": 0.35,
+          "operating_inventory_m3": 850.0,
+          "pump_power_margin_fraction": 0.01,
+          "restart_battery_soc_margin": 0.02,
+          "restart_inventory_margin_m3": 20.0,
+          "session_minutes": 30
+        },
+        "soil": {
+          "allowed_depletion_fraction": 0.45,
+          "application_efficiency": 0.9,
+          "crop_coefficient": 0.85,
+          "leaching_fraction": 0.15,
+          "root_depth_m": 0.8,
+          "stop_fraction_of_fc": 0.9,
+          "theta_fc_m3_m3": 0.22,
+          "theta_sat_m3_m3": 0.38,
+          "theta_wp_m3_m3": 0.1
+        },
+        "start_hour": 6,
+        "supply": {
+          "hydro_recoverable_head_m": 3.0,
+          "hydro_turbine_efficiency": 0.6,
+          "tse_diurnal_amplitude": 0.25,
+          "tse_mean_inflow_m3_h": 60.0,
+          "tse_peak_hour": 14.0
+        },
+        "zones": [
+          {
+            "area_m2": 60000.0,
+            "elevation_m": 2.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 120.0,
+            "timer_start_minute": 1200,
+            "zone_id": "A"
+          },
+          {
+            "area_m2": 50000.0,
+            "elevation_m": 8.0,
+            "emitter_head_m": 9.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 100.0,
+            "timer_start_minute": 1380,
+            "zone_id": "B"
+          },
+          {
+            "area_m2": 40000.0,
+            "elevation_m": 34.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "PUMPED",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 450.0,
+            "max_flow_m3_h": 24.0,
+            "timer_start_minute": 480,
+            "zone_id": "C"
+          }
+        ]
+      },
+      "hydraulic_margins": {
+        "pump_margin_fraction": -0.07872329210314843,
+        "worst_case_pump_power_w": 3236.169876309445,
+        "zone_b_full_clogged_head_margin_m": 0.5869664897118252
+      },
+      "policy_results": [
+        {
+          "flush_water_m3": 21.00000000000003,
+          "irrigation_delivered_m3": 21956.533333335534,
+          "policy": "FIXED_TIMER",
+          "zone_c_et_deficit_mm": 32.55207463206038
+        },
+        {
+          "flush_water_m3": 13.50000000000001,
+          "irrigation_delivered_m3": 15326.46666666456,
+          "policy": "SMART_HYSTERESIS",
+          "zone_c_et_deficit_mm": 35.532599633424205
+        }
+      ],
+      "scenario_id": "low_solar"
+    },
+    {
+      "candidate": "reference",
+      "configuration": {
+        "climate": {
+          "et0_daily_variation": 0.1,
+          "et0_nominal_mm_day": 4.9
+        },
+        "energy": {
+          "aux_power_w": 50.0,
+          "battery_capacity_kwh": 15.0,
+          "battery_charge_efficiency": 0.95,
+          "battery_discharge_efficiency": 0.95,
+          "battery_floor_soc": 0.1,
+          "battery_initial_soc": 0.8,
+          "battery_max_charge_w": 3000.0,
+          "battery_max_discharge_w": 3000.0,
+          "day_length_h": 12.0,
+          "pump_reserve_soc": 0.2,
+          "pump_start_reserve_minutes": 10,
+          "solar_derate": 0.75,
+          "solar_peak_w": 8000.0,
+          "solar_shape_exponent": 1.2,
+          "sunrise_hour": 6.0
+        },
+        "filtration": {
+          "clean_pressure_drop_pa": 12000.0,
+          "clog_after_flush": 0.05,
+          "clog_per_filtered_m3": 0.00035,
+          "clog_pressure_drop_pa": 40000.0,
+          "flush_power_w": 1200.0,
+          "flush_steps": 5,
+          "flush_threshold": 0.6,
+          "flush_water_m3": 1.5,
+          "initial_clog_index": 0.1
+        },
+        "hydraulics": {
+          "darcy_friction_factor": 0.025,
+          "gravity_manifold_limit_m3_h": 140.0,
+          "pump_power_limit_w": 3000.0,
+          "pump_wire_to_water_efficiency": 0.55
+        },
+        "reservoir": {
+          "capacity_m3": 1500.0,
+          "dead_volume_m3": 50.0,
+          "depth_at_capacity_m": 2.5,
+          "floor_elevation_m": 20.5,
+          "initial_volume_m3": 900.0,
+          "start_reserve_minutes": 10
+        },
+        "scheduler": {
+          "design_clog_index": 0.44,
+          "energy_aware": true,
+          "head_margin_m": 0.1,
+          "minimum_rest_minutes": 10,
+          "minimum_run_minutes": 10,
+          "operating_battery_soc": 0.35,
+          "operating_inventory_m3": 850.0,
+          "pump_power_margin_fraction": 0.01,
+          "restart_battery_soc_margin": 0.02,
+          "restart_inventory_margin_m3": 20.0,
+          "session_minutes": 30
+        },
+        "soil": {
+          "allowed_depletion_fraction": 0.45,
+          "application_efficiency": 0.9,
+          "crop_coefficient": 0.85,
+          "leaching_fraction": 0.15,
+          "root_depth_m": 0.8,
+          "stop_fraction_of_fc": 0.9,
+          "theta_fc_m3_m3": 0.22,
+          "theta_sat_m3_m3": 0.38,
+          "theta_wp_m3_m3": 0.1
+        },
+        "start_hour": 6,
+        "supply": {
+          "hydro_recoverable_head_m": 3.0,
+          "hydro_turbine_efficiency": 0.6,
+          "tse_diurnal_amplitude": 0.25,
+          "tse_mean_inflow_m3_h": 60.0,
+          "tse_peak_hour": 14.0
+        },
+        "zones": [
+          {
+            "area_m2": 60000.0,
+            "elevation_m": 2.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 120.0,
+            "timer_start_minute": 1200,
+            "zone_id": "A"
+          },
+          {
+            "area_m2": 50000.0,
+            "elevation_m": 8.0,
+            "emitter_head_m": 9.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 100.0,
+            "timer_start_minute": 1380,
+            "zone_id": "B"
+          },
+          {
+            "area_m2": 40000.0,
+            "elevation_m": 34.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "PUMPED",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 450.0,
+            "max_flow_m3_h": 24.0,
+            "timer_start_minute": 480,
+            "zone_id": "C"
+          }
+        ]
+      },
+      "hydraulic_margins": {
+        "pump_margin_fraction": -0.07872329210314843,
+        "worst_case_pump_power_w": 3236.169876309445,
+        "zone_b_full_clogged_head_margin_m": 0.5869664897118252
+      },
+      "policy_results": [
+        {
+          "flush_water_m3": 180.0000000000011,
+          "irrigation_delivered_m3": 23596.800000005285,
+          "policy": "FIXED_TIMER",
+          "zone_c_et_deficit_mm": 0.0
+        },
+        {
+          "flush_water_m3": 177.000000000001,
+          "irrigation_delivered_m3": 23139.93333333833,
+          "policy": "SMART_HYSTERESIS",
+          "zone_c_et_deficit_mm": 0.002943078674024946
+        }
+      ],
+      "scenario_id": "clogged_filter"
+    },
+    {
+      "candidate": "pump_derated_18_m3_h",
+      "configuration": {
+        "climate": {
+          "et0_daily_variation": 0.1,
+          "et0_nominal_mm_day": 4.9
+        },
+        "energy": {
+          "aux_power_w": 50.0,
+          "battery_capacity_kwh": 15.0,
+          "battery_charge_efficiency": 0.95,
+          "battery_discharge_efficiency": 0.95,
+          "battery_floor_soc": 0.1,
+          "battery_initial_soc": 0.8,
+          "battery_max_charge_w": 3000.0,
+          "battery_max_discharge_w": 3000.0,
+          "day_length_h": 12.0,
+          "pump_reserve_soc": 0.2,
+          "pump_start_reserve_minutes": 10,
+          "solar_derate": 0.75,
+          "solar_peak_w": 8000.0,
+          "solar_shape_exponent": 1.2,
+          "sunrise_hour": 6.0
+        },
+        "filtration": {
+          "clean_pressure_drop_pa": 12000.0,
+          "clog_after_flush": 0.05,
+          "clog_per_filtered_m3": 0.00035,
+          "clog_pressure_drop_pa": 40000.0,
+          "flush_power_w": 1200.0,
+          "flush_steps": 5,
+          "flush_threshold": 0.6,
+          "flush_water_m3": 1.5,
+          "initial_clog_index": 0.1
+        },
+        "hydraulics": {
+          "darcy_friction_factor": 0.025,
+          "gravity_manifold_limit_m3_h": 140.0,
+          "pump_power_limit_w": 3000.0,
+          "pump_wire_to_water_efficiency": 0.55
+        },
+        "reservoir": {
+          "capacity_m3": 1500.0,
+          "dead_volume_m3": 50.0,
+          "depth_at_capacity_m": 2.5,
+          "floor_elevation_m": 20.5,
+          "initial_volume_m3": 900.0,
+          "start_reserve_minutes": 10
+        },
+        "scheduler": {
+          "design_clog_index": 0.44,
+          "energy_aware": true,
+          "head_margin_m": 0.1,
+          "minimum_rest_minutes": 10,
+          "minimum_run_minutes": 10,
+          "operating_battery_soc": 0.35,
+          "operating_inventory_m3": 850.0,
+          "pump_power_margin_fraction": 0.01,
+          "restart_battery_soc_margin": 0.02,
+          "restart_inventory_margin_m3": 20.0,
+          "session_minutes": 30
+        },
+        "soil": {
+          "allowed_depletion_fraction": 0.45,
+          "application_efficiency": 0.9,
+          "crop_coefficient": 0.85,
+          "leaching_fraction": 0.15,
+          "root_depth_m": 0.8,
+          "stop_fraction_of_fc": 0.9,
+          "theta_fc_m3_m3": 0.22,
+          "theta_sat_m3_m3": 0.38,
+          "theta_wp_m3_m3": 0.1
+        },
+        "start_hour": 6,
+        "supply": {
+          "hydro_recoverable_head_m": 3.0,
+          "hydro_turbine_efficiency": 0.6,
+          "tse_diurnal_amplitude": 0.25,
+          "tse_mean_inflow_m3_h": 60.0,
+          "tse_peak_hour": 14.0
+        },
+        "zones": [
+          {
+            "area_m2": 60000.0,
+            "elevation_m": 2.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 120.0,
+            "timer_start_minute": 1200,
+            "zone_id": "A"
+          },
+          {
+            "area_m2": 50000.0,
+            "elevation_m": 8.0,
+            "emitter_head_m": 9.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 100.0,
+            "timer_start_minute": 1380,
+            "zone_id": "B"
+          },
+          {
+            "area_m2": 40000.0,
+            "elevation_m": 34.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "PUMPED",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 450.0,
+            "max_flow_m3_h": 18.0,
+            "timer_start_minute": 480,
+            "zone_id": "C"
+          }
+        ]
+      },
+      "hydraulic_margins": {
+        "pump_margin_fraction": 0.1926366225076207,
+        "worst_case_pump_power_w": 2422.090132477138,
+        "zone_b_full_clogged_head_margin_m": 0.5869664897118252
+      },
+      "policy_results": [
+        {
+          "flush_water_m3": 21.00000000000003,
+          "irrigation_delivered_m3": 22039.53333332873,
+          "policy": "FIXED_TIMER",
+          "zone_c_et_deficit_mm": 31.488114107553073
+        },
+        {
+          "flush_water_m3": 13.50000000000001,
+          "irrigation_delivered_m3": 15483.56666666333,
+          "policy": "SMART_HYSTERESIS",
+          "zone_c_et_deficit_mm": 32.88967618634867
+        }
+      ],
+      "scenario_id": "low_solar"
+    },
+    {
+      "candidate": "pump_derated_18_m3_h",
+      "configuration": {
+        "climate": {
+          "et0_daily_variation": 0.1,
+          "et0_nominal_mm_day": 4.9
+        },
+        "energy": {
+          "aux_power_w": 50.0,
+          "battery_capacity_kwh": 15.0,
+          "battery_charge_efficiency": 0.95,
+          "battery_discharge_efficiency": 0.95,
+          "battery_floor_soc": 0.1,
+          "battery_initial_soc": 0.8,
+          "battery_max_charge_w": 3000.0,
+          "battery_max_discharge_w": 3000.0,
+          "day_length_h": 12.0,
+          "pump_reserve_soc": 0.2,
+          "pump_start_reserve_minutes": 10,
+          "solar_derate": 0.75,
+          "solar_peak_w": 8000.0,
+          "solar_shape_exponent": 1.2,
+          "sunrise_hour": 6.0
+        },
+        "filtration": {
+          "clean_pressure_drop_pa": 12000.0,
+          "clog_after_flush": 0.05,
+          "clog_per_filtered_m3": 0.00035,
+          "clog_pressure_drop_pa": 40000.0,
+          "flush_power_w": 1200.0,
+          "flush_steps": 5,
+          "flush_threshold": 0.6,
+          "flush_water_m3": 1.5,
+          "initial_clog_index": 0.1
+        },
+        "hydraulics": {
+          "darcy_friction_factor": 0.025,
+          "gravity_manifold_limit_m3_h": 140.0,
+          "pump_power_limit_w": 3000.0,
+          "pump_wire_to_water_efficiency": 0.55
+        },
+        "reservoir": {
+          "capacity_m3": 1500.0,
+          "dead_volume_m3": 50.0,
+          "depth_at_capacity_m": 2.5,
+          "floor_elevation_m": 20.5,
+          "initial_volume_m3": 900.0,
+          "start_reserve_minutes": 10
+        },
+        "scheduler": {
+          "design_clog_index": 0.44,
+          "energy_aware": true,
+          "head_margin_m": 0.1,
+          "minimum_rest_minutes": 10,
+          "minimum_run_minutes": 10,
+          "operating_battery_soc": 0.35,
+          "operating_inventory_m3": 850.0,
+          "pump_power_margin_fraction": 0.01,
+          "restart_battery_soc_margin": 0.02,
+          "restart_inventory_margin_m3": 20.0,
+          "session_minutes": 30
+        },
+        "soil": {
+          "allowed_depletion_fraction": 0.45,
+          "application_efficiency": 0.9,
+          "crop_coefficient": 0.85,
+          "leaching_fraction": 0.15,
+          "root_depth_m": 0.8,
+          "stop_fraction_of_fc": 0.9,
+          "theta_fc_m3_m3": 0.22,
+          "theta_sat_m3_m3": 0.38,
+          "theta_wp_m3_m3": 0.1
+        },
+        "start_hour": 6,
+        "supply": {
+          "hydro_recoverable_head_m": 3.0,
+          "hydro_turbine_efficiency": 0.6,
+          "tse_diurnal_amplitude": 0.25,
+          "tse_mean_inflow_m3_h": 60.0,
+          "tse_peak_hour": 14.0
+        },
+        "zones": [
+          {
+            "area_m2": 60000.0,
+            "elevation_m": 2.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 120.0,
+            "timer_start_minute": 1200,
+            "zone_id": "A"
+          },
+          {
+            "area_m2": 50000.0,
+            "elevation_m": 8.0,
+            "emitter_head_m": 9.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 100.0,
+            "timer_start_minute": 1380,
+            "zone_id": "B"
+          },
+          {
+            "area_m2": 40000.0,
+            "elevation_m": 34.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "PUMPED",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 450.0,
+            "max_flow_m3_h": 18.0,
+            "timer_start_minute": 480,
+            "zone_id": "C"
+          }
+        ]
+      },
+      "hydraulic_margins": {
+        "pump_margin_fraction": 0.1926366225076207,
+        "worst_case_pump_power_w": 2422.090132477138,
+        "zone_b_full_clogged_head_margin_m": 0.5869664897118252
+      },
+      "policy_results": [
+        {
+          "flush_water_m3": 181.50000000000117,
+          "irrigation_delivered_m3": 23735.99999999214,
+          "policy": "FIXED_TIMER",
+          "zone_c_et_deficit_mm": 0.0
+        },
+        {
+          "flush_water_m3": 174.00000000000088,
+          "irrigation_delivered_m3": 22812.16666665978,
+          "policy": "SMART_HYSTERESIS",
+          "zone_c_et_deficit_mm": 0.03090799176247856
+        }
+      ],
+      "scenario_id": "clogged_filter"
+    },
+    {
+      "candidate": "solar_12_kwp",
+      "configuration": {
+        "climate": {
+          "et0_daily_variation": 0.1,
+          "et0_nominal_mm_day": 4.9
+        },
+        "energy": {
+          "aux_power_w": 50.0,
+          "battery_capacity_kwh": 15.0,
+          "battery_charge_efficiency": 0.95,
+          "battery_discharge_efficiency": 0.95,
+          "battery_floor_soc": 0.1,
+          "battery_initial_soc": 0.8,
+          "battery_max_charge_w": 3000.0,
+          "battery_max_discharge_w": 3000.0,
+          "day_length_h": 12.0,
+          "pump_reserve_soc": 0.2,
+          "pump_start_reserve_minutes": 10,
+          "solar_derate": 0.75,
+          "solar_peak_w": 12000.0,
+          "solar_shape_exponent": 1.2,
+          "sunrise_hour": 6.0
+        },
+        "filtration": {
+          "clean_pressure_drop_pa": 12000.0,
+          "clog_after_flush": 0.05,
+          "clog_per_filtered_m3": 0.00035,
+          "clog_pressure_drop_pa": 40000.0,
+          "flush_power_w": 1200.0,
+          "flush_steps": 5,
+          "flush_threshold": 0.6,
+          "flush_water_m3": 1.5,
+          "initial_clog_index": 0.1
+        },
+        "hydraulics": {
+          "darcy_friction_factor": 0.025,
+          "gravity_manifold_limit_m3_h": 140.0,
+          "pump_power_limit_w": 3000.0,
+          "pump_wire_to_water_efficiency": 0.55
+        },
+        "reservoir": {
+          "capacity_m3": 1500.0,
+          "dead_volume_m3": 50.0,
+          "depth_at_capacity_m": 2.5,
+          "floor_elevation_m": 20.5,
+          "initial_volume_m3": 900.0,
+          "start_reserve_minutes": 10
+        },
+        "scheduler": {
+          "design_clog_index": 0.44,
+          "energy_aware": true,
+          "head_margin_m": 0.1,
+          "minimum_rest_minutes": 10,
+          "minimum_run_minutes": 10,
+          "operating_battery_soc": 0.35,
+          "operating_inventory_m3": 850.0,
+          "pump_power_margin_fraction": 0.01,
+          "restart_battery_soc_margin": 0.02,
+          "restart_inventory_margin_m3": 20.0,
+          "session_minutes": 30
+        },
+        "soil": {
+          "allowed_depletion_fraction": 0.45,
+          "application_efficiency": 0.9,
+          "crop_coefficient": 0.85,
+          "leaching_fraction": 0.15,
+          "root_depth_m": 0.8,
+          "stop_fraction_of_fc": 0.9,
+          "theta_fc_m3_m3": 0.22,
+          "theta_sat_m3_m3": 0.38,
+          "theta_wp_m3_m3": 0.1
+        },
+        "start_hour": 6,
+        "supply": {
+          "hydro_recoverable_head_m": 3.0,
+          "hydro_turbine_efficiency": 0.6,
+          "tse_diurnal_amplitude": 0.25,
+          "tse_mean_inflow_m3_h": 60.0,
+          "tse_peak_hour": 14.0
+        },
+        "zones": [
+          {
+            "area_m2": 60000.0,
+            "elevation_m": 2.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 120.0,
+            "timer_start_minute": 1200,
+            "zone_id": "A"
+          },
+          {
+            "area_m2": 50000.0,
+            "elevation_m": 8.0,
+            "emitter_head_m": 9.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 100.0,
+            "timer_start_minute": 1380,
+            "zone_id": "B"
+          },
+          {
+            "area_m2": 40000.0,
+            "elevation_m": 34.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "PUMPED",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 450.0,
+            "max_flow_m3_h": 24.0,
+            "timer_start_minute": 480,
+            "zone_id": "C"
+          }
+        ]
+      },
+      "hydraulic_margins": {
+        "pump_margin_fraction": -0.07872329210314843,
+        "worst_case_pump_power_w": 3236.169876309445,
+        "zone_b_full_clogged_head_margin_m": 0.5869664897118252
+      },
+      "policy_results": [
+        {
+          "flush_water_m3": 22.500000000000032,
+          "irrigation_delivered_m3": 23456.600000004593,
+          "policy": "FIXED_TIMER",
+          "zone_c_et_deficit_mm": 11.744594739140553
+        },
+        {
+          "flush_water_m3": 16.500000000000018,
+          "irrigation_delivered_m3": 18178.19999999742,
+          "policy": "SMART_HYSTERESIS",
+          "zone_c_et_deficit_mm": 15.755396354861183
+        }
+      ],
+      "scenario_id": "low_solar"
+    },
+    {
+      "candidate": "solar_12_kwp",
+      "configuration": {
+        "climate": {
+          "et0_daily_variation": 0.1,
+          "et0_nominal_mm_day": 4.9
+        },
+        "energy": {
+          "aux_power_w": 50.0,
+          "battery_capacity_kwh": 15.0,
+          "battery_charge_efficiency": 0.95,
+          "battery_discharge_efficiency": 0.95,
+          "battery_floor_soc": 0.1,
+          "battery_initial_soc": 0.8,
+          "battery_max_charge_w": 3000.0,
+          "battery_max_discharge_w": 3000.0,
+          "day_length_h": 12.0,
+          "pump_reserve_soc": 0.2,
+          "pump_start_reserve_minutes": 10,
+          "solar_derate": 0.75,
+          "solar_peak_w": 12000.0,
+          "solar_shape_exponent": 1.2,
+          "sunrise_hour": 6.0
+        },
+        "filtration": {
+          "clean_pressure_drop_pa": 12000.0,
+          "clog_after_flush": 0.05,
+          "clog_per_filtered_m3": 0.00035,
+          "clog_pressure_drop_pa": 40000.0,
+          "flush_power_w": 1200.0,
+          "flush_steps": 5,
+          "flush_threshold": 0.6,
+          "flush_water_m3": 1.5,
+          "initial_clog_index": 0.1
+        },
+        "hydraulics": {
+          "darcy_friction_factor": 0.025,
+          "gravity_manifold_limit_m3_h": 140.0,
+          "pump_power_limit_w": 3000.0,
+          "pump_wire_to_water_efficiency": 0.55
+        },
+        "reservoir": {
+          "capacity_m3": 1500.0,
+          "dead_volume_m3": 50.0,
+          "depth_at_capacity_m": 2.5,
+          "floor_elevation_m": 20.5,
+          "initial_volume_m3": 900.0,
+          "start_reserve_minutes": 10
+        },
+        "scheduler": {
+          "design_clog_index": 0.44,
+          "energy_aware": true,
+          "head_margin_m": 0.1,
+          "minimum_rest_minutes": 10,
+          "minimum_run_minutes": 10,
+          "operating_battery_soc": 0.35,
+          "operating_inventory_m3": 850.0,
+          "pump_power_margin_fraction": 0.01,
+          "restart_battery_soc_margin": 0.02,
+          "restart_inventory_margin_m3": 20.0,
+          "session_minutes": 30
+        },
+        "soil": {
+          "allowed_depletion_fraction": 0.45,
+          "application_efficiency": 0.9,
+          "crop_coefficient": 0.85,
+          "leaching_fraction": 0.15,
+          "root_depth_m": 0.8,
+          "stop_fraction_of_fc": 0.9,
+          "theta_fc_m3_m3": 0.22,
+          "theta_sat_m3_m3": 0.38,
+          "theta_wp_m3_m3": 0.1
+        },
+        "start_hour": 6,
+        "supply": {
+          "hydro_recoverable_head_m": 3.0,
+          "hydro_turbine_efficiency": 0.6,
+          "tse_diurnal_amplitude": 0.25,
+          "tse_mean_inflow_m3_h": 60.0,
+          "tse_peak_hour": 14.0
+        },
+        "zones": [
+          {
+            "area_m2": 60000.0,
+            "elevation_m": 2.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 120.0,
+            "timer_start_minute": 1200,
+            "zone_id": "A"
+          },
+          {
+            "area_m2": 50000.0,
+            "elevation_m": 8.0,
+            "emitter_head_m": 9.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 100.0,
+            "timer_start_minute": 1380,
+            "zone_id": "B"
+          },
+          {
+            "area_m2": 40000.0,
+            "elevation_m": 34.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "PUMPED",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 450.0,
+            "max_flow_m3_h": 24.0,
+            "timer_start_minute": 480,
+            "zone_id": "C"
+          }
+        ]
+      },
+      "hydraulic_margins": {
+        "pump_margin_fraction": -0.07872329210314843,
+        "worst_case_pump_power_w": 3236.169876309445,
+        "zone_b_full_clogged_head_margin_m": 0.5869664897118252
+      },
+      "policy_results": [
+        {
+          "flush_water_m3": 180.0000000000011,
+          "irrigation_delivered_m3": 23596.800000005285,
+          "policy": "FIXED_TIMER",
+          "zone_c_et_deficit_mm": 0.0
+        },
+        {
+          "flush_water_m3": 177.000000000001,
+          "irrigation_delivered_m3": 23176.866666671518,
+          "policy": "SMART_HYSTERESIS",
+          "zone_c_et_deficit_mm": 0.01468129269437668
+        }
+      ],
+      "scenario_id": "clogged_filter"
+    },
+    {
+      "candidate": "battery_30_kwh",
+      "configuration": {
+        "climate": {
+          "et0_daily_variation": 0.1,
+          "et0_nominal_mm_day": 4.9
+        },
+        "energy": {
+          "aux_power_w": 50.0,
+          "battery_capacity_kwh": 30.0,
+          "battery_charge_efficiency": 0.95,
+          "battery_discharge_efficiency": 0.95,
+          "battery_floor_soc": 0.1,
+          "battery_initial_soc": 0.8,
+          "battery_max_charge_w": 3000.0,
+          "battery_max_discharge_w": 3000.0,
+          "day_length_h": 12.0,
+          "pump_reserve_soc": 0.2,
+          "pump_start_reserve_minutes": 10,
+          "solar_derate": 0.75,
+          "solar_peak_w": 8000.0,
+          "solar_shape_exponent": 1.2,
+          "sunrise_hour": 6.0
+        },
+        "filtration": {
+          "clean_pressure_drop_pa": 12000.0,
+          "clog_after_flush": 0.05,
+          "clog_per_filtered_m3": 0.00035,
+          "clog_pressure_drop_pa": 40000.0,
+          "flush_power_w": 1200.0,
+          "flush_steps": 5,
+          "flush_threshold": 0.6,
+          "flush_water_m3": 1.5,
+          "initial_clog_index": 0.1
+        },
+        "hydraulics": {
+          "darcy_friction_factor": 0.025,
+          "gravity_manifold_limit_m3_h": 140.0,
+          "pump_power_limit_w": 3000.0,
+          "pump_wire_to_water_efficiency": 0.55
+        },
+        "reservoir": {
+          "capacity_m3": 1500.0,
+          "dead_volume_m3": 50.0,
+          "depth_at_capacity_m": 2.5,
+          "floor_elevation_m": 20.5,
+          "initial_volume_m3": 900.0,
+          "start_reserve_minutes": 10
+        },
+        "scheduler": {
+          "design_clog_index": 0.44,
+          "energy_aware": true,
+          "head_margin_m": 0.1,
+          "minimum_rest_minutes": 10,
+          "minimum_run_minutes": 10,
+          "operating_battery_soc": 0.35,
+          "operating_inventory_m3": 850.0,
+          "pump_power_margin_fraction": 0.01,
+          "restart_battery_soc_margin": 0.02,
+          "restart_inventory_margin_m3": 20.0,
+          "session_minutes": 30
+        },
+        "soil": {
+          "allowed_depletion_fraction": 0.45,
+          "application_efficiency": 0.9,
+          "crop_coefficient": 0.85,
+          "leaching_fraction": 0.15,
+          "root_depth_m": 0.8,
+          "stop_fraction_of_fc": 0.9,
+          "theta_fc_m3_m3": 0.22,
+          "theta_sat_m3_m3": 0.38,
+          "theta_wp_m3_m3": 0.1
+        },
+        "start_hour": 6,
+        "supply": {
+          "hydro_recoverable_head_m": 3.0,
+          "hydro_turbine_efficiency": 0.6,
+          "tse_diurnal_amplitude": 0.25,
+          "tse_mean_inflow_m3_h": 60.0,
+          "tse_peak_hour": 14.0
+        },
+        "zones": [
+          {
+            "area_m2": 60000.0,
+            "elevation_m": 2.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 120.0,
+            "timer_start_minute": 1200,
+            "zone_id": "A"
+          },
+          {
+            "area_m2": 50000.0,
+            "elevation_m": 8.0,
+            "emitter_head_m": 9.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 100.0,
+            "timer_start_minute": 1380,
+            "zone_id": "B"
+          },
+          {
+            "area_m2": 40000.0,
+            "elevation_m": 34.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "PUMPED",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 450.0,
+            "max_flow_m3_h": 24.0,
+            "timer_start_minute": 480,
+            "zone_id": "C"
+          }
+        ]
+      },
+      "hydraulic_margins": {
+        "pump_margin_fraction": -0.07872329210314843,
+        "worst_case_pump_power_w": 3236.169876309445,
+        "zone_b_full_clogged_head_margin_m": 0.5869664897118252
+      },
+      "policy_results": [
+        {
+          "flush_water_m3": 21.00000000000003,
+          "irrigation_delivered_m3": 21958.400000002202,
+          "policy": "FIXED_TIMER",
+          "zone_c_et_deficit_mm": 32.45452175920323
+        },
+        {
+          "flush_water_m3": 13.50000000000001,
+          "irrigation_delivered_m3": 15422.466666664392,
+          "policy": "SMART_HYSTERESIS",
+          "zone_c_et_deficit_mm": 33.777105087291034
+        }
+      ],
+      "scenario_id": "low_solar"
+    },
+    {
+      "candidate": "battery_30_kwh",
+      "configuration": {
+        "climate": {
+          "et0_daily_variation": 0.1,
+          "et0_nominal_mm_day": 4.9
+        },
+        "energy": {
+          "aux_power_w": 50.0,
+          "battery_capacity_kwh": 30.0,
+          "battery_charge_efficiency": 0.95,
+          "battery_discharge_efficiency": 0.95,
+          "battery_floor_soc": 0.1,
+          "battery_initial_soc": 0.8,
+          "battery_max_charge_w": 3000.0,
+          "battery_max_discharge_w": 3000.0,
+          "day_length_h": 12.0,
+          "pump_reserve_soc": 0.2,
+          "pump_start_reserve_minutes": 10,
+          "solar_derate": 0.75,
+          "solar_peak_w": 8000.0,
+          "solar_shape_exponent": 1.2,
+          "sunrise_hour": 6.0
+        },
+        "filtration": {
+          "clean_pressure_drop_pa": 12000.0,
+          "clog_after_flush": 0.05,
+          "clog_per_filtered_m3": 0.00035,
+          "clog_pressure_drop_pa": 40000.0,
+          "flush_power_w": 1200.0,
+          "flush_steps": 5,
+          "flush_threshold": 0.6,
+          "flush_water_m3": 1.5,
+          "initial_clog_index": 0.1
+        },
+        "hydraulics": {
+          "darcy_friction_factor": 0.025,
+          "gravity_manifold_limit_m3_h": 140.0,
+          "pump_power_limit_w": 3000.0,
+          "pump_wire_to_water_efficiency": 0.55
+        },
+        "reservoir": {
+          "capacity_m3": 1500.0,
+          "dead_volume_m3": 50.0,
+          "depth_at_capacity_m": 2.5,
+          "floor_elevation_m": 20.5,
+          "initial_volume_m3": 900.0,
+          "start_reserve_minutes": 10
+        },
+        "scheduler": {
+          "design_clog_index": 0.44,
+          "energy_aware": true,
+          "head_margin_m": 0.1,
+          "minimum_rest_minutes": 10,
+          "minimum_run_minutes": 10,
+          "operating_battery_soc": 0.35,
+          "operating_inventory_m3": 850.0,
+          "pump_power_margin_fraction": 0.01,
+          "restart_battery_soc_margin": 0.02,
+          "restart_inventory_margin_m3": 20.0,
+          "session_minutes": 30
+        },
+        "soil": {
+          "allowed_depletion_fraction": 0.45,
+          "application_efficiency": 0.9,
+          "crop_coefficient": 0.85,
+          "leaching_fraction": 0.15,
+          "root_depth_m": 0.8,
+          "stop_fraction_of_fc": 0.9,
+          "theta_fc_m3_m3": 0.22,
+          "theta_sat_m3_m3": 0.38,
+          "theta_wp_m3_m3": 0.1
+        },
+        "start_hour": 6,
+        "supply": {
+          "hydro_recoverable_head_m": 3.0,
+          "hydro_turbine_efficiency": 0.6,
+          "tse_diurnal_amplitude": 0.25,
+          "tse_mean_inflow_m3_h": 60.0,
+          "tse_peak_hour": 14.0
+        },
+        "zones": [
+          {
+            "area_m2": 60000.0,
+            "elevation_m": 2.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 120.0,
+            "timer_start_minute": 1200,
+            "zone_id": "A"
+          },
+          {
+            "area_m2": 50000.0,
+            "elevation_m": 8.0,
+            "emitter_head_m": 9.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 100.0,
+            "timer_start_minute": 1380,
+            "zone_id": "B"
+          },
+          {
+            "area_m2": 40000.0,
+            "elevation_m": 34.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "PUMPED",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 450.0,
+            "max_flow_m3_h": 24.0,
+            "timer_start_minute": 480,
+            "zone_id": "C"
+          }
+        ]
+      },
+      "hydraulic_margins": {
+        "pump_margin_fraction": -0.07872329210314843,
+        "worst_case_pump_power_w": 3236.169876309445,
+        "zone_b_full_clogged_head_margin_m": 0.5869664897118252
+      },
+      "policy_results": [
+        {
+          "flush_water_m3": 180.0000000000011,
+          "irrigation_delivered_m3": 23596.800000005285,
+          "policy": "FIXED_TIMER",
+          "zone_c_et_deficit_mm": 0.0
+        },
+        {
+          "flush_water_m3": 174.00000000000088,
+          "irrigation_delivered_m3": 22875.866666669328,
+          "policy": "SMART_HYSTERESIS",
+          "zone_c_et_deficit_mm": 0.0028913324496443234
+        }
+      ],
+      "scenario_id": "clogged_filter"
+    },
+    {
+      "candidate": "zone_b_pipe_025_m",
+      "configuration": {
+        "climate": {
+          "et0_daily_variation": 0.1,
+          "et0_nominal_mm_day": 4.9
+        },
+        "energy": {
+          "aux_power_w": 50.0,
+          "battery_capacity_kwh": 15.0,
+          "battery_charge_efficiency": 0.95,
+          "battery_discharge_efficiency": 0.95,
+          "battery_floor_soc": 0.1,
+          "battery_initial_soc": 0.8,
+          "battery_max_charge_w": 3000.0,
+          "battery_max_discharge_w": 3000.0,
+          "day_length_h": 12.0,
+          "pump_reserve_soc": 0.2,
+          "pump_start_reserve_minutes": 10,
+          "solar_derate": 0.75,
+          "solar_peak_w": 8000.0,
+          "solar_shape_exponent": 1.2,
+          "sunrise_hour": 6.0
+        },
+        "filtration": {
+          "clean_pressure_drop_pa": 12000.0,
+          "clog_after_flush": 0.05,
+          "clog_per_filtered_m3": 0.00035,
+          "clog_pressure_drop_pa": 40000.0,
+          "flush_power_w": 1200.0,
+          "flush_steps": 5,
+          "flush_threshold": 0.6,
+          "flush_water_m3": 1.5,
+          "initial_clog_index": 0.1
+        },
+        "hydraulics": {
+          "darcy_friction_factor": 0.025,
+          "gravity_manifold_limit_m3_h": 140.0,
+          "pump_power_limit_w": 3000.0,
+          "pump_wire_to_water_efficiency": 0.55
+        },
+        "reservoir": {
+          "capacity_m3": 1500.0,
+          "dead_volume_m3": 50.0,
+          "depth_at_capacity_m": 2.5,
+          "floor_elevation_m": 20.5,
+          "initial_volume_m3": 900.0,
+          "start_reserve_minutes": 10
+        },
+        "scheduler": {
+          "design_clog_index": 0.44,
+          "energy_aware": true,
+          "head_margin_m": 0.1,
+          "minimum_rest_minutes": 10,
+          "minimum_run_minutes": 10,
+          "operating_battery_soc": 0.35,
+          "operating_inventory_m3": 850.0,
+          "pump_power_margin_fraction": 0.01,
+          "restart_battery_soc_margin": 0.02,
+          "restart_inventory_margin_m3": 20.0,
+          "session_minutes": 30
+        },
+        "soil": {
+          "allowed_depletion_fraction": 0.45,
+          "application_efficiency": 0.9,
+          "crop_coefficient": 0.85,
+          "leaching_fraction": 0.15,
+          "root_depth_m": 0.8,
+          "stop_fraction_of_fc": 0.9,
+          "theta_fc_m3_m3": 0.22,
+          "theta_sat_m3_m3": 0.38,
+          "theta_wp_m3_m3": 0.1
+        },
+        "start_hour": 6,
+        "supply": {
+          "hydro_recoverable_head_m": 3.0,
+          "hydro_turbine_efficiency": 0.6,
+          "tse_diurnal_amplitude": 0.25,
+          "tse_mean_inflow_m3_h": 60.0,
+          "tse_peak_hour": 14.0
+        },
+        "zones": [
+          {
+            "area_m2": 60000.0,
+            "elevation_m": 2.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 120.0,
+            "timer_start_minute": 1200,
+            "zone_id": "A"
+          },
+          {
+            "area_m2": 50000.0,
+            "elevation_m": 8.0,
+            "emitter_head_m": 9.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.25,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 100.0,
+            "timer_start_minute": 1380,
+            "zone_id": "B"
+          },
+          {
+            "area_m2": 40000.0,
+            "elevation_m": 34.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "PUMPED",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 450.0,
+            "max_flow_m3_h": 24.0,
+            "timer_start_minute": 480,
+            "zone_id": "C"
+          }
+        ]
+      },
+      "hydraulic_margins": {
+        "pump_margin_fraction": -0.07872329210314843,
+        "worst_case_pump_power_w": 3236.169876309445,
+        "zone_b_full_clogged_head_margin_m": 1.7590278215506068
+      },
+      "policy_results": [
+        {
+          "flush_water_m3": 21.00000000000003,
+          "irrigation_delivered_m3": 21956.533333335534,
+          "policy": "FIXED_TIMER",
+          "zone_c_et_deficit_mm": 32.55207463206038
+        },
+        {
+          "flush_water_m3": 15.000000000000014,
+          "irrigation_delivered_m3": 15756.466666664443,
+          "policy": "SMART_HYSTERESIS",
+          "zone_c_et_deficit_mm": 35.95354839623245
+        }
+      ],
+      "scenario_id": "low_solar"
+    },
+    {
+      "candidate": "zone_b_pipe_025_m",
+      "configuration": {
+        "climate": {
+          "et0_daily_variation": 0.1,
+          "et0_nominal_mm_day": 4.9
+        },
+        "energy": {
+          "aux_power_w": 50.0,
+          "battery_capacity_kwh": 15.0,
+          "battery_charge_efficiency": 0.95,
+          "battery_discharge_efficiency": 0.95,
+          "battery_floor_soc": 0.1,
+          "battery_initial_soc": 0.8,
+          "battery_max_charge_w": 3000.0,
+          "battery_max_discharge_w": 3000.0,
+          "day_length_h": 12.0,
+          "pump_reserve_soc": 0.2,
+          "pump_start_reserve_minutes": 10,
+          "solar_derate": 0.75,
+          "solar_peak_w": 8000.0,
+          "solar_shape_exponent": 1.2,
+          "sunrise_hour": 6.0
+        },
+        "filtration": {
+          "clean_pressure_drop_pa": 12000.0,
+          "clog_after_flush": 0.05,
+          "clog_per_filtered_m3": 0.00035,
+          "clog_pressure_drop_pa": 40000.0,
+          "flush_power_w": 1200.0,
+          "flush_steps": 5,
+          "flush_threshold": 0.6,
+          "flush_water_m3": 1.5,
+          "initial_clog_index": 0.1
+        },
+        "hydraulics": {
+          "darcy_friction_factor": 0.025,
+          "gravity_manifold_limit_m3_h": 140.0,
+          "pump_power_limit_w": 3000.0,
+          "pump_wire_to_water_efficiency": 0.55
+        },
+        "reservoir": {
+          "capacity_m3": 1500.0,
+          "dead_volume_m3": 50.0,
+          "depth_at_capacity_m": 2.5,
+          "floor_elevation_m": 20.5,
+          "initial_volume_m3": 900.0,
+          "start_reserve_minutes": 10
+        },
+        "scheduler": {
+          "design_clog_index": 0.44,
+          "energy_aware": true,
+          "head_margin_m": 0.1,
+          "minimum_rest_minutes": 10,
+          "minimum_run_minutes": 10,
+          "operating_battery_soc": 0.35,
+          "operating_inventory_m3": 850.0,
+          "pump_power_margin_fraction": 0.01,
+          "restart_battery_soc_margin": 0.02,
+          "restart_inventory_margin_m3": 20.0,
+          "session_minutes": 30
+        },
+        "soil": {
+          "allowed_depletion_fraction": 0.45,
+          "application_efficiency": 0.9,
+          "crop_coefficient": 0.85,
+          "leaching_fraction": 0.15,
+          "root_depth_m": 0.8,
+          "stop_fraction_of_fc": 0.9,
+          "theta_fc_m3_m3": 0.22,
+          "theta_sat_m3_m3": 0.38,
+          "theta_wp_m3_m3": 0.1
+        },
+        "start_hour": 6,
+        "supply": {
+          "hydro_recoverable_head_m": 3.0,
+          "hydro_turbine_efficiency": 0.6,
+          "tse_diurnal_amplitude": 0.25,
+          "tse_mean_inflow_m3_h": 60.0,
+          "tse_peak_hour": 14.0
+        },
+        "zones": [
+          {
+            "area_m2": 60000.0,
+            "elevation_m": 2.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 120.0,
+            "timer_start_minute": 1200,
+            "zone_id": "A"
+          },
+          {
+            "area_m2": 50000.0,
+            "elevation_m": 8.0,
+            "emitter_head_m": 9.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.25,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 100.0,
+            "timer_start_minute": 1380,
+            "zone_id": "B"
+          },
+          {
+            "area_m2": 40000.0,
+            "elevation_m": 34.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "PUMPED",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 450.0,
+            "max_flow_m3_h": 24.0,
+            "timer_start_minute": 480,
+            "zone_id": "C"
+          }
+        ]
+      },
+      "hydraulic_margins": {
+        "pump_margin_fraction": -0.07872329210314843,
+        "worst_case_pump_power_w": 3236.169876309445,
+        "zone_b_full_clogged_head_margin_m": 1.7590278215506068
+      },
+      "policy_results": [
+        {
+          "flush_water_m3": 180.0000000000011,
+          "irrigation_delivered_m3": 23596.800000005285,
+          "policy": "FIXED_TIMER",
+          "zone_c_et_deficit_mm": 0.0
+        },
+        {
+          "flush_water_m3": 159.0000000000003,
+          "irrigation_delivered_m3": 20743.00000000161,
+          "policy": "SMART_HYSTERESIS",
+          "zone_c_et_deficit_mm": 0.0005040040749690888
+        }
+      ],
+      "scenario_id": "clogged_filter"
+    },
+    {
+      "candidate": "filter_loading_halved",
+      "configuration": {
+        "climate": {
+          "et0_daily_variation": 0.1,
+          "et0_nominal_mm_day": 4.9
+        },
+        "energy": {
+          "aux_power_w": 50.0,
+          "battery_capacity_kwh": 15.0,
+          "battery_charge_efficiency": 0.95,
+          "battery_discharge_efficiency": 0.95,
+          "battery_floor_soc": 0.1,
+          "battery_initial_soc": 0.8,
+          "battery_max_charge_w": 3000.0,
+          "battery_max_discharge_w": 3000.0,
+          "day_length_h": 12.0,
+          "pump_reserve_soc": 0.2,
+          "pump_start_reserve_minutes": 10,
+          "solar_derate": 0.75,
+          "solar_peak_w": 8000.0,
+          "solar_shape_exponent": 1.2,
+          "sunrise_hour": 6.0
+        },
+        "filtration": {
+          "clean_pressure_drop_pa": 12000.0,
+          "clog_after_flush": 0.05,
+          "clog_per_filtered_m3": 0.000175,
+          "clog_pressure_drop_pa": 40000.0,
+          "flush_power_w": 1200.0,
+          "flush_steps": 5,
+          "flush_threshold": 0.6,
+          "flush_water_m3": 1.5,
+          "initial_clog_index": 0.1
+        },
+        "hydraulics": {
+          "darcy_friction_factor": 0.025,
+          "gravity_manifold_limit_m3_h": 140.0,
+          "pump_power_limit_w": 3000.0,
+          "pump_wire_to_water_efficiency": 0.55
+        },
+        "reservoir": {
+          "capacity_m3": 1500.0,
+          "dead_volume_m3": 50.0,
+          "depth_at_capacity_m": 2.5,
+          "floor_elevation_m": 20.5,
+          "initial_volume_m3": 900.0,
+          "start_reserve_minutes": 10
+        },
+        "scheduler": {
+          "design_clog_index": 0.44,
+          "energy_aware": true,
+          "head_margin_m": 0.1,
+          "minimum_rest_minutes": 10,
+          "minimum_run_minutes": 10,
+          "operating_battery_soc": 0.35,
+          "operating_inventory_m3": 850.0,
+          "pump_power_margin_fraction": 0.01,
+          "restart_battery_soc_margin": 0.02,
+          "restart_inventory_margin_m3": 20.0,
+          "session_minutes": 30
+        },
+        "soil": {
+          "allowed_depletion_fraction": 0.45,
+          "application_efficiency": 0.9,
+          "crop_coefficient": 0.85,
+          "leaching_fraction": 0.15,
+          "root_depth_m": 0.8,
+          "stop_fraction_of_fc": 0.9,
+          "theta_fc_m3_m3": 0.22,
+          "theta_sat_m3_m3": 0.38,
+          "theta_wp_m3_m3": 0.1
+        },
+        "start_hour": 6,
+        "supply": {
+          "hydro_recoverable_head_m": 3.0,
+          "hydro_turbine_efficiency": 0.6,
+          "tse_diurnal_amplitude": 0.25,
+          "tse_mean_inflow_m3_h": 60.0,
+          "tse_peak_hour": 14.0
+        },
+        "zones": [
+          {
+            "area_m2": 60000.0,
+            "elevation_m": 2.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 120.0,
+            "timer_start_minute": 1200,
+            "zone_id": "A"
+          },
+          {
+            "area_m2": 50000.0,
+            "elevation_m": 8.0,
+            "emitter_head_m": 9.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 100.0,
+            "timer_start_minute": 1380,
+            "zone_id": "B"
+          },
+          {
+            "area_m2": 40000.0,
+            "elevation_m": 34.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "PUMPED",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 450.0,
+            "max_flow_m3_h": 24.0,
+            "timer_start_minute": 480,
+            "zone_id": "C"
+          }
+        ]
+      },
+      "hydraulic_margins": {
+        "pump_margin_fraction": -0.07872329210314843,
+        "worst_case_pump_power_w": 3236.169876309445,
+        "zone_b_full_clogged_head_margin_m": 0.5869664897118252
+      },
+      "policy_results": [
+        {
+          "flush_water_m3": 10.500000000000004,
+          "irrigation_delivered_m3": 22008.53333333551,
+          "policy": "FIXED_TIMER",
+          "zone_c_et_deficit_mm": 32.452015198413065
+        },
+        {
+          "flush_water_m3": 7.499999999999997,
+          "irrigation_delivered_m3": 16749.399999997575,
+          "policy": "SMART_HYSTERESIS",
+          "zone_c_et_deficit_mm": 35.506623713116554
+        }
+      ],
+      "scenario_id": "low_solar"
+    },
+    {
+      "candidate": "filter_loading_halved",
+      "configuration": {
+        "climate": {
+          "et0_daily_variation": 0.1,
+          "et0_nominal_mm_day": 4.9
+        },
+        "energy": {
+          "aux_power_w": 50.0,
+          "battery_capacity_kwh": 15.0,
+          "battery_charge_efficiency": 0.95,
+          "battery_discharge_efficiency": 0.95,
+          "battery_floor_soc": 0.1,
+          "battery_initial_soc": 0.8,
+          "battery_max_charge_w": 3000.0,
+          "battery_max_discharge_w": 3000.0,
+          "day_length_h": 12.0,
+          "pump_reserve_soc": 0.2,
+          "pump_start_reserve_minutes": 10,
+          "solar_derate": 0.75,
+          "solar_peak_w": 8000.0,
+          "solar_shape_exponent": 1.2,
+          "sunrise_hour": 6.0
+        },
+        "filtration": {
+          "clean_pressure_drop_pa": 12000.0,
+          "clog_after_flush": 0.05,
+          "clog_per_filtered_m3": 0.000175,
+          "clog_pressure_drop_pa": 40000.0,
+          "flush_power_w": 1200.0,
+          "flush_steps": 5,
+          "flush_threshold": 0.6,
+          "flush_water_m3": 1.5,
+          "initial_clog_index": 0.1
+        },
+        "hydraulics": {
+          "darcy_friction_factor": 0.025,
+          "gravity_manifold_limit_m3_h": 140.0,
+          "pump_power_limit_w": 3000.0,
+          "pump_wire_to_water_efficiency": 0.55
+        },
+        "reservoir": {
+          "capacity_m3": 1500.0,
+          "dead_volume_m3": 50.0,
+          "depth_at_capacity_m": 2.5,
+          "floor_elevation_m": 20.5,
+          "initial_volume_m3": 900.0,
+          "start_reserve_minutes": 10
+        },
+        "scheduler": {
+          "design_clog_index": 0.44,
+          "energy_aware": true,
+          "head_margin_m": 0.1,
+          "minimum_rest_minutes": 10,
+          "minimum_run_minutes": 10,
+          "operating_battery_soc": 0.35,
+          "operating_inventory_m3": 850.0,
+          "pump_power_margin_fraction": 0.01,
+          "restart_battery_soc_margin": 0.02,
+          "restart_inventory_margin_m3": 20.0,
+          "session_minutes": 30
+        },
+        "soil": {
+          "allowed_depletion_fraction": 0.45,
+          "application_efficiency": 0.9,
+          "crop_coefficient": 0.85,
+          "leaching_fraction": 0.15,
+          "root_depth_m": 0.8,
+          "stop_fraction_of_fc": 0.9,
+          "theta_fc_m3_m3": 0.22,
+          "theta_sat_m3_m3": 0.38,
+          "theta_wp_m3_m3": 0.1
+        },
+        "start_hour": 6,
+        "supply": {
+          "hydro_recoverable_head_m": 3.0,
+          "hydro_turbine_efficiency": 0.6,
+          "tse_diurnal_amplitude": 0.25,
+          "tse_mean_inflow_m3_h": 60.0,
+          "tse_peak_hour": 14.0
+        },
+        "zones": [
+          {
+            "area_m2": 60000.0,
+            "elevation_m": 2.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 120.0,
+            "timer_start_minute": 1200,
+            "zone_id": "A"
+          },
+          {
+            "area_m2": 50000.0,
+            "elevation_m": 8.0,
+            "emitter_head_m": 9.0,
+            "feed_mode": "GRAVITY",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 350.0,
+            "max_flow_m3_h": 100.0,
+            "timer_start_minute": 1380,
+            "zone_id": "B"
+          },
+          {
+            "area_m2": 40000.0,
+            "elevation_m": 34.0,
+            "emitter_head_m": 10.0,
+            "feed_mode": "PUMPED",
+            "mainline_diameter_m": 0.2,
+            "mainline_length_m": 450.0,
+            "max_flow_m3_h": 24.0,
+            "timer_start_minute": 480,
+            "zone_id": "C"
+          }
+        ]
+      },
+      "hydraulic_margins": {
+        "pump_margin_fraction": -0.07872329210314843,
+        "worst_case_pump_power_w": 3236.169876309445,
+        "zone_b_full_clogged_head_margin_m": 0.5869664897118252
+      },
+      "policy_results": [
+        {
+          "flush_water_m3": 92.99999999999947,
+          "irrigation_delivered_m3": 24059.666666672045,
+          "policy": "FIXED_TIMER",
+          "zone_c_et_deficit_mm": 0.0
+        },
+        {
+          "flush_water_m3": 88.49999999999952,
+          "irrigation_delivered_m3": 23080.2000000047,
+          "policy": "SMART_HYSTERESIS",
+          "zone_c_et_deficit_mm": 0.00941478210643254
+        }
+      ],
+      "scenario_id": "clogged_filter"
+    }
+  ]
+}

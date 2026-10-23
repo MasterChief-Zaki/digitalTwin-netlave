@@ -6,8 +6,10 @@ Protocol **`rca-startup-v1`** establishes the unchanged controller reference
 before resource-aware scheduling. Its executable definitions are in
 `backend/scenarios/evaluation.py` and its headless exporter is
 `backend/scenarios/rca_trials.py`. It implements startup/fault trials only;
-steady-operation evaluation, per-zone service exports, confidence intervals and
-resource-aware scheduling are subsequent work, not capabilities of this runner.
+per-zone service exports now accompany its results. Matched operation and
+confidence intervals use the separate [paired protocol](paired-protocol.md).
+The [validation reports](validation/combined-validation.md) record the delivered
+scheduler's limits; this startup runner never implies steady-operation acceptance.
 
 Reference behavior is pinned to Git commit
 `4ae12eb774e422679c04e0d94c661351ae879747` on the digital twin epic.
@@ -15,7 +17,7 @@ Reference behavior is pinned to Git commit
 not transcribed from the rounded PDF figures. Its runtime and configuration
 provenance travel with the fixture.
 
-`SMART_HYSTERESIS` remains the default. A future `SMART_RESOURCE_AWARE` policy
+`SMART_HYSTERESIS` remains the default. The experimental `SMART_RESOURCE_AWARE` policy
 must remain opt-in until its separate water-scheduler and combined water/energy
 validation reports pass the pre-registered gates below. No physical safety gate,
 per-step conservation assertion or original controller is weakened to achieve a
@@ -116,10 +118,9 @@ These energy terms are bus-side integrals except the explicitly named cell
 stock change and losses. `required_electrical_energy_j` means admitted loads;
 rejected pump demand does not enter electrical autonomy.
 
-## Metric conventions for the next service-contract change
+## Metric conventions
 
-These definitions are pre-registered here, but are not yet exported per zone by
-`rca-startup-v1`:
+These pre-registered definitions are exported by the schema 1.1 service contract:
 
 - Below-trigger time integrates `DT_S` for each step whose **pre-step** moisture
   is strictly below the **entry** threshold (`theta_on`, currently 0.166). Equality
@@ -171,7 +172,8 @@ consistently, then measure 30 days. Transient faults must occur inside the score
 window. Independent-policy warm-up is a separately labelled sensitivity study,
 with divergent stocks reported; it is not the primary matched-state experiment.
 Warm-up sensitivity uses 5, 10 and 20 days and reports materially unstable results.
-This protocol is future work, not a hidden alteration of the reference trials.
+This is implemented under `rca-paired-v2`, not a hidden alteration of the
+reference trials. See the recorded warm-up sensitivity diagnostics.
 
 Water scheduling must have bounded sessions, normal minimum run/rest rules,
 restart hysteresis, and waiting-time fairness before energy scheduling is added.
@@ -206,9 +208,9 @@ must remain visible when existing hardware cannot provide the service.
 - [x] Versioned reference definitions and startup/fault runner.
 - [x] Commit/runtime/configuration provenance and historical fixture.
 - [x] Replay, cumulative closure and headless/live isolation tests.
-- [ ] Per-zone service contract, synchronized TypeScript/fixtures and dashboard.
-- [ ] Matched-state warm-up and fixed statistical/held-out protocol.
-- [ ] Scripted browser service/provenance checks in CI.
-- [ ] Opt-in water scheduler and its validation report.
-- [ ] Energy-aware scheduling and combined validation report.
+- [x] Per-zone service contract, synchronized TypeScript/fixtures and dashboard.
+- [x] Matched-state warm-up and fixed statistical/held-out protocol.
+- [x] Scripted browser service/provenance checks wired into CI (local run passed).
+- [x] Opt-in water scheduler and its validation report (not all gates passed).
+- [x] Energy-aware scheduling and combined validation report (not all gates passed).
 - [ ] Default-policy promotion only after all declared gates pass.

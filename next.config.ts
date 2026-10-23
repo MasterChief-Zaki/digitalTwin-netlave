@@ -6,6 +6,9 @@ const simulationBackendUrl =
 
 const nextConfig: NextConfig = {
   distDir: process.env.NEXT_BUILD_DIRECTORY ?? ".next",
+  typescript: {
+    tsconfigPath: process.env.NEXT_TYPESCRIPT_CONFIG ?? "tsconfig.json",
+  },
   cacheComponents: true,
   partialPrefetching: true,
   rewrites() {
