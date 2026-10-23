@@ -13,6 +13,14 @@ test("schematic tracks snapshots and selection in both directions", async ({
     .getByLabel("Live schematic forest digital twin")
     .locator("canvas");
   await expect(canvas).toHaveAttribute("data-rendered-step", /\d+/);
+  for (const zone of ["a", "b", "c"]) {
+    await expect(canvas).toHaveAttribute(`data-zone-${zone}-tree-count`, "40");
+    await expect
+      .poll(async () =>
+        Number(await canvas.getAttribute(`data-zone-${zone}-tree-spread`)),
+      )
+      .toBeGreaterThan(6);
+  }
   await page
     .getByRole("combobox", { name: "Scenario", exact: true })
     .selectOption("baseline");
@@ -33,6 +41,15 @@ test("schematic tracks snapshots and selection in both directions", async ({
       Number(await canvas.getAttribute("data-water-elevation-y")),
     )
     .toBeCloseTo(initial.reservoir.surface_elevation_m * 0.16, 3);
+  await expect(canvas).toHaveAttribute("data-water-visible", "true");
+  await expect
+    .poll(async () => Number(await canvas.getAttribute("data-water-depth")))
+    .toBeCloseTo(
+      (initial.reservoir.surface_elevation_m -
+        initial.reservoir.floor_elevation_m) *
+        0.16,
+      3,
+    );
 
   // Select B by clicking its projected terrace center in the actual WebGL canvas.
   await canvas.scrollIntoViewIfNeeded();
@@ -90,6 +107,22 @@ test("schematic tracks snapshots and selection in both directions", async ({
   await page.getByRole("button", { name: /Cut TSE inflow/ }).click();
   await page.getByRole("button", { name: "+1 min", exact: true }).click();
   await expect(canvas).toHaveAttribute("data-inlet-moving", "false");
+  await page.setViewportSize({ width: 900, height: 900 });
+  for (const zone of ["a", "b", "c"]) {
+    await expect(canvas).toHaveAttribute(`data-zone-${zone}-tree-count`, "40");
+    await expect
+      .poll(async () =>
+        Number(await canvas.getAttribute(`data-zone-${zone}-tree-spread`)),
+      )
+      .toBeGreaterThan(6);
+  }
+  await page.reload();
+  await expect(canvas).toHaveAttribute("data-zone-a-tree-count", "40");
+  await expect
+    .poll(async () =>
+      Number(await canvas.getAttribute("data-zone-a-tree-spread")),
+    )
+    .toBeGreaterThan(6);
   expect(errors).toEqual([]);
   await page
     .getByLabel("Schematic snapshot status")

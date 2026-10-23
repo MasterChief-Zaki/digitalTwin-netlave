@@ -10,7 +10,10 @@ stress proxy; tree growth, survival and health are not modeled.
 
 - Reservoir water surface uses `surface_elevation_m` directly. Schema 1.2 exports
   `floor_elevation_m` and `depth_at_capacity_m` from Python configuration, so the
-  basin and rim do not use inferred or contradictory frontend constants.
+  basin and rim do not use inferred or contradictory frontend constants. The
+  visible fill includes both a surface and a translucent water volume. An old or
+  malformed backend snapshot is rejected before it reaches the scene; restart
+  the backend after upgrading to schema 1.2.
 - Water-direction markers use only measured inlet, zone delivery and overflow
   flows. Requests or hydro watts never stand in for delivered water.
 - Thin energy paths form a schematic DC bus. Solar/hydro generation, charging,
@@ -31,6 +34,8 @@ stress proxy; tree growth, survival and health are not modeled.
 
 Orthographic camera fitting is responsive, DPR is capped at 1.5, tree meshes are
 instanced, colors come from night-palette tokens and three.js remains lazy loaded.
+Tree instances use declarative geometry/material ownership and layout-effect
+placement, so snapshot changes cannot recreate meshes with uninitialized matrices.
 Procedural labels require no fonts/assets fetched by three.js. Water and energy
 routes use shared equipment ports; arrows indicate symbolic direction rather
 than hydraulic velocity. Overflow is explicitly an unmodeled receiving outlet.

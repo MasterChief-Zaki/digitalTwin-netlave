@@ -2,14 +2,12 @@
 
 import { Edges } from "@react-three/drei";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
-import { useEffect, useMemo, useRef } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import {
   Color,
-  IcosahedronGeometry,
-  CylinderGeometry,
-  MeshStandardMaterial,
   Object3D,
   type InstancedMesh,
+  type MeshStandardMaterial,
 } from "three";
 import { useTwinStore } from "@/store/useTwinStore";
 import { Label } from "./Label";
@@ -30,30 +28,16 @@ const treeCount = columns * rows;
 interface TreesProps {
   layout: TerraceLayout;
   palette: TwinPalette;
-  canopyGeometry: IcosahedronGeometry;
-  trunkGeometry: CylinderGeometry;
-  trunkMaterial: MeshStandardMaterial;
 }
 
-function Trees({
-  layout,
-  palette,
-  canopyGeometry,
-  trunkGeometry,
-  trunkMaterial,
-}: TreesProps) {
+function Trees({ layout, palette }: TreesProps) {
   const canopyRef = useRef<InstancedMesh>(null);
   const trunkRef = useRef<InstancedMesh>(null);
   const target = useMemo(() => new Color(), []);
-  const canopyMaterial = useMemo(
-    () =>
-      new MeshStandardMaterial({
-        color: palette.healthyCanopy,
-        roughness: 0.95,
-      }),
-    [palette],
-  );
-  useEffect(() => {
+  const canopyMaterial = useRef<MeshStandardMaterial>(null);
+  // Declarative geometry/materials keep mesh identities stable across snapshots.
+  // Populate every transform before the first paint, including Strict Mode remounts.
+  useLayoutEffect(() => {
     const canopy = canopyRef.current;
     const trunk = trunkRef.current;
     if (!canopy || !trunk) return;
@@ -66,6 +50,7 @@ function Trees({
       const depth = (row / (rows - 1) - 0.5) * (layout.depth - 1.6);
       placement.position.set(horizontal, 0.3 * height, depth);
       placement.scale.set(1, height, 1);
+      placement.rotation.set(0, 0, 0);
       placement.updateMatrix();
       trunk.setMatrixAt(index, placement.matrix);
       placement.position.y = 0.88 * height;
@@ -79,12 +64,6 @@ function Trees({
     canopy.computeBoundingSphere();
     trunk.computeBoundingSphere();
   }, [layout]);
-  useEffect(
-    () => () => {
-      canopyMaterial.dispose();
-    },
-    [canopyMaterial],
-  );
   useFrame((_state, delta) => {
     const stress =
       findZone(useTwinStore.getState().snapshot, layout.id)?.water_stress_0_1 ??
@@ -92,26 +71,38 @@ function Trees({
     target
       .copy(palette.healthyCanopy)
       .lerp(palette.dryCanopy, Math.min(1, Math.max(0, stress)));
-    canopyMaterial.color.lerp(target, 1 - Math.exp(-4 * delta));
+    canopyMaterial.current?.color.lerp(target, 1 - Math.exp(-4 * delta));
   });
   return (
     <>
       <instancedMesh
         ref={trunkRef}
-        args={[trunkGeometry, trunkMaterial, treeCount]}
+        name={`tree-trunks-${layout.id}`}
+        args={[undefined, undefined, treeCount]}
         raycast={() => null}
-      />
+      >
+        <cylinderGeometry args={[0.05, 0.07, 0.6, 5]} />
+        <meshStandardMaterial color={palette.trunk} />
+      </instancedMesh>
       <instancedMesh
         ref={canopyRef}
-        args={[canopyGeometry, canopyMaterial, treeCount]}
+        name={`tree-canopies-${layout.id}`}
+        args={[undefined, undefined, treeCount]}
         raycast={() => null}
         castShadow
-      />
+      >
+        <icosahedronGeometry args={[0.38, 1]} />
+        <meshStandardMaterial
+          ref={canopyMaterial}
+          color={palette.healthyCanopy}
+          roughness={0.95}
+        />
+      </instancedMesh>
     </>
   );
 }
 
-function Terrace({ layout, palette, ...treeProps }: TreesProps) {
+function Terrace({ layout, palette }: TreesProps) {
   const zone = useTwinStore((state) => findZone(state.snapshot, layout.id));
   const height = useTwinStore((state) =>
     terraceHeight(state.snapshot, layout.id),
@@ -178,7 +169,7 @@ function Terrace({ layout, palette, ...treeProps }: TreesProps) {
             lineWidth={selected ? 3 : 1}
           />
         </mesh>
-        <Trees layout={layout} palette={palette} {...treeProps} />
+        <Trees layout={layout} palette={palette} />
         {laterals.map((points, index) => (
           <PipeRoute
             key={index}
@@ -209,23 +200,6 @@ function Terrace({ layout, palette, ...treeProps }: TreesProps) {
 }
 
 export function Forest({ palette }: { palette: TwinPalette }) {
-  const canopyGeometry = useMemo(() => new IcosahedronGeometry(0.38, 0), []);
-  const trunkGeometry = useMemo(
-    () => new CylinderGeometry(0.05, 0.07, 0.6, 5),
-    [],
-  );
-  const trunkMaterial = useMemo(
-    () => new MeshStandardMaterial({ color: palette.trunk }),
-    [palette],
-  );
-  useEffect(
-    () => () => {
-      canopyGeometry.dispose();
-      trunkGeometry.dispose();
-      trunkMaterial.dispose();
-    },
-    [canopyGeometry, trunkGeometry, trunkMaterial],
-  );
   return (
     <>
       <mesh position={[0, -0.45, 0]} receiveShadow>
@@ -234,14 +208,7 @@ export function Forest({ palette }: { palette: TwinPalette }) {
         <Edges color={palette.border} />
       </mesh>
       {terraceLayouts.map((layout) => (
-        <Terrace
-          key={layout.id}
-          layout={layout}
-          palette={palette}
-          canopyGeometry={canopyGeometry}
-          trunkGeometry={trunkGeometry}
-          trunkMaterial={trunkMaterial}
-        />
+        <Terrace key={layout.id} layout={layout} palette={palette} />
       ))}
       <Label
         text="TSE FOREST / SCHEMATIC"

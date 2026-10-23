@@ -51,6 +51,7 @@ function Reservoir({ palette }: EquipmentProps) {
   const rimY = reservoirRimY(snapshot);
   const depth = rimY - floorY;
   const waterRef = useRef<Mesh>(null);
+  const waterVolumeRef = useRef<Mesh>(null);
   const generation = useRef(-1);
   useFrame((_state, delta) => {
     const water = waterRef.current;
@@ -64,6 +65,16 @@ function Reservoir({ palette }: EquipmentProps) {
         : water.position.y + (target - water.position.y) * blend(delta);
     generation.current = current.run_generation;
     water.visible = current.reservoir.volume_m3 > 0;
+    const waterVolume = waterVolumeRef.current;
+    if (waterVolume) {
+      const waterDepth = Math.max(
+        0,
+        water.position.y - reservoirFloorY(current),
+      );
+      waterVolume.scale.y = waterDepth;
+      waterVolume.position.y = reservoirFloorY(current) + waterDepth / 2;
+      waterVolume.visible = waterDepth > 0;
+    }
   });
   return (
     <group position={[reservoirCenter[0], 0, reservoirCenter[1]]}>
@@ -74,7 +85,11 @@ function Reservoir({ palette }: EquipmentProps) {
         <meshStandardMaterial color={palette.terrace} roughness={0.9} />
         <Edges color={palette.border} />
       </mesh>
-      <mesh position={[0, floorY + depth / 2, 0]}>
+      <mesh
+        name="reservoir-wall"
+        position={[0, floorY + depth / 2, 0]}
+        renderOrder={2}
+      >
         <cylinderGeometry
           args={[reservoirRadius, reservoirRadius, depth, 32, 1, true]}
         />
@@ -96,6 +111,33 @@ function Reservoir({ palette }: EquipmentProps) {
           <meshStandardMaterial color={palette.metal} />
         </mesh>
       ))}
+      <mesh
+        ref={waterVolumeRef}
+        name="reservoir-water-volume"
+        position={[0, (floorY + reservoirWaterY(snapshot)) / 2, 0]}
+        scale={[1, Math.max(0, reservoirWaterY(snapshot) - floorY), 1]}
+        renderOrder={1}
+      >
+        <cylinderGeometry
+          args={[
+            reservoirRadius - 0.08,
+            reservoirRadius - 0.08,
+            1,
+            32,
+            1,
+            true,
+          ]}
+        />
+        <meshStandardMaterial
+          color={palette.water}
+          emissive={palette.water}
+          emissiveIntensity={0.12}
+          transparent
+          opacity={0.5}
+          depthWrite={false}
+          side={DoubleSide}
+        />
+      </mesh>
       <mesh
         ref={waterRef}
         name="reservoir-water"
