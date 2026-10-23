@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/artifacts/rca/
 
 # next.js
 /.next/
